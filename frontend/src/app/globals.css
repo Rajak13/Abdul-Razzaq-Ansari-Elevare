@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Educational Theme (Default) - Warm colors with Forest Green primary */
+    --primary: 142 71% 45%; /* Forest Green */
+    --secondary: 210 100% 60%; /* Soft Blue */
+    --accent: 45 100% 51%; /* Warm Yellow */
+    --background: 0 0% 98%; /* Off-white */
+    --foreground: 0 0% 20%; /* Dark Gray */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 0 0% 20%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 142 71% 45%;
+  }
+
+  [data-theme='nepali'] {
+    /* Nepali Light Theme - Crimson Red and Nepal Flag Blue */
+    --primary: 348 83% 47%; /* Crimson Red */
+    --secondary: 220 91% 15%; /* Nepal Flag Blue */
+    --accent: 45 100% 51%; /* Gold */
+    --background: 0 0% 98%; /* Off-white */
+    --foreground: 0 0% 20%; /* Dark Gray */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 348 83% 47%;
+  }
+
+  [data-theme='dark'] {
+    /* Enhanced Dark Theme - Dark background with adapted Educational colors */
+    --primary: 142 71% 45%; /* Forest Green */
+    --secondary: 210 100% 60%; /* Soft Blue */
+    --accent: 45 100% 51%; /* Warm Yellow */
+    --background: 0 0% 10%; /* Very Dark Gray */
+    --foreground: 0 0% 95%; /* Off-white */
+    --card: 0 0% 15%; /* Dark Gray */
+    --card-foreground: 0 0% 95%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 65%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 142 71% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+
+/* Custom animations for landing page */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
