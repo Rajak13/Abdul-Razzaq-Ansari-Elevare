@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     // Apply theme to document
     const root = document.documentElement;
     
@@ -37,7 +37,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (theme === 'nepali' || theme === 'dark') {
       root.setAttribute('data-theme', theme);
     }
-    
+
     // Save to localStorage
     localStorage.setItem('elevare-theme', theme);
   }, [theme, mounted]);
