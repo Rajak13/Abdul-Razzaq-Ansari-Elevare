@@ -58,8 +58,16 @@ app.get('/health', (_req, res) => {
 
 // API routes
 import authRoutes from './routes/authRoutes';
+import taskRoutes from './routes/taskRoutes';
+import categoryRoutes from './routes/categoryRoutes';
+import noteRoutes from './routes/noteRoutes';
+import noteFolderRoutes from './routes/noteFolderRoutes';
 
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/task-categories', categoryRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api/note-folders', noteFolderRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

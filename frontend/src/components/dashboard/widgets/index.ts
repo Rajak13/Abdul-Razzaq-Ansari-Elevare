@@ -1,0 +1,8 @@
+export { ActivityWidget } from './activity-widget'
+export { CalendarWidget } from './calendar-widget'
+export { RecentNotesWidget } from './recent-notes-widget'
+export { TasksOverviewWidget } from './tasks-overview-widget'
+export { StatsWidget } from './stats-widget'
+export { ProductivityChartWidget } from './productivity-chart-widget'
+export { StudyGroupsWidget } from './study-groups-widget'
+export { ProgressStatsWidget } from './progress-stats-widget'

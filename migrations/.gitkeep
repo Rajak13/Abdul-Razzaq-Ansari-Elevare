@@ -1,0 +1,3 @@
+# Database migrations directory
+# Migration files should be named with timestamps: YYYYMMDDHHMMSS_description.sql
+# Example: 20241126120000_create_users_table.sql

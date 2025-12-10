@@ -5,50 +5,74 @@
 @layer base {
   :root {
     /* Educational Theme (Default) - Warm colors with Forest Green primary */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
     --primary: 142 71% 45%; /* Forest Green */
-    --secondary: 210 100% 60%; /* Soft Blue */
-    --accent: 45 100% 51%; /* Warm Yellow */
-    --background: 0 0% 98%; /* Off-white */
-    --foreground: 0 0% 20%; /* Dark Gray */
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 0 0% 20%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 142 71% 45%;
+    --radius: 0.5rem;
   }
 
   [data-theme='nepali'] {
     /* Nepali Light Theme - Crimson Red and Nepal Flag Blue */
-    --primary: 348 83% 47%; /* Crimson Red */
-    --secondary: 220 91% 15%; /* Nepal Flag Blue */
-    --accent: 45 100% 51%; /* Gold */
-    --background: 0 0% 98%; /* Off-white */
-    --foreground: 0 0% 20%; /* Dark Gray */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 348 83% 47%; /* Crimson Red */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 348 83% 47%;
+    --radius: 0.5rem;
   }
 
-  [data-theme='dark'] {
+  .dark {
     /* Enhanced Dark Theme - Dark background with adapted Educational colors */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
     --primary: 142 71% 45%; /* Forest Green */
-    --secondary: 210 100% 60%; /* Soft Blue */
-    --accent: 45 100% 51%; /* Warm Yellow */
-    --background: 0 0% 10%; /* Very Dark Gray */
-    --foreground: 0 0% 95%; /* Off-white */
-    --card: 0 0% 15%; /* Dark Gray */
-    --card-foreground: 0 0% 95%;
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
     --ring: 142 71% 45%;
+    --radius: 0.5rem;
   }
 }
 
