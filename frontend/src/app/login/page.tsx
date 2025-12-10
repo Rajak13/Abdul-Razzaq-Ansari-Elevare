@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AxiosError } from 'axios';
+import { toast } from 'sonner';
 
-export default function LoginPage() {
+function LoginForm() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (searchParams.get('registered') === 'true') {
       setRegisteredMessage('Registration successful! Please check your email to verify your account, then log in.');
+      toast.success('Registration successful! Please check your email to verify your account.');
     }
   }, [searchParams]);
 
@@ -53,6 +55,7 @@ export default function LoginPage() {
         email: formData.email,
         password: formData.password,
       });
+      toast.success('Login successful! Welcome back.');
     } catch (error) {
       const axiosError = error as AxiosError<{ error: { message: string; code: string } }>;
       const errorCode = axiosError.response?.data?.error?.code;
@@ -60,13 +63,16 @@ export default function LoginPage() {
 
       // If email not verified, redirect to OTP verification
       if (errorCode === 'EMAIL_NOT_VERIFIED') {
+        toast.info('Please verify your email first.');
         window.location.href = `/verify-otp?email=${encodeURIComponent(formData.email)}`;
         return;
       }
 
+      const message = errorMessage || 'Invalid email or password';
       setErrors({
-        submit: errorMessage || 'Invalid email or password',
+        submit: message,
       });
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -238,5 +244,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -176,8 +176,6 @@ NEXT_PUBLIC_API_URL=http://localhost:5001
 | GET | `/api/auth/me` | Get current user | Yes |
 | PUT | `/api/auth/profile` | Update profile | Yes |
 
-See [backend/API_TESTING_EXAMPLES.md](backend/API_TESTING_EXAMPLES.md) for detailed examples.
-
 ## 🧪 Testing
 
 ### Backend Tests
