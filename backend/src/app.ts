@@ -62,12 +62,14 @@ import taskRoutes from './routes/taskRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import noteRoutes from './routes/noteRoutes';
 import noteFolderRoutes from './routes/noteFolderRoutes';
+import studyGroupRoutes from './routes/studyGroupRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/task-categories', categoryRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/note-folders', noteFolderRoutes);
+app.use('/api/groups', studyGroupRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

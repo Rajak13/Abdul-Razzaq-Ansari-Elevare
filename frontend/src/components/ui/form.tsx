@@ -86,4 +86,30 @@ const FormDescription = React.forwardRef<
 })
 FormDescription.displayName = 'FormDescription'
 
-export { Form, FormDescription, FormField, FormLabel, FormMessage }
+// FormControl component (alias for div wrapper)
+const FormControl = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  return <div ref={ref} className={cn('', className)} {...props} />
+})
+FormControl.displayName = 'FormControl'
+
+// FormItem component (wrapper for form field)
+const FormItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  return <div ref={ref} className={cn('space-y-2', className)} {...props} />
+})
+FormItem.displayName = 'FormItem'
+
+export { 
+  Form, 
+  FormControl,
+  FormDescription, 
+  FormField, 
+  FormItem,
+  FormLabel, 
+  FormMessage 
+}

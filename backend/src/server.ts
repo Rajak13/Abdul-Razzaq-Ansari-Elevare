@@ -1,7 +1,9 @@
+import { createServer } from 'http';
 import app from './app';
 import config from './config';
 import logger from './utils/logger';
 import { checkConnection } from './db/connection';
+import { initializeSocketService } from './services/socketService';
 
 const PORT = config.port;
 
@@ -15,14 +17,21 @@ async function startServer() {
       process.exit(1);
     }
 
+    // Create HTTP server
+    const server = createServer(app);
+    
+    // Initialize Socket.io
+    initializeSocketService(server);
+    
     // Start server
-    const server = app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(`Elevare Backend Server started`);
       logger.info(`Environment: ${config.nodeEnv}`);
       logger.info(`Server running on port ${PORT}`);
       logger.info(`API URL: ${config.apiUrl}`);
       logger.info(`Health check: ${config.apiUrl}/health`);
       logger.info(`Database: Connected`);
+      logger.info(`WebSocket: Enabled`);
     });
 
     return server;

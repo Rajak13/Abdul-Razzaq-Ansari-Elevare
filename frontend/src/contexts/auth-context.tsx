@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/libs/api-client';
+import socketService from '@/services/socket-service';
 import {
   User,
   AuthState,
@@ -46,6 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isAuthenticated: true,
             isLoading: false,
           });
+          
+          // Initialize socket connection
+          socketService.connect(token);
         } catch (error) {
           // Token invalid or expired
           localStorage.removeItem('auth_token');
@@ -86,6 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
       });
 
+      // Initialize socket connection
+      socketService.connect(token);
+
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
@@ -104,6 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    // Disconnect socket
+    socketService.disconnect();
+    
     // Clear tokens
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
