@@ -55,23 +55,32 @@ export function NoteList({
     );
   };
 
-  const getContentPreview = (content: Record<string, unknown>): string => {
-    // Extract text content from editor JSON
-    const extractText = (node: Record<string, unknown>): string => {
-      if (node.type === 'text') {
-        return (node.text as string) || '';
-      }
-      if (node.content && Array.isArray(node.content)) {
-        return node.content.map(extractText).join('');
-      }
-      return '';
-    };
-
+  const getContentPreview = (content: string): string => {
     try {
-      const text = extractText(content);
-      return text.slice(0, 150) + (text.length > 150 ? '...' : '');
+      // If content is JSON, try to parse it and extract text
+      if (content.startsWith('{') || content.startsWith('[')) {
+        const parsed = JSON.parse(content);
+        const extractText = (node: any): string => {
+          if (typeof node === 'string') return node;
+          if (node.type === 'text') {
+            return node.text || '';
+          }
+          if (node.content && Array.isArray(node.content)) {
+            return node.content.map(extractText).join('');
+          }
+          return '';
+        };
+        const text = extractText(parsed);
+        return text.slice(0, 150) + (text.length > 150 ? '...' : '');
+      } else {
+        // If content is plain text/markdown, use it directly
+        const text = content.replace(/[#*_`~]/g, '').trim();
+        return text.slice(0, 150) + (text.length > 150 ? '...' : '');
+      }
     } catch {
-      return 'No preview available';
+      // Fallback to treating as plain text
+      const text = content.replace(/[#*_`~]/g, '').trim();
+      return text.slice(0, 150) + (text.length > 150 ? '...' : '') || 'No preview available';
     }
   };
 

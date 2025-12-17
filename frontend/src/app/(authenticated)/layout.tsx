@@ -74,6 +74,8 @@ export default function AuthenticatedLayout({
         return { title: 'Tasks', subtitle: 'Organize and track your academic tasks and assignments' }
       case '/notes':
         return { title: 'Notes', subtitle: 'Create and manage your study notes' }
+      case '/groups':
+        return { title: 'Study Groups', subtitle: 'Collaborate with peers and join study communities' }
       case '/files':
         return { title: 'Files', subtitle: 'Manage your study materials and documents' }
       case '/resources':

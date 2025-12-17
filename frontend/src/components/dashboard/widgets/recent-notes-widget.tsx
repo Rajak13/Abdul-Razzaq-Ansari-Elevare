@@ -20,7 +20,7 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
   })
 
   // Ensure notes is always an array
-  const notes = Array.isArray(notesResponse?.notes) ? notesResponse.notes : []
+  const notes = Array.isArray(notesResponse) ? notesResponse : []
 
   // Show error toast if there's an error
   if (error) {

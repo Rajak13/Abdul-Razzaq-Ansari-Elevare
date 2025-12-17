@@ -32,7 +32,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
     sort_order: 'desc'
   })
 
-  const notes = Array.isArray(notesResponse?.notes) ? notesResponse.notes : []
+  const notes = Array.isArray(notesResponse) ? notesResponse : []
   const tasks = Array.isArray(tasksResponse?.data) ? tasksResponse.data : []
 
   // Combine and sort activities

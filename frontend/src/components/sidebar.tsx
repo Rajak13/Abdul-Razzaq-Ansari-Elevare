@@ -56,6 +56,11 @@ const navigationItems: NavItem[] = [
     icon: <FileText className="h-4 w-4" />,
   },
   {
+    title: 'Study Groups',
+    href: '/groups',
+    icon: <Users className="h-4 w-4" />,
+  },
+  {
     title: 'Files',
     href: '/files',
     icon: <File className="h-4 w-4" />,
