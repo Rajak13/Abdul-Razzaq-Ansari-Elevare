@@ -5,6 +5,7 @@ import * as React from 'react'
 import { Sidebar } from '@/components/sidebar'
 import { useAuth } from '@/contexts/auth-context'
 import TopBar from '@/components/top-bar'
+import { MobileNav } from '@/components/navigation/mobile-nav'
 import { usePathname } from 'next/navigation'
 import { Toaster } from 'sonner'
 
@@ -95,10 +96,11 @@ export default function AuthenticatedLayout({
     <AppLayout showSidebar={true}>
       <div className="flex flex-col h-full">
         <TopBar title={title} subtitle={subtitle} />
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto pb-16 lg:pb-0">
           {children}
         </div>
       </div>
+      <MobileNav />
       <Toaster richColors position="top-right" />
     </AppLayout>
   );

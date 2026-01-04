@@ -18,8 +18,9 @@ import {
 } from '@/hooks/use-study-groups';
 import { StudyGroupForm } from '@/components/study-groups/study-group-form';
 import { GroupMembersList } from '@/components/study-groups/group-members-list';
-import { JoinRequestsList } from '@/components/study-groups/join-requests-list';
+import { JoinRequestManagement } from '@/components/study-groups/join-request-management';
 import { GroupChat } from '@/components/study-groups/group-chat';
+import { WhiteboardManager } from '@/components/whiteboard/whiteboard-manager';
 import {
   Users,
   Lock,
@@ -32,9 +33,13 @@ import {
   ArrowLeft,
   MessageCircle,
   UserCheck,
+  Palette,
+  Video,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { ClientOnly } from '@/components/ui/client-only';
+import { AuthGuard } from '@/components/ui/auth-guard';
 
 export default function StudyGroupDetailPage() {
   const params = useParams();
@@ -134,7 +139,8 @@ export default function StudyGroupDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <AuthGuard>
+      <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -180,7 +186,7 @@ export default function StudyGroupDetailPage() {
           )}
           
           {isOwner && (
-            <>
+            <ClientOnly>
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -224,7 +230,7 @@ export default function StudyGroupDetailPage() {
                   </div>
                 </DialogContent>
               </Dialog>
-            </>
+            </ClientOnly>
           )}
         </div>
       </div>
@@ -233,7 +239,8 @@ export default function StudyGroupDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="overview" className="space-y-6">
+          <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse mb-6" />}>
+            <Tabs defaultValue="overview" className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               {isMember && (
@@ -241,6 +248,14 @@ export default function StudyGroupDetailPage() {
                   <TabsTrigger value="chat">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Chat
+                  </TabsTrigger>
+                  <TabsTrigger value="video-call">
+                    <Video className="h-4 w-4 mr-2" />
+                    Video Call
+                  </TabsTrigger>
+                  <TabsTrigger value="whiteboard">
+                    <Palette className="h-4 w-4 mr-2" />
+                    Whiteboard
                   </TabsTrigger>
                 </>
               )}
@@ -289,21 +304,53 @@ export default function StudyGroupDetailPage() {
             </TabsContent>
 
             {isMember && (
-              <TabsContent value="chat">
-                <GroupChat groupId={groupId} />
-              </TabsContent>
+              <>
+                <TabsContent value="chat">
+                  <GroupChat groupId={groupId} />
+                </TabsContent>
+                
+                <TabsContent value="video-call">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Video className="h-5 w-5" />
+                        <span>Video Call</span>
+                      </CardTitle>
+                      <CardDescription>
+                        Start a video call with group members
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button 
+                        onClick={() => router.push(`/groups/${groupId}/video-call`)}
+                        className="w-full"
+                      >
+                        <Video className="h-4 w-4 mr-2" />
+                        Start Video Call
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="whiteboard">
+                  <WhiteboardManager 
+                    groupId={groupId} 
+                    userRole={group.user_role || 'member'} 
+                  />
+                </TabsContent>
+              </>
             )}
 
             {isAdmin && (
               <TabsContent value="requests">
-                <JoinRequestsList
+                <JoinRequestManagement
                   groupId={groupId}
-                  requests={joinRequests}
-                  isLoading={joinRequestsLoading}
+                  userRole="admin"
                 />
               </TabsContent>
             )}
           </Tabs>
+          </ClientOnly>
         </div>
 
         {/* Right Column - Sidebar */}
@@ -318,5 +365,6 @@ export default function StudyGroupDetailPage() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

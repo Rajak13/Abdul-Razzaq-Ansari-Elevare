@@ -272,6 +272,69 @@ export async function getJoinRequests(
 }
 
 /**
+ * Handle join request (approve or reject) - OPTIMIZED
+ * PUT /api/groups/:id/requests/:requestId
+ */
+export async function handleJoinRequestOptimized(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user!.userId;
+    const groupId = req.params.id;
+    const requestId = req.params.requestId;
+    const { approve } = req.body;
+
+    if (typeof approve !== 'boolean') {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_ACTION',
+          message: 'approve field must be a boolean',
+        },
+      });
+      return;
+    }
+
+    // Get the request to find the user ID
+    const requests = await studyGroupService.getJoinRequests(userId, groupId);
+    const request = requests.find(r => r.id === requestId);
+
+    if (!request) {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: 'REQUEST_NOT_FOUND',
+          message: 'Join request not found or you are not authorized',
+        },
+      });
+      return;
+    }
+
+    const success = await studyGroupService.handleJoinRequest(userId, groupId, request.user_id, approve);
+
+    if (!success) {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: 'REQUEST_NOT_FOUND',
+          message: 'Join request not found or you are not authorized',
+        },
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Join request ${approve ? 'approved' : 'rejected'} successfully`,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
  * Approve a join request
  * POST /api/groups/:id/approve
  */

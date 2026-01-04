@@ -28,6 +28,7 @@ router.delete('/:id', groupIdValidation, validate, studyGroupController.deleteSt
 // Join request routes
 router.post('/:id/join', groupIdValidation, validate, studyGroupController.requestToJoinGroup);
 router.get('/:id/join-requests', groupIdValidation, validate, studyGroupController.getJoinRequests);
+router.put('/:id/requests/:requestId', groupIdValidation, validate, studyGroupController.handleJoinRequestOptimized);
 router.post('/:id/approve', approveRejectValidation, validate, studyGroupController.approveJoinRequest);
 router.post('/:id/reject', approveRejectValidation, validate, studyGroupController.rejectJoinRequest);
 

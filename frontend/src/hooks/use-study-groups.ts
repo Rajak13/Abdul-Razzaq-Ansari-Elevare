@@ -7,6 +7,7 @@ import {
   CreateMessageInput,
 } from '@/types/study-group';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/auth-context';
 
 // Query keys
 export const studyGroupKeys = {
@@ -22,46 +23,57 @@ export const studyGroupKeys = {
 
 // Get study groups
 export function useStudyGroups(params?: StudyGroupQueryParams) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: studyGroupKeys.list(params),
     queryFn: () => studyGroupService.getStudyGroups(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: isAuthenticated && !authLoading,
   });
 }
 
 // Get a specific study group
 export function useStudyGroup(id: string) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: studyGroupKeys.detail(id),
     queryFn: () => studyGroupService.getStudyGroup(id),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated && !authLoading,
   });
 }
 
 // Get group members
 export function useGroupMembers(id: string) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: studyGroupKeys.members(id),
     queryFn: () => studyGroupService.getGroupMembers(id),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated && !authLoading,
   });
 }
 
 // Get join requests
 export function useJoinRequests(id: string) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: studyGroupKeys.joinRequests(id),
     queryFn: () => studyGroupService.getJoinRequests(id),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated && !authLoading,
   });
 }
 
 // Get group messages
 export function useGroupMessages(id: string, page = 1) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: studyGroupKeys.messages(id, page),
     queryFn: () => studyGroupService.getMessages(id, page),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated && !authLoading,
   });
 }
 

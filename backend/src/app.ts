@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
+import path from 'path';
 import config from './config';
 import logger from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -56,6 +57,9 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // API routes
 import authRoutes from './routes/authRoutes';
 import taskRoutes from './routes/taskRoutes';
@@ -63,6 +67,12 @@ import categoryRoutes from './routes/categoryRoutes';
 import noteRoutes from './routes/noteRoutes';
 import noteFolderRoutes from './routes/noteFolderRoutes';
 import studyGroupRoutes from './routes/studyGroupRoutes';
+import notificationRoutes from './routes/notificationRoutes';
+import whiteboardRoutes from './routes/whiteboardRoutes';
+import searchRoutes from './routes/searchRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
+import resourceRoutes from './routes/resourceRoutes';
+import fileRoutes from './routes/fileRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -70,6 +80,13 @@ app.use('/api/task-categories', categoryRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/note-folders', noteFolderRoutes);
 app.use('/api/groups', studyGroupRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/whiteboards', whiteboardRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/analytics', dashboardRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/files', fileRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Educational Theme (Default) - Warm colors with Forest Green primary */
-    --background: 0 0% 100%;
+    --background: 45 29% 97%; /* Warm paper color */
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -90,6 +90,20 @@
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Chat message text wrapping utilities */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  .chat-message {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    white-space: pre-wrap;
+  }
 }
 
 
@@ -120,4 +134,39 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out;
+}
+
+/* Notification toast styles */
+.notification-toast {
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+.notification-toast[data-type="success"] {
+  border-left-color: hsl(142 71% 45%);
+}
+
+.notification-toast[data-type="error"] {
+  border-left-color: hsl(var(--destructive));
+}
+
+.notification-toast[data-type="warning"] {
+  border-left-color: hsl(45 100% 51%);
+}
+
+/* Notification center animations */
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification-slide-in {
+  animation: notificationSlideIn 0.3s ease-out;
 }

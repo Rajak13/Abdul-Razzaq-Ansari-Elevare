@@ -1,4 +1,4 @@
-import apiClient from '@/libs/api-client';
+import apiClient from '@/lib/api-client';
 import { Note, NoteFolder, CreateNoteData, UpdateNoteData, CreateNoteFolderData, UpdateNoteFolderData } from '@/types/note';
 
 export const noteService = {
