@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import apiClient from '@/libs/api-client';
+import apiClient from '@/lib/api-client';
 import { AxiosError } from 'axios';
 
 function VerifyOTPForm() {

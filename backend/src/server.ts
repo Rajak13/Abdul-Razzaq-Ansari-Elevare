@@ -4,6 +4,7 @@ import config from './config';
 import logger from './utils/logger';
 import { checkConnection } from './db/connection';
 import { initializeSocketService } from './services/socketService';
+import { getNotificationScheduler } from './services/notificationScheduler';
 
 const PORT = config.port;
 
@@ -23,6 +24,10 @@ async function startServer() {
     // Initialize Socket.io
     initializeSocketService(server);
     
+    // Initialize notification scheduler
+    const notificationScheduler = getNotificationScheduler();
+    notificationScheduler.start(15); // Check every 15 minutes
+    
     // Start server
     server.listen(PORT, () => {
       logger.info(`Elevare Backend Server started`);
@@ -32,6 +37,7 @@ async function startServer() {
       logger.info(`Health check: ${config.apiUrl}/health`);
       logger.info(`Database: Connected`);
       logger.info(`WebSocket: Enabled`);
+      logger.info(`Notification Scheduler: Started`);
     });
 
     return server;
@@ -49,6 +55,11 @@ serverPromise.then((server) => {
   // Graceful shutdown
   const gracefulShutdown = (signal: string) => {
     logger.info(`${signal} received. Starting graceful shutdown...`);
+    
+    // Stop notification scheduler
+    const notificationScheduler = getNotificationScheduler();
+    notificationScheduler.stop();
+    
     server.close(() => {
       logger.info('Server closed. Exiting process.');
       process.exit(0);

@@ -122,7 +122,7 @@ export function Sidebar({
       )}
     >
       {/* Sidebar Header */}
-      <div className="flex h-16 items-center justify-between border-b px-4">
+      <div className="flex h-16 items-center justify-between border-b px-4 bg-card">
         {isOpen && (
           <Link href="/dashboard" className="flex items-center space-x-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">

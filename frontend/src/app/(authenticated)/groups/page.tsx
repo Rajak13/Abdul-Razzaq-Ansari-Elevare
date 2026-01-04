@@ -12,12 +12,14 @@ import { StudyGroupForm } from '@/components/study-groups/study-group-form';
 import { StudyGroupCard } from '@/components/study-groups/study-group-card';
 import { StudyGroupFilters } from '@/components/study-groups/study-group-filters';
 import { StudyGroupQueryParams } from '@/types/study-group';
-import { Plus, Search, Users, Lock, Globe } from 'lucide-react';
+import { Plus, Search, Users, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClientOnly } from '@/components/ui/client-only';
+import { AuthGuard } from '@/components/ui/auth-guard';
 
-export default function StudyGroupsPage() {
+export default function GroupsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('discover');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<StudyGroupQueryParams>({});
 
@@ -35,14 +37,11 @@ export default function StudyGroupsPage() {
       case 'owned':
         params.owned_by_me = true;
         break;
-      case 'public':
-        params.is_private = false;
-        break;
-      case 'private':
-        params.is_private = true;
+      case 'requests':
+        // This would need to be handled differently - showing pending join requests
         break;
       default:
-        // 'all' - no additional filters
+        // 'discover' - show all available groups
         break;
     }
 
@@ -62,9 +61,9 @@ export default function StudyGroupsPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Study Groups</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Groups</h2>
           <p className="text-muted-foreground">
             {error instanceof Error ? error.message : 'Something went wrong'}
           </p>
@@ -74,129 +73,153 @@ export default function StudyGroupsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Study Groups</h1>
-          <p className="text-muted-foreground">
-            Join study groups to collaborate with peers and enhance your learning experience
-          </p>
-        </div>
-        
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Group
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Create Study Group</DialogTitle>
-            </DialogHeader>
-            <StudyGroupForm onSuccess={handleCreateSuccess} />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <form onSubmit={handleSearch} className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search study groups..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+    <AuthGuard>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Groups</h1>
+            <p className="text-sm text-muted-foreground">
+              Collaborate with peers and join study communities
+            </p>
           </div>
-        </form>
-        <StudyGroupFilters filters={filters} onFiltersChange={setFilters} />
-      </div>
+          
+          <ClientOnly fallback={<Button disabled><Plus className="h-4 w-4 mr-2" />New Group</Button>}>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Group
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Create Study Group</DialogTitle>
+                </DialogHeader>
+                <StudyGroupForm onSuccess={handleCreateSuccess} />
+              </DialogContent>
+            </Dialog>
+          </ClientOnly>
+        </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">All Groups</TabsTrigger>
-          <TabsTrigger value="my-groups">My Groups</TabsTrigger>
-          <TabsTrigger value="owned">Owned</TabsTrigger>
-          <TabsTrigger value="public">Public</TabsTrigger>
-          <TabsTrigger value="private">Private</TabsTrigger>
-        </TabsList>
+        {/* Search and Filters */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search groups..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </form>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-        <TabsContent value={activeTab} className="mt-6">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-2/3" />
-                      <div className="flex gap-2 mt-4">
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-20" />
-                      </div>
+        {/* Tabs */}
+        <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse" />}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="discover">Discover</TabsTrigger>
+              <TabsTrigger value="my-groups">My Groups</TabsTrigger>
+              <TabsTrigger value="owned">Owned</TabsTrigger>
+              <TabsTrigger value="requests">Join Requests</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Card key={i}>
+                      <CardHeader>
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-2/3" />
+                          <div className="flex gap-2 mt-4">
+                            <Skeleton className="h-8 w-20" />
+                            <Skeleton className="h-8 w-24" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : groupsData?.groups && groupsData.groups.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {groupsData.groups.map((group) => (
+                      <StudyGroupCard key={group.id} group={group} />
+                    ))}
+                  </div>
+                  
+                  {/* Pagination info */}
+                  {groupsData.total > groupsData.groups.length && (
+                    <div className="mt-6 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Showing {groupsData.groups.length} of {groupsData.total} groups
+                      </p>
                     </div>
+                  )}
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      {activeTab === 'discover' && 'No Groups Found'}
+                      {activeTab === 'my-groups' && 'No Groups Joined'}
+                      {activeTab === 'owned' && 'No Groups Created'}
+                      {activeTab === 'requests' && 'No Pending Requests'}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {searchQuery
+                        ? `No groups match your search "${searchQuery}"`
+                        : activeTab === 'my-groups'
+                        ? "You haven't joined any study groups yet"
+                        : activeTab === 'owned'
+                        ? "You haven't created any study groups yet"
+                        : activeTab === 'requests'
+                        ? "No pending join requests"
+                        : "No study groups available"}
+                    </p>
+                    {(activeTab === 'discover' || activeTab === 'owned') && (
+                      <ClientOnly fallback={<Button disabled><Plus className="h-4 w-4 mr-2" />Create Group</Button>}>
+                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="h-4 w-4 mr-2" />
+                              Create Group
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                              <DialogTitle>Create Study Group</DialogTitle>
+                            </DialogHeader>
+                            <StudyGroupForm onSuccess={handleCreateSuccess} />
+                          </DialogContent>
+                        </Dialog>
+                      </ClientOnly>
+                    )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : groupsData?.groups && groupsData.groups.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {groupsData.groups.map((group) => (
-                  <StudyGroupCard key={group.id} group={group} />
-                ))}
-              </div>
-              
-              {/* Pagination info */}
-              <div className="mt-8 text-center text-sm text-muted-foreground">
-                Showing {groupsData.groups.length} of {groupsData.total} groups
-                {groupsData.total > groupsData.groups.length && (
-                  <span> (Page {groupsData.page} of {Math.ceil(groupsData.total / groupsData.limit)})</span>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Study Groups Found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery
-                  ? `No groups match your search "${searchQuery}"`
-                  : activeTab === 'my-groups'
-                  ? "You haven't joined any study groups yet"
-                  : activeTab === 'owned'
-                  ? "You haven't created any study groups yet"
-                  : "No study groups available"}
-              </p>
-              {(activeTab === 'all' || activeTab === 'owned') && (
-                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Your First Group
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Create Study Group</DialogTitle>
-                    </DialogHeader>
-                    <StudyGroupForm onSuccess={handleCreateSuccess} />
-                  </DialogContent>
-                </Dialog>
               )}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+            </TabsContent>
+          </Tabs>
+        </ClientOnly>
+      </div>
+    </AuthGuard>
   );
 }

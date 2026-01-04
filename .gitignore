@@ -1,2 +1,12 @@
 .kiro
 /StudyCollab
+
+.env.production
+.env
+
+.md
+
+/diagrams
+/fixes
+
+/.vscode

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import apiClient from '@/libs/api-client';
+import apiClient from '@/lib/api-client';
 import { AxiosError } from 'axios';
 
 export default function ForgotPasswordPage() {

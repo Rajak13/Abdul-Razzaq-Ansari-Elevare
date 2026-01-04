@@ -136,3 +136,53 @@ export async function sendPasswordResetEmail(
     throw new Error('Failed to send password reset email');
   }
 }
+
+/**
+ * Send notification email
+ */
+export async function sendNotificationEmail(options: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<void> {
+  const mailOptions = {
+    from: config.email.from,
+    to: options.to,
+    subject: options.subject,
+    text: options.text,
+    html: options.html,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Notification email sent', { to: options.to, subject: options.subject });
+  } catch (error) {
+    logger.error('Failed to send notification email', { to: options.to, subject: options.subject, error });
+    throw new Error('Failed to send notification email');
+  }
+}
+
+// Create EmailService class for dependency injection
+export class EmailService {
+  async sendOTPEmail(email: string, name: string, otpCode: string): Promise<void> {
+    return sendOTPEmail(email, name, otpCode);
+  }
+
+  async sendVerificationEmail(email: string, name: string, verificationToken: string): Promise<void> {
+    return sendVerificationEmail(email, name, verificationToken);
+  }
+
+  async sendPasswordResetEmail(email: string, name: string, resetToken: string): Promise<void> {
+    return sendPasswordResetEmail(email, name, resetToken);
+  }
+
+  async sendNotificationEmail(options: {
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+  }): Promise<void> {
+    return sendNotificationEmail(options);
+  }
+}

@@ -19,7 +19,8 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
   const studyGroups = studyGroupsResponse?.groups || []
   const totalGroups = allGroupsResponse?.total || 0
 
-  const getGroupInitials = (name: string) => {
+  const getGroupInitials = (name: string | undefined) => {
+    if (!name) return 'SG';
     return name
       .split(' ')
       .map(word => word.charAt(0))

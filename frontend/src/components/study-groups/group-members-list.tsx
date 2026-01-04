@@ -17,9 +17,18 @@ import { useRemoveMember } from '@/hooks/use-study-groups';
 import { MoreVertical, UserMinus, Crown, Shield, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
+interface LocalGroupMember {
+  id: string;
+  user_id: string;
+  role: 'owner' | 'admin' | 'member';
+  joined_at: string;
+  user_name: string;
+  user_email: string;
+}
+
 interface GroupMembersListProps {
   groupId: string;
-  members: GroupMember[];
+  members: LocalGroupMember[];
   isLoading: boolean;
   currentUserRole?: GroupRole;
   isCurrentUserMember: boolean;
@@ -64,7 +73,7 @@ export function GroupMembersList({
     }
   };
 
-  const canRemoveMember = (member: GroupMember) => {
+  const canRemoveMember = (member: LocalGroupMember) => {
     if (!isCurrentUserMember || !currentUserRole) return false;
     if (member.role === 'owner') return false; // Cannot remove owner
     if (currentUserRole === 'owner') return true; // Owner can remove anyone

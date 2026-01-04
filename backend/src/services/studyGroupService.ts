@@ -15,6 +15,19 @@ import {
 } from '../types/studyGroup';
 import logger from '../utils/logger';
 import { socketService } from './socketService';
+import { NotificationService } from './notificationService';
+import { EmailService } from './emailService';
+
+// Initialize notification service lazily
+const emailService = new EmailService();
+let notificationService: NotificationService;
+
+function getNotificationService(): NotificationService {
+  if (!notificationService) {
+    notificationService = new NotificationService(socketService, emailService);
+  }
+  return notificationService;
+}
 
 /**
  * Create a new study group
@@ -291,6 +304,8 @@ export async function requestToJoinGroup(
       return null; // Group doesn't exist
     }
 
+    const group = groupCheck.rows[0];
+
     // Check if user is already a member
     const memberCheck = await query<{ id: string }>(
       'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2',
@@ -319,8 +334,36 @@ export async function requestToJoinGroup(
       [groupId, userId, 'pending']
     );
 
+    const joinRequest = result.rows[0];
+
+    // Get requester's name for the notification
+    const requesterResult = await query<{ name: string }>(
+      'SELECT name FROM users WHERE id = $1',
+      [userId]
+    );
+
+    const requesterName = requesterResult.rows[0]?.name || 'Unknown User';
+
+    // Send notification to group owner
+    try {
+      await getNotificationService().sendJoinRequestReceivedNotification(
+        group.owner_id,
+        groupId,
+        group.name,
+        requesterName
+      );
+    } catch (notificationError) {
+      // Log error but don't fail the join request creation
+      logger.error('Failed to send join request notification', { 
+        error: notificationError, 
+        groupId, 
+        userId, 
+        ownerId: group.owner_id 
+      });
+    }
+
     logger.info('Join request created', { groupId, userId });
-    return result.rows[0];
+    return joinRequest;
   } catch (error) {
     logger.error('Error creating join request', { error, userId, groupId });
     throw error;
@@ -444,6 +487,30 @@ export async function handleJoinRequest(
          VALUES ($1, $2, $3)`,
         [groupId, requestUserId, 'member']
       );
+
+      // Send approval notification to the requester
+      try {
+        // Get group name for the notification
+        const groupResult = await query<{ name: string }>(
+          'SELECT name FROM study_groups WHERE id = $1',
+          [groupId]
+        );
+
+        if (groupResult.rows[0]) {
+          await getNotificationService().sendJoinRequestApprovalNotification(
+            requestUserId,
+            groupId,
+            groupResult.rows[0].name
+          );
+        }
+      } catch (notificationError) {
+        // Log error but don't fail the approval process
+        logger.error('Failed to send join request approval notification', { 
+          error: notificationError, 
+          groupId, 
+          requestUserId 
+        });
+      }
     }
 
     logger.info('Join request handled', { groupId, userId, requestUserId, approve });
