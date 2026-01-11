@@ -9,6 +9,9 @@ export interface Note {
   created_at: string;
   updated_at: string;
   summary?: string;
+  summary_generated_at?: string;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface NoteFolder {
@@ -29,6 +32,9 @@ export interface CreateNoteData {
   tags?: string[];
   is_collaborative?: boolean;
   summary?: string;
+  summary_generated_at?: string;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface UpdateNoteData {
@@ -38,6 +44,9 @@ export interface UpdateNoteData {
   tags?: string[];
   is_collaborative?: boolean;
   summary?: string;
+  summary_generated_at?: string;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface CreateNoteFolderData {

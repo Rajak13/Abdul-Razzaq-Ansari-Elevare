@@ -8,6 +8,10 @@ export interface Note {
   is_collaborative: boolean;
   created_at: Date;
   updated_at: Date;
+  summary?: string;
+  summary_generated_at?: Date;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface NoteFolder {
@@ -26,6 +30,10 @@ export interface CreateNoteInput {
   folder_id?: string;
   tags?: string[];
   is_collaborative?: boolean;
+  summary?: string;
+  summary_generated_at?: Date;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface UpdateNoteInput {
@@ -34,6 +42,10 @@ export interface UpdateNoteInput {
   folder_id?: string | null;
   tags?: string[];
   is_collaborative?: boolean;
+  summary?: string;
+  summary_generated_at?: Date;
+  summary_model?: string;
+  content_hash?: string;
 }
 
 export interface CreateNoteFolderInput {

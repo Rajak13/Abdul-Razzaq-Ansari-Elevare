@@ -365,9 +365,92 @@ export async function deleteNoteFolder(
 }
 
 /**
- * Export a note to various formats
- * POST /api/notes/:id/export
+ * Check summary status for a note
+ * GET /api/notes/:id/summary-status
  */
+export async function checkSummaryStatus(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user!.userId;
+    const noteId = req.params.id;
+
+    const status = await noteService.checkSummaryStatus(userId, noteId);
+
+    if (!status) {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOTE_NOT_FOUND',
+          message: 'Note not found',
+        },
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      ...status,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Save generated summary to a note
+ * POST /api/notes/:id/summary
+ */
+export async function saveSummary(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user!.userId;
+    const noteId = req.params.id;
+    const { summary, model = 'PEGASUS' } = req.body;
+
+    if (!summary || typeof summary !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_SUMMARY',
+          message: 'Summary must be a non-empty string',
+        },
+      });
+      return;
+    }
+
+    const updatedNote = await noteService.updateNoteWithGeneratedSummary(
+      userId, 
+      noteId, 
+      summary, 
+      model
+    );
+
+    if (!updatedNote) {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOTE_NOT_FOUND',
+          message: 'Note not found',
+        },
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      note: updatedNote,
+      message: 'Summary saved successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 export async function exportNote(
   req: Request,
   res: Response,

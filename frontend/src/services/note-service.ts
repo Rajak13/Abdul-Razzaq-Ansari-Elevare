@@ -46,6 +46,44 @@ export const noteService = {
     return response.data;
   },
 
+  // Summary-specific operations
+  async updateNoteSummary(id: string, summaryData: {
+    summary: string;
+    summary_model?: string;
+    content_hash?: string;
+  }): Promise<Note> {
+    const updateData: UpdateNoteData = {
+      summary: summaryData.summary,
+      summary_generated_at: new Date().toISOString(),
+      summary_model: summaryData.summary_model || 'PEGASUS',
+      content_hash: summaryData.content_hash,
+    };
+    
+    const response = await apiClient.put(`/notes/${id}`, updateData);
+    return response.data.note;
+  },
+
+  async clearNoteSummary(id: string): Promise<Note> {
+    const updateData: UpdateNoteData = {
+      summary: undefined,
+      summary_generated_at: undefined,
+      summary_model: undefined,
+      content_hash: undefined,
+    };
+    
+    const response = await apiClient.put(`/notes/${id}`, updateData);
+    return response.data.note;
+  },
+
+  async checkSummaryStatus(id: string): Promise<{
+    hasOutdatedSummary: boolean;
+    shouldRegenerate: boolean;
+    stalnessInfo?: any;
+  }> {
+    const response = await apiClient.get(`/notes/${id}/summary-status`);
+    return response.data;
+  },
+
   // Note Folders
   async getNoteFolders(): Promise<NoteFolder[]> {
     const response = await apiClient.get('/note-folders');

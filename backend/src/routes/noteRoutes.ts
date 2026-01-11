@@ -92,6 +92,23 @@ const autoSaveValidation = [
     .withMessage('Content must be a string or object'),
 ];
 
+const saveSummaryValidation = [
+  param('id')
+    .isUUID()
+    .withMessage('Note ID must be a valid UUID'),
+  body('summary')
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 5000 })
+    .withMessage('Summary must be between 1 and 5000 characters'),
+  body('model')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Model name must be between 1 and 50 characters'),
+];
+
 const exportNoteValidation = [
   param('id')
     .isUUID()
@@ -116,6 +133,12 @@ router.get('/:id',
   validate,
   noteController.getNoteById
 );
+router.get('/:id/summary-status',
+  param('id').isUUID().withMessage('Note ID must be a valid UUID'),
+  validate,
+  noteController.checkSummaryStatus
+);
+router.post('/:id/summary', saveSummaryValidation, validate, noteController.saveSummary);
 router.put('/:id', updateNoteValidation, validate, noteController.updateNote);
 router.put('/:id/autosave', autoSaveValidation, validate, noteController.autoSaveNote);
 router.post('/:id/export', exportNoteValidation, validate, noteController.exportNote);

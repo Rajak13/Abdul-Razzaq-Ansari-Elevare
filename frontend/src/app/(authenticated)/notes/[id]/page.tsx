@@ -4,7 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { SummaryDisplay } from '@/components/notes/summary-display';
 import { useNote, useDeleteNote, useExportNote } from '@/hooks/use-notes';
+import { useUpdateNoteSummary } from '@/hooks/use-summary';
 import { useNoteFolders } from '@/hooks/use-note-folders';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Calendar, Download, Edit, FileText, Folder, Hash, MoreVertical, Trash2 } from 'lucide-react';
@@ -21,11 +23,52 @@ export default function NotePage() {
   const { data: folders = [] } = useNoteFolders();
   const deleteNote = useDeleteNote();
   const exportNote = useExportNote();
+  const updateSummary = useUpdateNoteSummary();
 
   const folder = note?.folder_id ? folders.find(f => f.id === note.folder_id) : null;
 
   const handleEdit = () => {
     router.push(`/notes/${noteId}/edit`);
+  };
+
+  const handleRegenerateSummary = async () => {
+    if (!note) return;
+    
+    try {
+      // Generate new summary using the current content
+      const response = await fetch('/api/generate-summary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-note-id': noteId,
+          'authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify({
+          text: typeof note.content === 'string' ? note.content : extractTextFromContent(note.content),
+          maxLength: 150,
+          minLength: 50
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate summary');
+      }
+
+      const data = await response.json();
+      
+      // Update the summary in the database
+      await updateSummary.mutateAsync({
+        noteId: noteId,
+        summary: data.summary,
+        content: typeof note.content === 'string' ? note.content : extractTextFromContent(note.content),
+        model: data.model || 'PEGASUS'
+      });
+      
+      toast.success('Summary regenerated successfully');
+    } catch (error) {
+      console.error('Failed to regenerate summary:', error);
+      toast.error('Failed to regenerate summary. Please try again.');
+    }
   };
 
   const handleDelete = async () => {
@@ -195,58 +238,76 @@ export default function NotePage() {
         </div>
 
         {/* Note Content */}
-        <div className="mx-auto max-w-4xl">
-          <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-              {/* Tags */}
-              {note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {note.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      <Hash className="mr-1 h-3 w-3" />
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              
-              {/* Folder */}
-              {folder && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Folder className="h-4 w-4" />
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-3 w-3 rounded"
-                      style={{ backgroundColor: folder.color || '#6b7280' }}
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
+                <CardHeader className="border-b border-gray-200 dark:border-gray-700">
+                  {/* Tags */}
+                  {note.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {note.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          <Hash className="mr-1 h-3 w-3" />
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Folder */}
+                  {folder && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Folder className="h-4 w-4" />
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-3 w-3 rounded"
+                          style={{ backgroundColor: folder.color || '#6b7280' }}
+                        />
+                        {folder.name}
+                      </div>
+                    </div>
+                  )}
+                </CardHeader>
+                
+                <CardContent className="p-6 lg:p-8">
+                  <div className="prose prose-gray max-w-none dark:prose-invert">
+                    <div 
+                      className="text-gray-900 dark:text-gray-100 leading-relaxed"
+                      dangerouslySetInnerHTML={{ 
+                        __html: (typeof note.content === 'string' ? note.content : extractTextFromContent(note.content))
+                          .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">$1</h1>')
+                          .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-200">$1</h2>')
+                          .replace(/^### (.*$)/gim, '<h3 class="text-xl font-medium mb-2 text-gray-700 dark:text-gray-300">$1</h3>')
+                          .replace(/^\* (.*$)/gim, '<li class="ml-4">$1</li>')
+                          .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                          .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
+                          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
+                          .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto"><code class="text-sm font-mono">$2</code></pre>')
+                          .replace(/\n/g, '<br>')
+                      }}
                     />
-                    {folder.name}
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Summary Sidebar */}
+            {note.summary && (
+              <div className="lg:col-span-1">
+                <div className="sticky top-6">
+                  <SummaryDisplay
+                    note={note}
+                    summary={note.summary}
+                    isEditable={false}
+                  />
                 </div>
-              )}
-            </CardHeader>
-            
-            <CardContent className="p-6">
-              <div className="prose prose-gray max-w-none dark:prose-invert">
-                <div 
-                  className="text-gray-900 dark:text-gray-100"
-                  dangerouslySetInnerHTML={{ 
-                    __html: (typeof note.content === 'string' ? note.content : extractTextFromContent(note.content))
-                      .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">$1</h1>')
-                      .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-200">$1</h2>')
-                      .replace(/^### (.*$)/gim, '<h3 class="text-xl font-medium mb-2 text-gray-700 dark:text-gray-300">$1</h3>')
-                      .replace(/^\* (.*$)/gim, '<li class="ml-4">$1</li>')
-                      .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-                      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                      .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
-                      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
-                      .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto"><code class="text-sm font-mono">$2</code></pre>')
-                      .replace(/\n/g, '<br>')
-                  }}
-                />
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

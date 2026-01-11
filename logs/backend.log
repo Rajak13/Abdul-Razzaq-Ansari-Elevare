@@ -1,0 +1,57 @@
+
+> elevare-backend@1.0.0 dev
+> nodemon --exec ts-node src/server.ts
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Database connection healthy {"service":"elevare-backend","timestamp":"2026-01-11T09:18:00.211Z"}
+[32minfo[39m: Starting notification scheduler {"intervalMinutes":15,"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Elevare Backend Server started {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Environment: development {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Server running on port 5001 {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: API URL: http://localhost:5001 {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Health check: http://localhost:5001/health {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Database: Connected {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: WebSocket: Enabled {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Notification Scheduler: Started {"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Found tasks with upcoming deadlines {"count":0,"service":"elevare-backend","timestamp":"2026-01-11 15:03:00"}
+[32minfo[39m: Socket authenticated {"service":"elevare-backend","socketId":"WmTQn03RZHPXdwrNAAAB","timestamp":"2026-01-11 15:03:05","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[32minfo[39m: User connected {"service":"elevare-backend","socketId":"WmTQn03RZHPXdwrNAAAB","timestamp":"2026-01-11 15:03:05","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[32minfo[39m: User disconnected {"service":"elevare-backend","socketId":"WmTQn03RZHPXdwrNAAAB","timestamp":"2026-01-11 15:03:26","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[32minfo[39m: User logged in successfully {"email":"rajakansari959@gmail.com","service":"elevare-backend","timestamp":"2026-01-11 15:03:32","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[0mPOST /api/auth/login [32m200[0m 95.905 ms - 513[0m
+[32minfo[39m: Socket authenticated {"service":"elevare-backend","socketId":"AC_XGUNEewH_3qnmAAAD","timestamp":"2026-01-11 15:03:32","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[32minfo[39m: User connected {"service":"elevare-backend","socketId":"AC_XGUNEewH_3qnmAAAD","timestamp":"2026-01-11 15:03:32","userId":"b623847b-119d-471c-96c1-f0475b42881a"}
+[0mGET /api/tasks?limit=5&sort_by=created_at&order=desc [36m304[0m 11.641 ms - -[0m
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:32"}
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:32"}
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:32"}
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:32"}
+[32minfo[39m: New PostgreSQL client connected to the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:03:32"}
+[0mGET /api/notifications/unread-count [36m304[0m 9.264 ms - -[0m
+[0mGET /api/tasks?limit=10&sort_by=due_date&order=asc [36m304[0m 13.374 ms - -[0m
+[0mGET /api/tasks?limit=3&sort_by=created_at&order=desc [36m304[0m 12.726 ms - -[0m
+[0mGET /api/notes [36m304[0m 17.917 ms - -[0m
+[0mGET /api/tasks?limit=100 [36m304[0m 18.391 ms - -[0m
+[0mGET /api/note-folders [36m304[0m 2.846 ms - -[0m
+[0mGET /api/notes/d8268af8-5619-4613-87f0-42af6e40a9e5 [36m304[0m 4.495 ms - -[0m
+[32minfo[39m: Note d8268af8-5619-4613-87f0-42af6e40a9e5 updated with summary successfully {"service":"elevare-backend","timestamp":"2026-01-11 15:03:46"}
+[0mPOST /api/notes/d8268af8-5619-4613-87f0-42af6e40a9e5/summary [32m200[0m 39.521 ms - 846[0m
+[32minfo[39m: Note d8268af8-5619-4613-87f0-42af6e40a9e5 updated successfully {"service":"elevare-backend","timestamp":"2026-01-11 15:03:46"}
+[0mPUT /api/notes/d8268af8-5619-4613-87f0-42af6e40a9e5 [32m200[0m 3.010 ms - 739[0m
+[0mGET /api/notes/d8268af8-5619-4613-87f0-42af6e40a9e5 [32m200[0m 2.269 ms - 874[0m
+[32minfo[39m: SIGTERM received. Starting graceful shutdown... {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[32minfo[39m: Notification scheduler stopped {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[32minfo[39m: SIGINT received. Starting graceful shutdown... {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[33mwarn[39m: Notification scheduler is not running {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[32minfo[39m: SIGINT received. Starting graceful shutdown... {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[33mwarn[39m: Notification scheduler is not running {"service":"elevare-backend","timestamp":"2026-01-11 15:03:58"}
+[32minfo[39m: PostgreSQL client removed from the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:04:02"}
+[32minfo[39m: PostgreSQL client removed from the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:04:02"}
+[32minfo[39m: PostgreSQL client removed from the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:04:02"}
+[32minfo[39m: PostgreSQL client removed from the pool {"service":"elevare-backend","timestamp":"2026-01-11 15:04:02"}
+[31merror[39m: Forced shutdown after timeout {"service":"elevare-backend","timestamp":"2026-01-11 15:04:08"}

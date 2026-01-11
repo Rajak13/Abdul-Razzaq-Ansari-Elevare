@@ -9,6 +9,14 @@ import {
   NoteQueryParams 
 } from '../types/note';
 import logger from '../utils/logger';
+import { 
+  generateContentHash, 
+  isSummaryOutdated, 
+  shouldRegenerateSummary,
+  getSummaryStalnessInfo,
+  addContentHashToNote,
+  updateNoteWithSummary
+} from '../utils/content-hash';
 
 /**
  * Create a new note
@@ -17,18 +25,75 @@ export async function createNote(userId: string, noteData: CreateNoteInput): Pro
   const client = await pool.connect();
   
   try {
-    const { title, content, folder_id, tags = [], is_collaborative = false } = noteData;
+    const { 
+      title, 
+      content, 
+      folder_id, 
+      tags = [], 
+      is_collaborative = false,
+      summary,
+      summary_generated_at,
+      summary_model,
+      content_hash
+    } = noteData;
+    
+    // Log the received data for debugging
+    logger.info(`Creating note for user ${userId}`, {
+      title: title?.substring(0, 50) + '...',
+      contentLength: content?.length || 0,
+      hasSummary: !!summary,
+      summaryLength: summary?.length || 0,
+      summaryGeneratedAt: summary_generated_at,
+      summaryModel: summary_model,
+      hasContentHash: !!content_hash
+    });
+    
+    // Add content hash to the note data if not provided
+    // For notes with summaries, we need to ensure the content hash matches the content
+    // that was used to generate the summary
+    const noteWithHash = addContentHashToNote({ 
+      title, 
+      content, 
+      folder_id, 
+      tags, 
+      is_collaborative,
+      summary,
+      summary_generated_at,
+      summary_model
+    });
     
     const query = `
-      INSERT INTO notes (user_id, title, content, folder_id, tags, is_collaborative)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO notes (
+        user_id, title, content, folder_id, tags, is_collaborative, content_hash,
+        summary, summary_generated_at, summary_model
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `;
     
-    const values = [userId, title, content, folder_id || null, tags, is_collaborative];
+    const values = [
+      userId, 
+      noteWithHash.title, 
+      noteWithHash.content, 
+      noteWithHash.folder_id || null, 
+      noteWithHash.tags, 
+      noteWithHash.is_collaborative, 
+      noteWithHash.content_hash,
+      noteWithHash.summary || null,
+      noteWithHash.summary_generated_at || null,
+      noteWithHash.summary_model || null
+    ];
+    
     const result = await client.query(query, values);
     
-    logger.info(`Note created successfully for user ${userId}`);
+    logger.info(`Note created successfully for user ${userId}`, {
+      noteId: result.rows[0].id,
+      hasSummary: !!result.rows[0].summary,
+      summaryLength: result.rows[0].summary?.length || 0,
+      summaryGeneratedAt: result.rows[0].summary_generated_at,
+      summaryModel: result.rows[0].summary_model
+    });
+    
     return result.rows[0];
   } catch (error) {
     logger.error('Error creating note:', error);
@@ -145,7 +210,18 @@ export async function getNoteById(userId: string, noteId: string): Promise<Note 
     const query = 'SELECT * FROM notes WHERE id = $1 AND user_id = $2';
     const result = await client.query(query, [noteId, userId]);
     
-    return result.rows[0] || null;
+    const note = result.rows[0] || null;
+    
+    // Add staleness information if note has a summary
+    if (note && note.summary) {
+      const stalnessInfo = getSummaryStalnessInfo(note);
+      if (stalnessInfo) {
+        // Add staleness metadata to the note object for client use
+        note._summaryMeta = stalnessInfo;
+      }
+    }
+    
+    return note;
   } catch (error) {
     logger.error('Error getting note by ID:', error);
     throw error;
@@ -164,6 +240,22 @@ export async function updateNote(userId: string, noteId: string, updates: Update
     const setClause: string[] = [];
     const values: any[] = [];
     let paramIndex = 1;
+
+    // If content is being updated, generate new content hash and clear summary if content changed
+    if (updates.content !== undefined) {
+      const currentNote = await getNoteById(userId, noteId);
+      if (currentNote) {
+        const newHash = generateContentHash(updates.content);
+        
+        // If content actually changed, clear summary fields
+        if (newHash !== currentNote.content_hash) {
+          updates.content_hash = newHash;
+          updates.summary = undefined;
+          updates.summary_generated_at = undefined;
+          updates.summary_model = undefined;
+        }
+      }
+    }
 
     // Build dynamic update query
     Object.entries(updates).forEach(([key, value]) => {
@@ -606,6 +698,82 @@ function escapeHtml(text: string): string {
     "'": '&#39;'
   };
   return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+/**
+ * Update a note with generated summary
+ */
+export async function updateNoteWithGeneratedSummary(
+  userId: string, 
+  noteId: string, 
+  summary: string, 
+  model: string = 'PEGASUS'
+): Promise<Note | null> {
+  const client = await pool.connect();
+  
+  try {
+    const currentNote = await getNoteById(userId, noteId);
+    if (!currentNote) {
+      return null;
+    }
+
+    const summaryData = updateNoteWithSummary(currentNote, summary, model);
+    
+    const query = `
+      UPDATE notes 
+      SET summary = $1, summary_generated_at = $2, summary_model = $3, content_hash = $4, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $5 AND user_id = $6
+      RETURNING *
+    `;
+
+    const values = [
+      summaryData.summary,
+      summaryData.summary_generated_at,
+      summaryData.summary_model,
+      summaryData.content_hash,
+      noteId,
+      userId
+    ];
+
+    const result = await client.query(query, values);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    logger.info(`Note ${noteId} updated with summary successfully`);
+    return result.rows[0];
+  } catch (error) {
+    logger.error('Error updating note with summary:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Check if a note's summary needs regeneration
+ */
+export async function checkSummaryStatus(userId: string, noteId: string): Promise<{
+  hasOutdatedSummary: boolean;
+  shouldRegenerate: boolean;
+  stalnessInfo?: any;
+} | null> {
+  try {
+    const note = await getNoteById(userId, noteId);
+    if (!note) {
+      return null;
+    }
+
+    return {
+      hasOutdatedSummary: isSummaryOutdated(note),
+      shouldRegenerate: shouldRegenerateSummary(note),
+      stalnessInfo: getSummaryStalnessInfo(note)
+    };
+  } catch (error) {
+    logger.error('Error checking summary status:', error);
+    throw error;
+  }
 }
 
 /**

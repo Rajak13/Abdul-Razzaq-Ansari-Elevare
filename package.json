@@ -1,0 +1,38 @@
+{
+  "name": "elevare",
+  "version": "1.0.0",
+  "description": "Collaborative learning platform with AI-powered summarization",
+  "scripts": {
+    "start": "./scripts/start-services.sh",
+    "stop": "./scripts/stop-services.sh",
+    "restart": "./scripts/stop-services.sh && ./scripts/start-services.sh",
+    "dev": "./scripts/start-services.sh",
+    "test": "npm run test:backend && npm run test:frontend && npm run test:summarization",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test:summarization": "cd summarization-service && python -m pytest",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "test:performance": "./scripts/run-performance-tests.sh",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:summarization",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install", 
+    "install:summarization": "cd summarization-service && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+    "logs": "tail -f logs/*.log",
+    "logs:summarization": "tail -f logs/summarization.log",
+    "logs:backend": "tail -f logs/backend.log",
+    "logs:frontend": "tail -f logs/frontend.log",
+    "health": "curl -s http://localhost:8001/health && curl -s http://localhost:3001/health && curl -s http://localhost:3000/api/health"
+  },
+  "keywords": [
+    "education",
+    "collaboration", 
+    "ai",
+    "summarization",
+    "learning"
+  ],
+  "author": "",
+  "license": "MIT"
+}

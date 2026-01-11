@@ -23,12 +23,22 @@ export function useCreateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: noteService.createNote,
-    onSuccess: () => {
+    mutationFn: (data: CreateNoteData) => {
+      console.log('🚀 useCreateNote: mutationFn called with data:', {
+        title: data.title,
+        contentLength: data.content?.length || 0,
+        hasSummary: !!data.summary
+      });
+      return noteService.createNote(data);
+    },
+    onSuccess: (createdNote) => {
+      console.log('✅ useCreateNote: onSuccess called with note:', createdNote.id);
       queryClient.invalidateQueries({ queryKey: ['notes'] });
-      toast.success('Note created successfully!');
+      // Remove duplicate toast - let the NoteEditor handle the success message
+      console.log('🔇 useCreateNote: Skipping toast to prevent duplicates');
     },
     onError: (error) => {
+      console.error('❌ useCreateNote: onError called:', error);
       toast.error('Failed to create note. Please try again.');
     },
   });
@@ -38,14 +48,23 @@ export function useUpdateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateNoteData }) =>
-      noteService.updateNote(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateNoteData }) => {
+      console.log('🔄 useUpdateNote: mutationFn called with id:', id, 'data:', {
+        title: data.title,
+        contentLength: data.content?.length || 0,
+        hasSummary: !!data.summary
+      });
+      return noteService.updateNote(id, data);
+    },
     onSuccess: (updatedNote) => {
+      console.log('✅ useUpdateNote: onSuccess called with note:', updatedNote.id);
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.setQueryData(['notes', updatedNote.id], updatedNote);
-      // Don't show toast for auto-save updates
+      // Remove duplicate toast - let the NoteEditor handle the success message
+      console.log('🔇 useUpdateNote: Skipping toast to prevent duplicates');
     },
     onError: (error) => {
+      console.error('❌ useUpdateNote: onError called:', error);
       toast.error('Failed to update note. Please try again.');
     },
   });

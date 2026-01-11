@@ -32,9 +32,9 @@ function AppLayout({
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar - Hidden on mobile and tablet */}
+      {/* Sidebar - Hidden on mobile, tablet, and iPad */}
       {showSidebar && (
-        <div className="hidden lg:flex">
+        <div className="hidden xl:flex">
           <Sidebar
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -96,7 +96,7 @@ export default function AuthenticatedLayout({
     <AppLayout showSidebar={true}>
       <div className="flex flex-col h-full">
         <TopBar title={title} subtitle={subtitle} />
-        <div className="flex-1 overflow-auto pb-16 lg:pb-0">
+        <div className="flex-1 overflow-auto pb-20 xl:pb-0">
           {children}
         </div>
       </div>
