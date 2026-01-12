@@ -14,13 +14,13 @@ interface RecentNotesWidgetProps {
 
 export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
   const { data: notesResponse, isLoading, error } = useNotes({
-    limit: 5,
+    limit: 3,
     sort_by: 'updated_at',
     order: 'desc'
   })
 
-  // Ensure notes is always an array
-  const notes = Array.isArray(notesResponse) ? notesResponse : []
+  // Ensure notes is always an array and limit to 3 notes
+  const notes = Array.isArray(notesResponse) ? notesResponse.slice(0, 3) : []
 
   // Show error toast if there's an error
   if (error) {

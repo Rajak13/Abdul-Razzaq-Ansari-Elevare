@@ -73,3 +73,15 @@ INFO:app.main:Processing chunk 1/1
 INFO:app.main:Successfully generated summary in 5.22s
 INFO:app.main:Cached result for key: bae1baec...
 INFO:     127.0.0.1:54887 - "POST /summarize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58212 - "GET /health HTTP/1.1" 200 OK
+INFO:app.main:Text split into 1 chunks
+INFO:app.main:Processing chunk 1/1
+INFO:app.main:Successfully generated summary in 3.82s
+INFO:app.main:Cached result for key: 5a316fa4...
+INFO:     127.0.0.1:58260 - "POST /summarize HTTP/1.1" 200 OK
+INFO:app.main:Text split into 1 chunks
+INFO:app.main:Processing chunk 1/1
+INFO:app.main:Successfully generated summary in 3.53s
+INFO:app.main:Cached result for key: a2036b76...
+INFO:     127.0.0.1:58277 - "POST /summarize HTTP/1.1" 200 OK
+INFO:app.main:Received signal 15, initiating graceful shutdown...
