@@ -52,26 +52,26 @@
   }
 
   .dark {
-    /* Enhanced Dark Theme - Dark background with adapted Educational colors */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142 71% 45%; /* Forest Green */
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142 71% 45%;
+    /* Enhanced Dark Theme - Nepal-inspired color scheme */
+    --background: 0 0% 7%; /* Deep black background */
+    --foreground: 0 0% 95%; /* Crisp white text */
+    --card: 0 0% 9%; /* Slightly lighter black for cards */
+    --card-foreground: 0 0% 95%; /* Crisp white text on cards */
+    --popover: 0 0% 9%; /* Slightly lighter black for popovers */
+    --popover-foreground: 0 0% 95%; /* Crisp white text on popovers */
+    --primary: 348 83% 47%; /* Nepal crimson red */
+    --primary-foreground: 0 0% 100%; /* Pure white text on primary for better contrast */
+    --secondary: 0 0% 14%; /* Dark gray for secondary elements */
+    --secondary-foreground: 0 0% 95%; /* Crisp white text on secondary */
+    --muted: 0 0% 14%; /* Dark gray for muted elements */
+    --muted-foreground: 0 0% 65%; /* Medium gray for muted text */
+    --accent: 0 0% 14%; /* Dark gray for accent elements */
+    --accent-foreground: 0 0% 95%; /* Crisp white text on accent */
+    --destructive: 0 84.2% 60.2%; /* Keep existing destructive color */
+    --destructive-foreground: 0 0% 98%; /* Crisp white text on destructive */
+    --border: 0 0% 18%; /* Subtle borders */
+    --input: 0 0% 14%; /* Dark gray for input backgrounds */
+    --ring: 348 83% 47%; /* Nepal crimson red for focus rings */
     --radius: 0.5rem;
   }
 }
@@ -186,4 +186,223 @@
 
 .notification-slide-in {
   animation: notificationSlideIn 0.3s ease-out;
+}
+
+/* Enhanced Dark Theme Interactive Element Styling */
+.dark {
+  /* Enhanced focus ring styling for all focusable elements */
+  --focus-ring-color: 348 83% 47%; /* Nepal crimson red */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  
+  /* Enhanced button state colors */
+  --button-primary-bg: 348 83% 47%; /* Nepal crimson red */
+  --button-primary-fg: 0 0% 100%; /* Pure white for better contrast */
+  --button-primary-hover: 348 83% 42%; /* Slightly darker crimson on hover */
+  --button-primary-active: 348 83% 37%; /* Even darker crimson when active */
+  
+  --button-secondary-bg: 0 0% 14%; /* Dark gray */
+  --button-secondary-fg: 0 0% 95%; /* Crisp white */
+  --button-secondary-hover: 0 0% 18%; /* Lighter gray on hover */
+  --button-secondary-active: 0 0% 22%; /* Even lighter gray when active */
+  
+  /* Enhanced input and form element styling */
+  --input-bg: 0 0% 14%; /* Dark gray background */
+  --input-border: 0 0% 18%; /* Subtle border */
+  --input-border-focus: 348 83% 47%; /* Crimson border on focus */
+  --input-placeholder: 0 0% 65%; /* Medium gray placeholder */
+}
+
+/* Enhanced sidebar navigation styling for dark theme */
+.dark .sidebar-nav-active {
+  background-color: hsl(348 83% 47%) !important; /* Nepal crimson red */
+  color: hsl(0 0% 100%) !important; /* Pure white text for maximum contrast */
+  font-weight: 600;
+}
+
+.dark .sidebar-nav-active:hover {
+  background-color: hsl(348 83% 42%) !important; /* Slightly darker on hover */
+  color: hsl(0 0% 100%) !important; /* Keep white text */
+}
+
+/* Enhanced focus states for all interactive elements in dark theme */
+.dark *:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--focus-ring-offset) hsl(var(--background)), 
+              0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) hsl(var(--focus-ring-color));
+}
+
+/* Enhanced button styling for dark theme */
+.dark button[data-variant="default"],
+.dark .button-primary {
+  background-color: hsl(var(--button-primary-bg));
+  color: hsl(var(--button-primary-fg));
+  border: 1px solid hsl(var(--button-primary-bg));
+  transition: all 0.2s ease-in-out;
+}
+
+.dark button[data-variant="default"]:hover:not(:disabled),
+.dark .button-primary:hover:not(:disabled) {
+  background-color: hsl(var(--button-primary-hover));
+  border-color: hsl(var(--button-primary-hover));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark button[data-variant="default"]:active:not(:disabled),
+.dark .button-primary:active:not(:disabled) {
+  background-color: hsl(var(--button-primary-active));
+  border-color: hsl(var(--button-primary-active));
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark button[data-variant="default"]:disabled,
+.dark .button-primary:disabled {
+  background-color: hsl(0 0% 14%);
+  color: hsl(0 0% 45%);
+  border-color: hsl(0 0% 18%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Enhanced secondary button styling for dark theme */
+.dark button[data-variant="secondary"],
+.dark .button-secondary {
+  background-color: hsl(var(--button-secondary-bg));
+  color: hsl(var(--button-secondary-fg));
+  border: 1px solid hsl(0 0% 18%);
+  transition: all 0.2s ease-in-out;
+}
+
+.dark button[data-variant="secondary"]:hover:not(:disabled),
+.dark .button-secondary:hover:not(:disabled) {
+  background-color: hsl(var(--button-secondary-hover));
+  border-color: hsl(0 0% 25%);
+}
+
+.dark button[data-variant="secondary"]:active:not(:disabled),
+.dark .button-secondary:active:not(:disabled) {
+  background-color: hsl(var(--button-secondary-active));
+  border-color: hsl(0 0% 30%);
+}
+
+/* Enhanced outline button styling for dark theme */
+.dark button[data-variant="outline"],
+.dark .button-outline {
+  background-color: transparent;
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(0 0% 18%);
+  transition: all 0.2s ease-in-out;
+}
+
+.dark button[data-variant="outline"]:hover:not(:disabled),
+.dark .button-outline:hover:not(:disabled) {
+  background-color: hsl(0 0% 14%);
+  border-color: hsl(348 83% 47%);
+  color: hsl(348 83% 47%);
+}
+
+/* Enhanced ghost button styling for dark theme */
+.dark button[data-variant="ghost"],
+.dark .button-ghost {
+  background-color: transparent;
+  color: hsl(var(--foreground));
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.dark button[data-variant="ghost"]:hover:not(:disabled),
+.dark .button-ghost:hover:not(:disabled) {
+  background-color: hsl(0 0% 14%);
+  color: hsl(348 83% 47%);
+}
+
+/* Enhanced input styling for dark theme */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--input-bg));
+  border-color: hsl(var(--input-border));
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease-in-out;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--input-placeholder));
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: hsl(var(--input-border-focus));
+  box-shadow: 0 0 0 1px hsl(var(--input-border-focus));
+}
+
+/* Enhanced checkbox and radio styling for dark theme */
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  accent-color: hsl(348 83% 47%);
+  background-color: hsl(0 0% 14%);
+  border-color: hsl(0 0% 18%);
+}
+
+.dark input[type="checkbox"]:checked,
+.dark input[type="radio"]:checked {
+  background-color: hsl(348 83% 47%);
+  border-color: hsl(348 83% 47%);
+}
+
+/* Enhanced link styling for dark theme */
+.dark a {
+  color: hsl(348 83% 47%);
+  transition: color 0.2s ease-in-out;
+}
+
+.dark a:hover {
+  color: hsl(348 83% 52%);
+  text-decoration: underline;
+}
+
+.dark a:focus-visible {
+  outline: 2px solid hsl(348 83% 47%);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Enhanced select dropdown styling for dark theme */
+.dark select option {
+  background-color: hsl(0 0% 9%);
+  color: hsl(var(--foreground));
+}
+
+/* Enhanced switch/toggle styling for dark theme */
+.dark [role="switch"][data-state="checked"] {
+  background-color: hsl(348 83% 47%);
+}
+
+.dark [role="switch"][data-state="unchecked"] {
+  background-color: hsl(0 0% 14%);
+}
+
+/* Enhanced menu item styling for dark theme */
+.dark [role="menuitem"]:hover,
+.dark [role="option"]:hover,
+.dark [data-highlighted] {
+  background-color: hsl(0 0% 14%);
+  color: hsl(348 83% 47%);
+}
+
+/* Enhanced tab styling for dark theme */
+.dark [role="tab"][data-state="active"] {
+  background-color: hsl(0 0% 14%);
+  border-bottom-color: hsl(348 83% 47%);
+  color: hsl(348 83% 47%);
+}
+
+.dark [role="tab"]:hover:not([data-state="active"]) {
+  background-color: hsl(0 0% 11%);
+  color: hsl(var(--foreground));
 }

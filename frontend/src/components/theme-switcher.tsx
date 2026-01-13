@@ -8,32 +8,32 @@ export function ThemeSwitcher() {
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1">
       <button
-        onClick={() => setTheme('educational')}
+        onClick={() => setTheme('light')}
         className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-          theme === 'educational'
-            ? 'bg-primary text-white'
+          theme === 'light'
+            ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="Educational Theme"
+        aria-label="Light Theme"
       >
-        Educational
+        Light
       </button>
       <button
-        onClick={() => setTheme('nepali')}
+        onClick={() => setTheme('light2')}
         className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-          theme === 'nepali'
-            ? 'bg-primary text-white'
+          theme === 'light2'
+            ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="Nepali Theme"
+        aria-label="Light2 Theme"
       >
-        Nepali
+        Light2
       </button>
       <button
         onClick={() => setTheme('dark')}
         className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
           theme === 'dark'
-            ? 'bg-primary text-white'
+            ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
         aria-label="Dark Theme"

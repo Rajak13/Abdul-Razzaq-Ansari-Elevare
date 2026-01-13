@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import { Moon, Sun, ChevronDown, Settings, LogOut } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Moon, Sun, ChevronDown, Settings, LogOut, Palette } from 'lucide-react';
+import { useTheme } from './theme-provider';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -34,20 +34,44 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Theme Toggle */}
-          <ClientOnly fallback={<Button variant="ghost" size="sm" className="h-9 w-9 p-0" disabled><Sun className="h-4 w-4" /></Button>}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="h-9 w-9 p-0"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Button>
+          {/* Theme Switcher */}
+          <ClientOnly fallback={<Button variant="ghost" size="sm" className="h-9 w-9 p-0" disabled><Palette className="h-4 w-4" /></Button>}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                  {theme === 'dark' ? (
+                    <Moon className="h-4 w-4" />
+                  ) : theme === 'light2' ? (
+                    <Palette className="h-4 w-4" />
+                  ) : (
+                    <Sun className="h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem 
+                  onClick={() => setTheme('light')}
+                  className={theme === 'light' ? 'bg-accent' : ''}
+                >
+                  <Sun className="h-4 w-4 mr-2" />
+                  Light Theme
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('light2')}
+                  className={theme === 'light2' ? 'bg-accent' : ''}
+                >
+                  <Palette className="h-4 w-4 mr-2" />
+                  Light2 Theme
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('dark')}
+                  className={theme === 'dark' ? 'bg-accent' : ''}
+                >
+                  <Moon className="h-4 w-4 mr-2" />
+                  Dark Theme
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </ClientOnly>
 
           {/* Notifications */}
