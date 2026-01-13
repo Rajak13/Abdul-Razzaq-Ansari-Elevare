@@ -75,6 +75,20 @@ export const profileUpdateValidation: ValidationChain[] = [
     .optional()
     .isURL()
     .withMessage('Avatar URL must be a valid URL'),
+  body('university')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 255 })
+    .withMessage('University must be between 2 and 255 characters'),
+  body('major')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 255 })
+    .withMessage('Major must be between 2 and 255 characters'),
+  body('graduation_date')
+    .optional()
+    .isISO8601()
+    .withMessage('Graduation date must be a valid date'),
 ];
 
 /**

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as authController from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
+import { uploadAvatar, handleUploadError } from '../middleware/uploadMiddleware';
 import {
   registerValidation,
   loginValidation,
@@ -60,6 +61,14 @@ router.put(
   authenticate,
   profileUpdateValidation,
   authController.updateProfile
+);
+
+router.post(
+  '/avatar',
+  authenticate,
+  uploadAvatar,
+  handleUploadError,
+  authController.uploadAvatar
 );
 
 export default router;

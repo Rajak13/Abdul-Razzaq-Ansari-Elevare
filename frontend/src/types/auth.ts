@@ -4,6 +4,9 @@ export interface User {
   name: string;
   bio?: string;
   avatar_url?: string;
+  university?: string;
+  major?: string;
+  graduation_date?: string;
   email_verified: boolean;
   created_at: string;
   updated_at: string;
@@ -36,4 +39,7 @@ export interface ProfileUpdateData {
   name?: string;
   bio?: string;
   avatar_url?: string;
+  university?: string;
+  major?: string;
+  graduation_date?: string;
 }

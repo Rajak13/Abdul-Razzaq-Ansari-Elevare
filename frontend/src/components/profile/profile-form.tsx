@@ -18,7 +18,7 @@ interface ProfileFormData {
   bio: string
   university: string
   major: string
-  graduationYear: number | undefined
+  graduation_date: string
 }
 
 interface ProfileFormProps {
@@ -29,7 +29,7 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [profileLoading, setProfileLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { user } = useAuth()
+  const { user, updateProfile, uploadAvatar } = useAuth()
   const { toast } = useToast()
 
   const {
@@ -40,10 +40,10 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
-      bio: '',
-      university: '',
-      major: '',
-      graduationYear: undefined,
+      bio: user?.bio || '',
+      university: user?.university || '',
+      major: user?.major || '',
+      graduation_date: user?.graduation_date || '',
     },
   })
 
@@ -78,17 +78,17 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
     setAvatarUploading(true)
 
     try {
-      // Simulate avatar upload
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Upload avatar using the auth context
+      await uploadAvatar(file)
       
       toast({
         title: 'Avatar updated',
         description: 'Your profile picture has been updated successfully.',
       })
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Upload failed',
-        description: 'Failed to upload avatar',
+        description: error.message || 'Failed to upload avatar',
         variant: 'destructive',
       })
     } finally {
@@ -100,8 +100,14 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
     setProfileLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Call the actual API through auth context
+      await updateProfile({
+        name: data.name,
+        bio: data.bio,
+        university: data.university,
+        major: data.major,
+        graduation_date: data.graduation_date,
+      })
 
       toast({
         title: 'Profile updated',
@@ -111,10 +117,10 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
       if (onSuccess) {
         onSuccess()
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Update failed',
-        description: 'Failed to update profile',
+        description: error.message || 'Failed to update profile',
         variant: 'destructive',
       })
     } finally {
@@ -240,21 +246,13 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="graduationYear">Graduation Year</Label>
+            <Label htmlFor="graduation_date">Graduation Date</Label>
             <Input
-              id="graduationYear"
-              type="number"
-              placeholder="2024"
-              {...register('graduationYear', { 
-                valueAsNumber: true,
-                min: { value: 2020, message: 'Year must be 2020 or later' },
-                max: { value: 2030, message: 'Year must be 2030 or earlier' }
-              })}
+              id="graduation_date"
+              type="date"
+              {...register('graduation_date')}
               disabled={profileLoading}
             />
-            {errors.graduationYear && (
-              <p className="text-sm text-destructive">{errors.graduationYear.message}</p>
-            )}
           </div>
         </div>
 

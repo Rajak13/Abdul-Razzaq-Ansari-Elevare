@@ -18,6 +18,7 @@ interface AuthContextType extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   updateProfile: (data: ProfileUpdateData) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<string>;
   refreshUser: () => Promise<void>;
 }
 
@@ -144,6 +145,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const uploadAvatar = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await apiClient.post<{ user: User; avatar_url: string }>('/auth/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      // Update user in state
+      setState((prev) => ({
+        ...prev,
+        user: response.data.user,
+      }));
+
+      return response.data.avatar_url;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const refreshUser = async () => {
     try {
       const response = await apiClient.get<{ user: User }>('/auth/me');
@@ -162,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     updateProfile,
+    uploadAvatar,
     refreshUser,
   };
 

@@ -197,12 +197,15 @@ export async function updateProfile(
     }
 
     const userId = req.user!.userId;
-    const { name, bio, avatar_url } = req.body;
+    const { name, bio, avatar_url, university, major, graduation_date } = req.body;
 
     const user = await authService.updateProfile(userId, {
       name,
       bio,
       avatar_url,
+      university,
+      major,
+      graduation_date,
     });
 
     res.status(200).json({
@@ -508,6 +511,51 @@ export async function resendOTP(req: Request, res: Response): Promise<void> {
       error: {
         code: 'RESEND_OTP_FAILED',
         message: 'Failed to resend OTP',
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+}
+/**
+ * Upload user avatar
+ * POST /api/auth/avatar
+ */
+export async function uploadAvatar(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        error: {
+          code: 'NO_FILE',
+          message: 'No avatar file provided',
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    const userId = req.user!.userId;
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Update user's avatar URL in database
+    const user = await authService.updateProfile(userId, {
+      avatar_url: avatarUrl,
+    });
+
+    res.status(200).json({
+      message: 'Avatar uploaded successfully',
+      avatar_url: avatarUrl,
+      user,
+    });
+  } catch (error: any) {
+    logger.error('Upload avatar error', { error: error.message });
+
+    res.status(500).json({
+      error: {
+        code: 'UPLOAD_ERROR',
+        message: 'Failed to upload avatar',
         timestamp: new Date().toISOString(),
       },
     });

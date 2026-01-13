@@ -202,16 +202,33 @@ export async function updateProfile(
     values.push(data.avatar_url);
   }
 
+  if (data.university !== undefined) {
+    updates.push(`university = $${paramCount++}`);
+    values.push(data.university);
+  }
+
+  if (data.major !== undefined) {
+    updates.push(`major = $${paramCount++}`);
+    values.push(data.major);
+  }
+
+  if (data.graduation_date !== undefined) {
+    updates.push(`graduation_date = $${paramCount++}`);
+    values.push(data.graduation_date);
+  }
+
   if (updates.length === 0) {
     throw new Error('No fields to update');
   }
 
+  // Add updated_at timestamp
+  updates.push(`updated_at = CURRENT_TIMESTAMP`);
   values.push(userId);
 
   const result = await query<User>(
     `UPDATE users SET ${updates.join(', ')}
      WHERE id = $${paramCount}
-     RETURNING id, email, name, bio, avatar_url, email_verified, created_at, updated_at`,
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, email_verified, created_at, updated_at`,
     values
   );
 

@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto';
 const uploadDir = path.join(process.cwd(), 'uploads');
 const resourcesDir = path.join(uploadDir, 'resources');
 const filesDir = path.join(uploadDir, 'files');
+const avatarsDir = path.join(uploadDir, 'avatars');
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -18,6 +19,10 @@ if (!fs.existsSync(resourcesDir)) {
 
 if (!fs.existsSync(filesDir)) {
   fs.mkdirSync(filesDir, { recursive: true });
+}
+
+if (!fs.existsSync(avatarsDir)) {
+  fs.mkdirSync(avatarsDir, { recursive: true });
 }
 
 // Configure multer for resource uploads
@@ -198,3 +203,41 @@ export const handleUploadError = (error: any, _req: any, res: any, next: any) =>
   
   next(error);
 };
+
+// Configure multer for avatar uploads
+const avatarStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, avatarsDir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = randomUUID();
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${uniqueSuffix}${ext}`);
+  }
+});
+
+// File filter for avatars (only images)
+const avatarFileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Avatar must be an image file (JPEG, PNG, GIF, or WebP)`));
+  }
+};
+
+// Avatar upload middleware
+export const uploadAvatar = multer({
+  storage: avatarStorage,
+  fileFilter: avatarFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for avatars
+    files: 1
+  }
+}).single('avatar');
