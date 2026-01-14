@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Bell } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import {
@@ -19,6 +20,11 @@ interface NotificationCenterProps {
 export function NotificationCenter({ className }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { unreadCount, isConnected } = useNotifications();
+  const t = useTranslations('notifications');
+
+  const titleText = unreadCount > 0
+    ? `${t('title')} (${unreadCount} ${t('unread')})`
+    : t('title');
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -27,7 +33,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
           variant="ghost"
           size="sm"
           className={`relative ${className}`}
-          title={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+          title={titleText}
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (

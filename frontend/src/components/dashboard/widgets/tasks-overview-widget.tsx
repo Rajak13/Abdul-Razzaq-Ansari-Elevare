@@ -8,13 +8,26 @@ import { AlertCircle, Calendar, CheckCircle, Clock, Plus } from 'lucide-react'
 import { useTasks, useUpdateTask } from '@/hooks/use-tasks'
 import { format, isToday, isPast } from 'date-fns'
 import { toast } from 'sonner'
-import Link from 'next/link'
+import { Link } from '@/navigation'
+import { useTranslations, useLocale } from 'next-intl'
+import { enUS, ko } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
 
 interface TasksOverviewWidgetProps {
   className?: string
 }
 
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  ko: ko,
+  ne: enUS // Fallback to English for Nepali
+}
+
 export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
+  const t = useTranslations('dashboard.widgets.tasks')
+  const locale = useLocale() as 'en' | 'ko' | 'ne'
+  const dateLocale = localeMap[locale] || enUS
+
   // Use real task data
   const { data: tasksResponse, isLoading } = useTasks({
     limit: 5,
@@ -54,11 +67,11 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
   return (
     <Card className={`${className} h-full`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold">Tasks Overview</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
         <Link href="/tasks">
           <Button size="sm" variant="outline" className="h-8">
             <Plus className="mr-1 h-3 w-3" />
-            Add Task
+            {t('createTask')}
           </Button>
         </Link>
       </CardHeader>
@@ -70,21 +83,21 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
               <CheckCircle className="h-4 w-4 text-green-500" />
               <div>
                 <p className="text-sm font-medium">{stats.completed}</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="text-xs text-muted-foreground">{t('dueToday')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-blue-500" />
               <div>
                 <p className="text-sm font-medium">{stats.pending}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-xs text-muted-foreground">{t('dueSoon')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <AlertCircle className="h-4 w-4 text-red-500" />
               <div>
                 <p className="text-sm font-medium">{stats.overdue}</p>
-                <p className="text-xs text-muted-foreground">Overdue</p>
+                <p className="text-xs text-muted-foreground">{t('overdue')}</p>
               </div>
             </div>
           </div>
@@ -92,10 +105,10 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
           {/* Recent Tasks */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">Recent Tasks</h4>
+              <h4 className="text-sm font-medium">{t('upcomingTasks')}</h4>
               <Link href="/tasks">
                 <Button variant="ghost" size="sm" className="text-xs">
-                  View All
+                  {t('viewAll')}
                 </Button>
               </Link>
             </div>
@@ -150,8 +163,8 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
                             <Calendar className="h-3 w-3" />
                             <span>
                               {isToday(new Date(task.due_date)) 
-                                ? 'Today' 
-                                : format(new Date(task.due_date), 'MMM d')
+                                ? t('dueToday')
+                                : format(new Date(task.due_date), 'MMM d', { locale: dateLocale })
                               }
                             </span>
                           </div>
@@ -164,11 +177,11 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
                 {tasks.length === 0 && (
                   <div className="text-center py-4">
                     <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground mb-2">No tasks yet</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('noDueTasks')}</p>
                     <Link href="/tasks">
                       <Button size="sm" variant="outline">
                         <Plus className="mr-1 h-3 w-3" />
-                        Create your first task
+                        {t('createTask')}
                       </Button>
                     </Link>
                   </div>

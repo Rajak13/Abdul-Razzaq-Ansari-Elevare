@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslations, useLocale } from 'next-intl';
 import { 
   Bell, 
   Check, 
@@ -62,6 +63,8 @@ export function NotificationList({ onClose }: NotificationListProps) {
     isMarkingAllAsRead,
     isDeleting,
   } = useNotifications();
+  const t = useTranslations('notifications');
+  const locale = useLocale();
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
@@ -98,10 +101,10 @@ export function NotificationList({ onClose }: NotificationListProps) {
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4" />
-          <h3 className="font-semibold">Notifications</h3>
+          <h3 className="font-semibold">{t('title')}</h3>
           {!isConnected && (
             <Badge variant="outline" className="text-xs">
-              Offline
+              {t('offline')}
             </Badge>
           )}
         </div>
@@ -111,7 +114,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
             size="sm"
             onClick={refreshNotifications}
             className="h-8 w-8 p-0"
-            title="Refresh"
+            title={t('actions.refresh')}
           >
             <RefreshCw className="h-3 w-3" />
           </Button>
@@ -120,7 +123,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
             size="sm"
             onClick={() => setShowPreferences(true)}
             className="h-8 w-8 p-0"
-            title="Settings"
+            title={t('actions.settings')}
           >
             <Settings className="h-3 w-3" />
           </Button>
@@ -138,7 +141,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
             className="w-full"
           >
             <CheckCheck className="h-3 w-3 mr-2" />
-            Mark all as read ({unreadCount})
+            {t('markAllAsRead')} ({unreadCount})
           </Button>
         </div>
       )}
@@ -160,13 +163,13 @@ export function NotificationList({ onClose }: NotificationListProps) {
         ) : notifications.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No notifications yet</p>
+            <p className="text-sm">{t('noNotifications')}</p>
           </div>
         ) : (
           <div className="divide-y">
             {notifications.map((notification) => {
-              const IconComponent = notificationIcons[notification.type] || Bell;
-              const iconColor = notificationColors[notification.type] || 'text-gray-500';
+              const IconComponent = notificationIcons[notification.type as keyof typeof notificationIcons] || Bell;
+              const iconColor = notificationColors[notification.type as keyof typeof notificationColors] || 'text-gray-500';
               
               return (
                 <div
@@ -193,7 +196,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
                             {notification.content}
                           </p>
                           <p className="text-xs text-muted-foreground mt-2">
-                            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: locale === 'ne' ? undefined : locale === 'ko' ? undefined : undefined })}
                           </p>
                         </div>
                         
@@ -208,7 +211,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
                               }}
                               disabled={isMarkingAsRead}
                               className="h-6 w-6 p-0"
-                              title="Mark as read"
+                              title={t('markAsRead')}
                             >
                               <Check className="h-3 w-3" />
                             </Button>
@@ -219,7 +222,7 @@ export function NotificationList({ onClose }: NotificationListProps) {
                             onClick={(e) => handleDeleteNotification(e, notification.id)}
                             disabled={isDeleting}
                             className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                            title="Delete"
+                            title={t('deleteNotification')}
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>

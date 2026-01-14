@@ -6,12 +6,14 @@ import { Target, Trophy, Zap, Calendar } from 'lucide-react'
 import { useTasks } from '@/hooks/use-tasks'
 import { useNotes } from '@/hooks/use-notes'
 import { startOfWeek, endOfWeek, isWithinInterval } from 'date-fns'
+import { useTranslations } from 'next-intl'
 
 interface ProgressStatsWidgetProps {
   className?: string
 }
 
 export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
+  const t = useTranslations('dashboard.widgets.progress')
   const { data: tasksResponse } = useTasks({ limit: 100 })
   const { data: notesResponse } = useNotes({ limit: 100 })
 
@@ -49,7 +51,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
       bgColor: 'bg-blue-100',
     },
     {
-      title: 'Completion Rate',
+      title: t('completionRate'),
       value: completionRate,
       target: 100,
       icon: Trophy,
@@ -80,7 +82,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold flex items-center">
           <Trophy className="h-5 w-5 mr-2" />
-          Progress Stats
+          {t('title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-4">

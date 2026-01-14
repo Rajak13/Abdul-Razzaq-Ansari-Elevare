@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { 
   MicrophoneIcon, 
   VideoCameraIcon, 
@@ -36,6 +37,8 @@ export function CallControls({
   onStopScreenShare,
   onLeaveCall
 }: CallControlsProps) {
+  const t = useTranslations('groups.videoCall');
+  
   return (
     <div className="flex items-center justify-center space-x-4">
       {/* Audio Control */}
@@ -46,7 +49,7 @@ export function CallControls({
             ? 'bg-gray-700 hover:bg-gray-600 text-white'
             : 'bg-red-600 hover:bg-red-700 text-white'
         }`}
-        title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+        title={isAudioEnabled ? t('muteAudio') : t('unmuteAudio')}
       >
         {isAudioEnabled ? (
           <MicrophoneIcon className="w-6 h-6" />
@@ -63,7 +66,7 @@ export function CallControls({
             ? 'bg-gray-700 hover:bg-gray-600 text-white'
             : 'bg-red-600 hover:bg-red-700 text-white'
         }`}
-        title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+        title={isVideoEnabled ? t('muteVideo') : t('unmuteVideo')}
       >
         {isVideoEnabled ? (
           <VideoCameraIcon className="w-6 h-6" />
@@ -80,7 +83,7 @@ export function CallControls({
             ? 'bg-green-600 hover:bg-green-700 text-white'
             : 'bg-gray-700 hover:bg-gray-600 text-white'
         }`}
-        title={isScreenSharing ? 'Stop screen sharing' : 'Share screen'}
+        title={isScreenSharing ? t('stopSharing') : t('shareScreen')}
       >
         {isScreenSharing ? (
           <ComputerDesktopIconSolid className="w-6 h-6" />
@@ -92,7 +95,7 @@ export function CallControls({
       {/* Speaker Control (placeholder for future implementation) */}
       <button
         className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition-all duration-200"
-        title="Speaker settings"
+        title={t('settings')}
         disabled
       >
         <SpeakerWaveIcon className="w-6 h-6" />
@@ -102,7 +105,7 @@ export function CallControls({
       <button
         onClick={onLeaveCall}
         className="p-3 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all duration-200 ml-8"
-        title="Leave call"
+        title={t('leaveCall')}
       >
         <PhoneXMarkIcon className="w-6 h-6" />
       </button>

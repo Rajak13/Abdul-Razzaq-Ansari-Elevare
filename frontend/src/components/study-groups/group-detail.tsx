@@ -8,6 +8,7 @@ import { GroupChat } from './group-chat';
 import { JoinRequestManagement } from './join-request-management';
 import { WhiteboardCanvas } from '@/components/whiteboard/whiteboard-canvas';
 import { GroupMembersList } from './group-members-list';
+import { useTranslations } from 'next-intl';
 import { 
   Users,
   Clock,
@@ -65,6 +66,8 @@ export function GroupDetail({
   showBackButton = true, 
   className = '' 
 }: GroupDetailProps) {
+  const t = useTranslations('groups');
+  const tCommon = useTranslations('common');
   const { user } = useAuth();
   const [group, setGroup] = useState<StudyGroup | null>(null);
   const [members, setMembers] = useState<LocalGroupMember[]>([]);
@@ -135,6 +138,17 @@ export function GroupDetail({
     }
   };
 
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'owner':
+        return t('members.owner');
+      case 'admin':
+        return t('members.admin');
+      default:
+        return t('members.member');
+    }
+  };
+
   const canManageRequests = group?.user_role === 'owner' || group?.user_role === 'admin';
 
   if (loading) {
@@ -201,7 +215,7 @@ export function GroupDetail({
           <div className="text-center">
             <div className="text-red-500 mb-2">⚠️</div>
             <p className="text-red-700 font-medium">
-              {error || 'Group not found or invalid group data'}
+              {error || t('messages.loadError')}
             </p>
             {showBackButton && onBack && (
               <Button
@@ -210,7 +224,7 @@ export function GroupDetail({
                 className="mt-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Go Back
+                {tCommon('back')}
               </Button>
             )}
           </div>
@@ -233,7 +247,7 @@ export function GroupDetail({
                   onClick={onBack}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  {tCommon('back')}
                 </Button>
               )}
               
@@ -252,15 +266,15 @@ export function GroupDetail({
                       ) : (
                         <Globe className="w-4 h-4" />
                       )}
-                      <span>{group.is_private ? 'Private' : 'Public'} Group</span>
+                      <span>{group.is_private ? t('form.private') : t('form.public')} {t('title')}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="w-4 h-4" />
-                      <span>{group.member_count} members</span>
+                      <span>{t('members.count', { count: group.member_count })}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
-                      <span>Created {formatDistanceToNow(new Date(group.created_at), { addSuffix: true })}</span>
+                      <span>{t('detail.createdAt')} {formatDistanceToNow(new Date(group.created_at), { addSuffix: true })}</span>
                     </div>
                   </div>
                 </div>
@@ -270,8 +284,7 @@ export function GroupDetail({
             {group.is_member && (
               <div className="flex items-center space-x-3">
                 <Badge variant={getRoleBadgeVariant(group.user_role || 'member')}>
-                  {group.user_role === 'owner' ? 'Owner' : 
-                   group.user_role === 'admin' ? 'Admin' : 'Member'}
+                  {getRoleLabel(group.user_role || 'member')}
                 </Badge>
                 <StartVideoCallButtonCompact
                   groupId={group.id}
@@ -290,13 +303,13 @@ export function GroupDetail({
           {/* Group Description */}
           <Card>
             <CardHeader>
-              <CardTitle>About this group</CardTitle>
+              <CardTitle>{t('detail.about')}</CardTitle>
             </CardHeader>
             <CardContent>
               {group.description ? (
                 <p className="text-gray-700">{group.description}</p>
               ) : (
-                <p className="text-gray-500 italic">No description provided</p>
+                <p className="text-gray-500 italic">{t('detail.noDescription')}</p>
               )}
             </CardContent>
           </Card>
@@ -308,28 +321,28 @@ export function GroupDetail({
                 <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="overview" className="flex items-center space-x-2">
                     <FileText className="w-4 h-4" />
-                    <span className="hidden sm:inline">Overview</span>
+                    <span className="hidden sm:inline">{t('detail.about')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="chat" className="flex items-center space-x-2">
                     <MessageCircle className="w-4 h-4" />
-                    <span className="hidden sm:inline">Chat</span>
+                    <span className="hidden sm:inline">{t('chat.title')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="video-call" className="flex items-center space-x-2">
                     <Video className="w-4 h-4" />
-                    <span className="hidden sm:inline">Video Call</span>
+                    <span className="hidden sm:inline">{t('videoCall.title')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="whiteboard" className="flex items-center space-x-2">
                     <PenTool className="w-4 h-4" />
-                    <span className="hidden sm:inline">Whiteboard</span>
+                    <span className="hidden sm:inline">{t('whiteboard.title')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="members" className="flex items-center space-x-2">
                     <Users className="w-4 h-4" />
-                    <span className="hidden sm:inline">Members</span>
+                    <span className="hidden sm:inline">{t('members.title')}</span>
                   </TabsTrigger>
                   {canManageRequests && (
                     <TabsTrigger value="requests" className="flex items-center space-x-2">
                       <UserPlus className="w-4 h-4" />
-                      <span className="hidden sm:inline">Requests</span>
+                      <span className="hidden sm:inline">{t('requests.title')}</span>
                     </TabsTrigger>
                   )}
                 </TabsList>
@@ -343,9 +356,9 @@ export function GroupDetail({
                             <Video className="w-5 h-5 text-green-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-green-900">Video Calls</h4>
+                            <h4 className="font-medium text-green-900">{t('videoCall.title')}</h4>
                             <p className="text-sm text-green-700">
-                              Start video study sessions with screen sharing
+                              {t('videoCall.startCall')}
                             </p>
                           </div>
                         </div>
@@ -357,9 +370,9 @@ export function GroupDetail({
                             <MessageCircle className="w-5 h-5 text-emerald-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-emerald-900">Group Chat</h4>
+                            <h4 className="font-medium text-emerald-900">{t('chat.title')}</h4>
                             <p className="text-sm text-emerald-700">
-                              Real-time messaging with group members
+                              {t('chat.startConversation')}
                             </p>
                           </div>
                         </div>
@@ -371,9 +384,9 @@ export function GroupDetail({
                             <PenTool className="w-5 h-5 text-teal-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-teal-900">Whiteboard</h4>
+                            <h4 className="font-medium text-teal-900">{t('whiteboard.title')}</h4>
                             <p className="text-sm text-teal-700">
-                              Collaborative drawing and note-taking
+                              {t('whiteboard.openWhiteboard')}
                             </p>
                           </div>
                         </div>
@@ -385,9 +398,9 @@ export function GroupDetail({
                             <Users className="w-5 h-5 text-lime-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-lime-900">Members</h4>
+                            <h4 className="font-medium text-lime-900">{t('members.title')}</h4>
                             <p className="text-sm text-lime-700">
-                              View and manage group members
+                              {t('members.viewAll')}
                             </p>
                           </div>
                         </div>
@@ -401,7 +414,7 @@ export function GroupDetail({
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
                         <MessageCircle className="w-5 h-5" />
-                        <span>Group Chat</span>
+                        <span>{t('chat.title')}</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -423,13 +436,13 @@ export function GroupDetail({
                       <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                           <Video className="w-5 h-5" />
-                          <span>Video Call Interface</span>
+                          <span>{t('videoCall.title')}</span>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="bg-gray-100 rounded-lg p-4 text-center">
                           <p className="text-gray-600 mb-4">
-                            Click "Start Call" or "Join Call" above to enter the video call interface
+                            {t('videoCall.joinCall')}
                           </p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div className="flex items-center space-x-2">
@@ -460,7 +473,7 @@ export function GroupDetail({
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
                         <PenTool className="w-5 h-5" />
-                        <span>Collaborative Whiteboard</span>
+                        <span>{t('whiteboard.title')}</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -507,7 +520,7 @@ export function GroupDetail({
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Settings className="w-5 h-5" />
-                  <span>Quick Actions</span>
+                  <span>{t('actions.settings')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -517,7 +530,7 @@ export function GroupDetail({
                   onClick={() => setActiveTab('chat')}
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Open Chat
+                  {t('chat.title')}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -525,7 +538,7 @@ export function GroupDetail({
                   onClick={() => setActiveTab('whiteboard')}
                 >
                   <PenTool className="w-4 h-4 mr-2" />
-                  Open Whiteboard
+                  {t('whiteboard.openWhiteboard')}
                 </Button>
                 <StartVideoCallButtonCompact
                   groupId={group.id}
@@ -542,7 +555,7 @@ export function GroupDetail({
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Users className="w-5 h-5" />
-                <span>Members ({members.length})</span>
+                <span>{t('members.title')} ({members.length})</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -561,7 +574,7 @@ export function GroupDetail({
                       </div>
                     </div>
                     <Badge variant={getRoleBadgeVariant(member.role)} className="text-xs">
-                      {member.role}
+                      {getRoleLabel(member.role)}
                     </Badge>
                   </div>
                 ))}
@@ -572,7 +585,7 @@ export function GroupDetail({
                     className="w-full"
                     onClick={() => setActiveTab('members')}
                   >
-                    View all {members.length} members
+                    {t('members.viewAll')} {members.length}
                   </Button>
                 )}
               </div>
@@ -582,30 +595,30 @@ export function GroupDetail({
           {/* Group Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Group Stats</CardTitle>
+              <CardTitle>{t('detail.about')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Members</span>
+                <span className="text-sm text-gray-600">{t('members.title')}</span>
                 <span className="text-sm font-medium">{group.member_count}</span>
               </div>
               {group.max_members && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Max Members</span>
+                  <span className="text-sm text-gray-600">{t('form.maxMembers')}</span>
                   <span className="text-sm font-medium">{group.max_members}</span>
                 </div>
               )}
               <Separator />
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Created</span>
+                <span className="text-sm text-gray-600">{t('detail.createdAt')}</span>
                 <span className="text-sm font-medium">
                   {new Date(group.created_at).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Privacy</span>
+                <span className="text-sm text-gray-600">{t('detail.privacy')}</span>
                 <span className="text-sm font-medium">
-                  {group.is_private ? 'Private' : 'Public'}
+                  {group.is_private ? t('form.private') : t('form.public')}
                 </span>
               </div>
             </CardContent>

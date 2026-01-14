@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-
+import { useTranslations } from 'next-intl';
 import { useCreateStudyGroup, useUpdateStudyGroup } from '@/hooks/use-study-groups';
 import { CreateStudyGroupInput, StudyGroupWithMemberCount } from '@/types/study-group';
 import { Loader2 } from 'lucide-react';
@@ -30,6 +30,8 @@ interface StudyGroupFormProps {
 }
 
 export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormProps) {
+  const t = useTranslations('groups.form');
+  const tCommon = useTranslations('common');
   const isEditing = !!group;
   const createMutation = useCreateStudyGroup();
   const updateMutation = useUpdateStudyGroup();
@@ -71,10 +73,10 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">Group Name</Label>
+        <Label htmlFor="name">{t('name')}</Label>
         <Input
           id="name"
-          placeholder="Enter group name..."
+          placeholder={t('namePlaceholder')}
           {...form.register('name')}
         />
         {form.formState.errors.name && (
@@ -83,15 +85,15 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t('description')}</Label>
         <Textarea
           id="description"
-          placeholder="Describe what this study group is about..."
+          placeholder={t('descriptionPlaceholder')}
           className="min-h-[100px]"
           {...form.register('description')}
         />
         <p className="text-sm text-muted-foreground">
-          Help others understand the purpose and focus of your study group
+          {t('descriptionPlaceholder')}
         </p>
         {form.formState.errors.description && (
           <p className="text-sm text-red-600">{form.formState.errors.description.message}</p>
@@ -100,9 +102,9 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
 
       <div className="flex flex-row items-center justify-between rounded-lg border p-4">
         <div className="space-y-0.5">
-          <Label className="text-base">Private Group</Label>
+          <Label className="text-base">{t('privacy')}</Label>
           <p className="text-sm text-muted-foreground">
-            Private groups require approval to join. Public groups can be joined freely.
+            {t('private')}
           </p>
         </div>
         <Switch
@@ -112,17 +114,17 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="max_members">Maximum Members (Optional)</Label>
+        <Label htmlFor="max_members">{t('maxMembers')}</Label>
         <Input
           id="max_members"
           type="number"
-          placeholder="No limit"
+          placeholder={t('maxMembersPlaceholder')}
           min={2}
           max={1000}
           {...form.register('max_members', { valueAsNumber: true })}
         />
         <p className="text-sm text-muted-foreground">
-          Set a limit on how many members can join this group
+          {t('maxMembersPlaceholder')}
         </p>
         {form.formState.errors.max_members && (
           <p className="text-sm text-red-600">{form.formState.errors.max_members.message}</p>
@@ -132,12 +134,12 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
       <div className="flex justify-end space-x-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditing ? 'Update Group' : 'Create Group'}
+          {isEditing ? t('update') : t('submit')}
         </Button>
       </div>
     </form>

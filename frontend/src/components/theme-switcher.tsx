@@ -1,9 +1,11 @@
 'use client';
 
 import { useTheme } from './theme-provider';
+import { useTranslations } from 'next-intl';
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('common');
 
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1">
@@ -14,9 +16,9 @@ export function ThemeSwitcher() {
             ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="Light Theme"
+        aria-label={t('theme.light')}
       >
-        Light
+        {t('theme.light')}
       </button>
       <button
         onClick={() => setTheme('light2')}
@@ -25,9 +27,9 @@ export function ThemeSwitcher() {
             ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="Light2 Theme"
+        aria-label={t('theme.light2')}
       >
-        Light2
+        {t('theme.light2')}
       </button>
       <button
         onClick={() => setTheme('dark')}
@@ -36,9 +38,9 @@ export function ThemeSwitcher() {
             ? 'bg-primary text-primary-foreground'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="Dark Theme"
+        aria-label={t('theme.dark')}
       >
-        Dark
+        {t('theme.dark')}
       </button>
     </div>
   );

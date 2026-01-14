@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
+import { useTranslations } from 'next-intl';
 import { Moon, Sun, ChevronDown, Settings, LogOut, Palette } from 'lucide-react';
 import { useTheme } from './theme-provider';
 import { Button } from '@/components/ui/button';
@@ -13,15 +14,42 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { NotificationBell } from '@/components/notifications';
 import { ClientOnly } from '@/components/ui/client-only';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 interface TopBarProps {
-  title: string;
-  subtitle?: string;
+  pathname: string;
 }
 
-export default function TopBar({ title, subtitle }: TopBarProps) {
+export default function TopBar({ pathname }: TopBarProps) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('common');
+
+  // Get page title based on pathname
+  const getPageInfo = (path: string) => {
+    switch (path) {
+      case '/dashboard':
+        return { title: t('navigation.dashboard'), subtitle: t('metadata.dashboard.description') }
+      case '/tasks':
+        return { title: t('navigation.tasks'), subtitle: t('metadata.tasks.description') }
+      case '/notes':
+        return { title: t('navigation.notes'), subtitle: t('metadata.notes.description') }
+      case '/groups':
+        return { title: t('navigation.groups'), subtitle: t('metadata.groups.description') }
+      case '/files':
+        return { title: t('navigation.files'), subtitle: t('metadata.files.description') }
+      case '/resources':
+        return { title: t('navigation.resources'), subtitle: t('metadata.resources.description') }
+      case '/search':
+        return { title: t('navigation.search'), subtitle: t('metadata.search.description') }
+      case '/profile':
+        return { title: t('navigation.profile'), subtitle: t('metadata.profile.description') }
+      default:
+        return { title: t('metadata.siteName'), subtitle: t('metadata.siteDescription') }
+    }
+  }
+
+  const { title, subtitle } = getPageInfo(pathname);
 
   return (
     <div className="bg-card border-b px-6 py-4 h-16 flex items-center">
@@ -32,8 +60,13 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
             <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
           )}
         </div>
-        
+
         <div className="flex items-center gap-3">
+          {/* Language Switcher */}
+          <ClientOnly>
+            <LanguageSwitcher />
+          </ClientOnly>
+
           {/* Theme Switcher */}
           <ClientOnly fallback={<Button variant="ghost" size="sm" className="h-9 w-9 p-0" disabled><Palette className="h-4 w-4" /></Button>}>
             <DropdownMenu>
@@ -49,26 +82,26 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setTheme('light')}
                   className={theme === 'light' ? 'bg-accent' : ''}
                 >
                   <Sun className="h-4 w-4 mr-2" />
-                  Light Theme
+                  {t('theme.light')}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setTheme('light2')}
                   className={theme === 'light2' ? 'bg-accent' : ''}
                 >
                   <Palette className="h-4 w-4 mr-2" />
-                  Light2 Theme
+                  {t('theme.light2')}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setTheme('dark')}
                   className={theme === 'dark' ? 'bg-accent' : ''}
                 >
                   <Moon className="h-4 w-4 mr-2" />
-                  Dark Theme
+                  {t('theme.dark')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -119,12 +152,12 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  {t('navigation.settings')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="text-red-600">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Log out
+                  {t('navigation.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

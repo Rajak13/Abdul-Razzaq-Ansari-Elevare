@@ -1,0 +1,106 @@
+{
+  "required": "이 필드는 필수입니다",
+  "requiredField": "{field}은(는) 필수입니다",
+  "email": {
+    "required": "이메일은 필수입니다",
+    "invalid": "유효한 이메일 주소를 입력해주세요",
+    "alreadyExists": "이 이메일은 이미 등록되어 있습니다",
+    "notFound": "이 이메일로 등록된 계정을 찾을 수 없습니다"
+  },
+  "password": {
+    "required": "비밀번호는 필수입니다",
+    "minLength": "비밀번호는 최소 {min}자 이상이어야 합니다",
+    "maxLength": "비밀번호는 {max}자를 초과할 수 없습니다",
+    "uppercase": "비밀번호는 최소 하나의 대문자를 포함해야 합니다",
+    "lowercase": "비밀번호는 최소 하나의 소문자를 포함해야 합니다",
+    "number": "비밀번호는 최소 하나의 숫자를 포함해야 합니다",
+    "special": "비밀번호는 최소 하나의 특수 문자를 포함해야 합니다",
+    "mismatch": "비밀번호가 일치하지 않습니다",
+    "weak": "비밀번호가 너무 약합니다",
+    "medium": "비밀번호 강도: 보통",
+    "strong": "비밀번호 강도: 강함",
+    "currentRequired": "현재 비밀번호는 필수입니다",
+    "newRequired": "새 비밀번호는 필수입니다",
+    "confirmRequired": "비밀번호를 확인해주세요",
+    "sameAsCurrent": "새 비밀번호는 현재 비밀번호와 달라야 합니다"
+  },
+  "name": {
+    "required": "이름은 필수입니다",
+    "minLength": "이름은 최소 {min}자 이상이어야 합니다",
+    "maxLength": "이름은 {max}자를 초과할 수 없습니다",
+    "invalid": "유효한 이름을 입력해주세요"
+  },
+  "username": {
+    "required": "사용자 이름은 필수입니다",
+    "minLength": "사용자 이름은 최소 {min}자 이상이어야 합니다",
+    "maxLength": "사용자 이름은 {max}자를 초과할 수 없습니다",
+    "invalid": "사용자 이름은 문자, 숫자, 밑줄만 포함할 수 있습니다",
+    "alreadyExists": "이 사용자 이름은 이미 사용 중입니다",
+    "notFound": "사용자 이름을 찾을 수 없습니다"
+  },
+  "phone": {
+    "required": "전화번호는 필수입니다",
+    "invalid": "유효한 전화번호를 입력해주세요"
+  },
+  "url": {
+    "required": "URL은 필수입니다",
+    "invalid": "유효한 URL을 입력해주세요"
+  },
+  "date": {
+    "required": "날짜는 필수입니다",
+    "invalid": "유효한 날짜를 입력해주세요",
+    "past": "날짜는 과거여야 합니다",
+    "future": "날짜는 미래여야 합니다",
+    "range": "날짜는 {min}과 {max} 사이여야 합니다"
+  },
+  "number": {
+    "required": "숫자는 필수입니다",
+    "invalid": "유효한 숫자를 입력해주세요",
+    "min": "숫자는 최소 {min} 이상이어야 합니다",
+    "max": "숫자는 {max}를 초과할 수 없습니다",
+    "range": "숫자는 {min}과 {max} 사이여야 합니다",
+    "positive": "숫자는 양수여야 합니다",
+    "integer": "숫자는 정수여야 합니다"
+  },
+  "file": {
+    "required": "파일은 필수입니다",
+    "tooLarge": "파일이 너무 큽니다. 최대 크기는 {max}입니다",
+    "tooSmall": "파일이 너무 작습니다. 최소 크기는 {min}입니다",
+    "invalidType": "유효하지 않은 파일 유형입니다. 허용된 유형: {types}",
+    "uploadFailed": "파일 업로드 실패. 다시 시도해주세요."
+  },
+  "text": {
+    "required": "텍스트는 필수입니다",
+    "minLength": "텍스트는 최소 {min}자 이상이어야 합니다",
+    "maxLength": "텍스트는 {max}자를 초과할 수 없습니다",
+    "pattern": "텍스트 형식이 유효하지 않습니다"
+  },
+  "select": {
+    "required": "옵션을 선택해주세요",
+    "invalid": "유효하지 않은 선택입니다"
+  },
+  "checkbox": {
+    "required": "이것을 수락해야 합니다",
+    "mustAccept": "{field}을(를) 수락해야 합니다"
+  },
+  "array": {
+    "required": "최소 하나의 항목이 필요합니다",
+    "minItems": "최소 {min}개의 항목이 필요합니다",
+    "maxItems": "{max}개 이하의 항목만 허용됩니다",
+    "unique": "항목은 고유해야 합니다"
+  },
+  "custom": {
+    "alphanumeric": "문자와 숫자만 허용됩니다",
+    "alphabetic": "문자만 허용됩니다",
+    "numeric": "숫자만 허용됩니다",
+    "noSpaces": "공백은 허용되지 않습니다",
+    "noSpecialChars": "특수 문자는 허용되지 않습니다"
+  },
+  "form": {
+    "invalidData": "입력을 확인하고 다시 시도해주세요",
+    "submissionFailed": "양식 제출 실패. 다시 시도해주세요.",
+    "unsavedChanges": "저장하지 않은 변경사항이 있습니다. 나가시겠습니까?",
+    "requiredFields": "모든 필수 필드를 입력해주세요",
+    "invalidFields": "일부 필드에 유효하지 않은 데이터가 포함되어 있습니다"
+  }
+}

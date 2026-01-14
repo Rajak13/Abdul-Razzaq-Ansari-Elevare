@@ -2,8 +2,8 @@
 
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, usePathname } from '@/navigation'
+import { useTranslations } from 'next-intl'
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
@@ -39,62 +39,6 @@ interface NavItem {
   badge?: string | number
 }
 
-const navigationItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: <Home className="h-4 w-4" />,
-  },
-  {
-    title: 'Tasks',
-    href: '/tasks',
-    icon: <CheckSquare className="h-4 w-4" />,
-  },
-  {
-    title: 'Notes',
-    href: '/notes',
-    icon: <FileText className="h-4 w-4" />,
-  },
-  {
-    title: 'Study Groups',
-    href: '/groups',
-    icon: <Users className="h-4 w-4" />,
-  },
-  {
-    title: 'Files',
-    href: '/files',
-    icon: <File className="h-4 w-4" />,
-  },
-  {
-    title: 'Resources',
-    href: '/resources',
-    icon: <Calendar className="h-4 w-4" />,
-  },
-  {
-    title: 'Search',
-    href: '/search',
-    icon: <Search className="h-4 w-4" />,
-  },
-  {
-    title: 'Profile',
-    href: '/profile',
-    icon: <User className="h-4 w-4" />,
-  },
-]
-
-const quickActions: NavItem[] = [
-  {
-    title: 'New Task',
-    href: '/tasks/new',
-    icon: <Plus className="h-4 w-4" />,
-  },
-  {
-    title: 'New Note',
-    href: '/notes/create',
-    icon: <Plus className="h-4 w-4" />,
-  },
-]
-
 export function Sidebar({
   className,
   isOpen = true,
@@ -103,6 +47,63 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname()
   const { logout } = useAuth()
+  const t = useTranslations('common')
+
+  const navigationItems: NavItem[] = [
+    {
+      title: t('navigation.dashboard'),
+      href: '/dashboard',
+      icon: <Home className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.tasks'),
+      href: '/tasks',
+      icon: <CheckSquare className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.notes'),
+      href: '/notes',
+      icon: <FileText className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.groups'),
+      href: '/groups',
+      icon: <Users className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.files'),
+      href: '/files',
+      icon: <File className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.resources'),
+      href: '/resources',
+      icon: <Calendar className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.search'),
+      href: '/search',
+      icon: <Search className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.profile'),
+      href: '/profile',
+      icon: <User className="h-4 w-4" />,
+    },
+  ]
+
+  const quickActions: NavItem[] = [
+    {
+      title: t('navigation.newTask'),
+      href: '/tasks/new',
+      icon: <Plus className="h-4 w-4" />,
+    },
+    {
+      title: t('navigation.newNote'),
+      href: '/notes/create',
+      icon: <Plus className="h-4 w-4" />,
+    },
+  ]
 
   // Get user display info
   const displayName = user?.name || 'User'
@@ -124,7 +125,7 @@ export function Sidebar({
       {/* Sidebar Header */}
       <div className="flex h-16 items-center justify-between border-b px-4 bg-card">
         {isOpen && (
-          <Link href="/dashboard" className="flex items-center space-x-2">
+          <Link href={"/dashboard" as any} className="flex items-center space-x-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <span className="font-bold">E</span>
             </div>
@@ -154,7 +155,7 @@ export function Sidebar({
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as any}
                 className={cn(
                   'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
@@ -184,13 +185,13 @@ export function Sidebar({
         {isOpen && (
           <div className="pt-4">
             <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Quick Actions
+              {t('navigation.quickActions')}
             </h3>
             <div className="space-y-1">
               {quickActions.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={item.href as any}
                   className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   {item.icon}
@@ -205,12 +206,12 @@ export function Sidebar({
       {/* User Profile Section */}
       <div className="border-t p-4">
         <Link
-          href="/profile"
+          href={"/profile" as any}
           className={cn(
             'flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-accent hover:text-accent-foreground',
             !isOpen && 'justify-center'
           )}
-          title={!isOpen ? 'Profile Settings' : undefined}
+          title={!isOpen ? t('navigation.profileSettings') : undefined}
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
             {avatarInitial}
@@ -234,10 +235,10 @@ export function Sidebar({
             "mt-2 w-full justify-start",
             !isOpen && "justify-center px-2"
           )}
-          title={!isOpen ? "Logout" : undefined}
+          title={!isOpen ? t('navigation.logout') : undefined}
         >
           <LogOut className="h-4 w-4" />
-          {isOpen && <span className="ml-2">Logout</span>}
+          {isOpen && <span className="ml-2">{t('navigation.logout')}</span>}
         </Button>
       </div>
     </aside>

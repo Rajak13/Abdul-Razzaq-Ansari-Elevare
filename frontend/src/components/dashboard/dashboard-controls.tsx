@@ -25,63 +25,65 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { DashboardSettings } from './dashboard-settings'
+import { useTranslations } from 'next-intl'
 
 interface DashboardControlsProps {
   className?: string
 }
 
 export function DashboardControls({ className }: DashboardControlsProps) {
+  const t = useTranslations('dashboard')
   const { isEditing, setEditing, addWidget, resetLayout } = useDashboardStore()
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const availableWidgets = [
     {
       type: 'tasks-overview' as const,
-      title: 'Tasks Overview',
+      title: t('widgets.tasks.title'),
       icon: CheckSquare,
-      description: 'View and manage your tasks',
+      description: t('widgets.tasks.description'),
     },
     {
       type: 'recent-notes' as const,
-      title: 'Recent Notes',
+      title: t('widgets.recentNotes.title'),
       icon: FileText,
-      description: 'Quick access to your latest notes',
+      description: t('widgets.recentNotes.description'),
     },
     {
       type: 'calendar' as const,
-      title: 'Calendar',
+      title: t('widgets.calendar.title'),
       icon: Calendar,
-      description: 'View upcoming events and deadlines',
+      description: t('widgets.calendar.description'),
     },
     {
       type: 'activity' as const,
-      title: 'Activity Feed',
+      title: t('widgets.activity.title'),
       icon: Activity,
-      description: 'See your recent activity',
+      description: t('widgets.activity.description'),
     },
     {
       type: 'stats' as const,
-      title: 'Quick Stats',
+      title: t('widgets.stats.title'),
       icon: BarChart3,
-      description: 'Overview of your key metrics',
+      description: t('widgets.stats.description'),
     },
     {
       type: 'productivity-chart' as const,
-      title: 'Productivity Chart',
+      title: t('widgets.productivity.title'),
       icon: TrendingUp,
-      description: 'Visual chart of your daily productivity',
+      description: t('widgets.productivity.description'),
     },
     {
       type: 'study-groups' as const,
-      title: 'Study Groups',
+      title: t('widgets.studyGroups.title'),
       icon: Users,
-      description: 'Your active study groups and sessions',
+      description: t('widgets.studyGroups.description'),
     },
     {
       type: 'progress-stats' as const,
-      title: 'Progress Stats',
+      title: t('widgets.progress.title'),
       icon: Target,
-      description: 'Track your goals and achievements',
+      description: t('widgets.progress.description'),
     },
   ]
 
@@ -113,7 +115,7 @@ export function DashboardControls({ className }: DashboardControlsProps) {
         onClick={handleToggleEdit}
       >
         <Edit3 className="h-4 w-4 mr-2" />
-        {isEditing ? 'Done Editing' : 'Edit Dashboard'}
+        {isEditing ? t('cancelEdit') : t('customize')}
       </Button>
 
       {/* Add Widget Dropdown */}
@@ -121,7 +123,7 @@ export function DashboardControls({ className }: DashboardControlsProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            Add Widget
+            {t('addWidget')}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
@@ -155,12 +157,12 @@ export function DashboardControls({ className }: DashboardControlsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={handleResetLayout}>
             <RotateCcw className="h-4 w-4 mr-2" />
-            Reset Layout
+            {t('resetLayout')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
             <Settings className="h-4 w-4 mr-2" />
-            Dashboard Settings
+            {t('settings.title')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

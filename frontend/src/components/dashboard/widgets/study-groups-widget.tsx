@@ -7,13 +7,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useStudyGroups } from '@/hooks/use-study-groups'
 import { Users, Plus, Calendar, MessageCircle, Lock, Globe } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/navigation'
+import { useTranslations } from 'next-intl'
 
 interface StudyGroupsWidgetProps {
   className?: string
 }
 
 export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
+  const t = useTranslations('dashboard.widgets.studyGroups')
   const { data: studyGroupsResponse, isLoading, error } = useStudyGroups({ member_of: true, limit: 5 })
   const { data: allGroupsResponse } = useStudyGroups({ limit: 1 }) // Just to get total count
   const studyGroups = studyGroupsResponse?.groups || []
@@ -35,7 +37,7 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <CardTitle className="text-lg font-semibold flex items-center">
             <Users className="h-5 w-5 mr-2" />
-            Study Groups
+            {t('title')}
           </CardTitle>
           <Skeleton className="h-8 w-20" />
         </CardHeader>
@@ -73,12 +75,12 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-lg font-semibold flex items-center">
           <Users className="h-5 w-5 mr-2" />
-          Study Groups
+          {t('title')}
         </CardTitle>
         <Link href="/groups">
           <Button size="sm" variant="outline" className="h-8">
             <Plus className="mr-1 h-3 w-3" />
-            View All
+            {t('viewAll')}
           </Button>
         </Link>
       </CardHeader>
@@ -88,11 +90,11 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{studyGroups.length}</div>
-              <div className="text-xs text-muted-foreground">My Groups</div>
+              <div className="text-xs text-muted-foreground">{t('noGroups')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{totalGroups}</div>
-              <div className="text-xs text-muted-foreground">Total Available</div>
+              <div className="text-xs text-muted-foreground">{t('viewAll')}</div>
             </div>
           </div>
 
@@ -120,7 +122,7 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
                         <div className="mt-1 flex items-center space-x-3 text-xs text-muted-foreground">
                           <span className="flex items-center space-x-1">
                             <Users className="h-3 w-3" />
-                            <span>{group.member_count} member{group.member_count !== 1 ? 's' : ''}</span>
+                            <span>{t('members', { count: group.member_count })}</span>
                           </span>
                         </div>
                         {group.user_role && (
@@ -136,21 +138,21 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
                 
                 <Link href="/groups">
                   <Button variant="ghost" size="sm" className="w-full text-xs">
-                    View All Groups
+                    {t('viewAll')}
                   </Button>
                 </Link>
               </>
             ) : (
               <div className="text-center py-6">
                 <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground mb-2">No Study Groups Yet</p>
+                <p className="text-sm text-muted-foreground mb-2">{t('noGroups')}</p>
                 <p className="text-xs text-muted-foreground mb-3">
                   Join or create study groups to collaborate with your peers.
                 </p>
                 <Link href="/groups">
                   <Button size="sm" variant="outline">
                     <Plus className="mr-1 h-3 w-3" />
-                    Explore Groups
+                    {t('createGroup')}
                   </Button>
                 </Link>
               </div>

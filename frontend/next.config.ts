@@ -1,8 +1,17 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from 'next';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -10,15 +19,9 @@ const nextConfig = {
   // Increase body size limit for file uploads
   experimental: {
     serverActions: {
-      bodySizeLimit: '50mb'
-    }
-  },
-  // API route configuration
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb'
+      bodySizeLimit: '50mb' as any
     }
   }
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

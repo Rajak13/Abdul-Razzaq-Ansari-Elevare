@@ -5,6 +5,9 @@ import { Activity, CheckCircle, FileText, FolderPlus, Plus } from 'lucide-react'
 import { useNotes } from '@/hooks/use-notes'
 import { useTasks } from '@/hooks/use-tasks'
 import { formatDistanceToNow } from 'date-fns'
+import { enUS, ko } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface ActivityWidgetProps {
   className?: string
@@ -19,7 +22,18 @@ interface ActivityItem {
   color: string
 }
 
+// Date-fns doesn't have a Nepali locale, so we'll use English as fallback
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  ko: ko,
+  ne: enUS // Fallback to English for Nepali
+}
+
 export function ActivityWidget({ className }: ActivityWidgetProps) {
+  const t = useTranslations('dashboard.widgets.activity')
+  const locale = useLocale()
+  const dateLocale = localeMap[locale] || enUS
+
   const { data: notesResponse, isLoading: notesLoading } = useNotes({
     limit: 3,
     sort_by: 'updated_at',
@@ -47,8 +61,8 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
     activities.push({
       id: `note-${note.id}`,
       type: isRecentlyCreated ? 'note_created' : 'note_updated',
-      message: isRecentlyCreated ? `Created note "${note.title}"` : `Updated note "${note.title}"`,
-      time: formatDistanceToNow(new Date(note.updated_at), { addSuffix: true }),
+      message: isRecentlyCreated ? t('noteCreated', { note: note.title }) : `Updated note "${note.title}"`,
+      time: formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: dateLocale }),
       icon: FileText,
       color: 'text-blue-500'
     })
@@ -60,8 +74,8 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
       activities.push({
         id: `task-completed-${task.id}`,
         type: 'task_completed',
-        message: `Completed task "${task.title}"`,
-        time: formatDistanceToNow(new Date(task.updated_at), { addSuffix: true }),
+        message: t('taskCompleted', { task: task.title }),
+        time: formatDistanceToNow(new Date(task.updated_at), { addSuffix: true, locale: dateLocale }),
         icon: CheckCircle,
         color: 'text-green-500'
       })
@@ -70,7 +84,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
         id: `task-created-${task.id}`,
         type: 'task_created',
         message: `Created task "${task.title}"`,
-        time: formatDistanceToNow(new Date(task.created_at), { addSuffix: true }),
+        time: formatDistanceToNow(new Date(task.created_at), { addSuffix: true, locale: dateLocale }),
         icon: Plus,
         color: 'text-orange-500'
       })
@@ -94,7 +108,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold flex items-center">
           <Activity className="h-5 w-5 mr-2" />
-          Recent Activity
+          {t('title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-4">
@@ -128,7 +142,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
           ) : (
             <div className="text-center py-6">
               <Activity className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No recent activity</p>
+              <p className="text-sm text-muted-foreground">{t('noActivity')}</p>
               <p className="text-xs text-muted-foreground">Start creating notes and tasks to see activity here</p>
             </div>
           )}

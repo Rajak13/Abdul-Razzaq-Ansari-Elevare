@@ -92,7 +92,7 @@ export async function register(
   const result = await query<User>(
     `INSERT INTO users (email, password_hash, name, email_verified, otp_code, otp_expires_at, otp_attempts)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
-     RETURNING id, email, name, bio, avatar_url, email_verified, created_at, updated_at`,
+     RETURNING id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at`,
     [email, password_hash, name, false, otp, otpExpiresAt, 0]
   );
 
@@ -113,7 +113,7 @@ export async function login(
 
   // Find user with password hash
   const result = await query<UserWithPassword>(
-    `SELECT id, email, password_hash, name, bio, avatar_url, email_verified, created_at, updated_at
+    `SELECT id, email, password_hash, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
      FROM users WHERE email = $1`,
     [email]
   );
@@ -155,7 +155,7 @@ export async function login(
  */
 export async function findById(userId: string): Promise<User | null> {
   const result = await query<User>(
-    `SELECT id, email, name, bio, avatar_url, email_verified, created_at, updated_at
+    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
      FROM users WHERE id = $1`,
     [userId]
   );
@@ -168,7 +168,7 @@ export async function findById(userId: string): Promise<User | null> {
  */
 export async function findByEmail(email: string): Promise<User | null> {
   const result = await query<User>(
-    `SELECT id, email, name, bio, avatar_url, email_verified, created_at, updated_at
+    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
      FROM users WHERE email = $1`,
     [email]
   );
@@ -217,6 +217,11 @@ export async function updateProfile(
     values.push(data.graduation_date);
   }
 
+  if (data.preferred_language !== undefined) {
+    updates.push(`preferred_language = $${paramCount++}`);
+    values.push(data.preferred_language);
+  }
+
   if (updates.length === 0) {
     throw new Error('No fields to update');
   }
@@ -228,7 +233,7 @@ export async function updateProfile(
   const result = await query<User>(
     `UPDATE users SET ${updates.join(', ')}
      WHERE id = $${paramCount}
-     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, email_verified, created_at, updated_at`,
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, preferred_language, email_verified, created_at, updated_at`,
     values
   );
 
@@ -331,7 +336,7 @@ export async function verifyOTP(
 
     // Find user with OTP
     const result = await client.query(
-      `SELECT id, email, name, bio, avatar_url, email_verified, otp_code, otp_expires_at, otp_attempts, created_at, updated_at
+      `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, otp_code, otp_expires_at, otp_attempts, created_at, updated_at
        FROM users WHERE email = $1`,
       [email]
     );
@@ -428,4 +433,33 @@ export async function resendOTP(email: string): Promise<string> {
   logger.info('OTP resent', { email });
 
   return otp;
+}
+
+/**
+ * Update user language preference
+ */
+export async function updateLanguagePreference(
+  userId: string,
+  language: string
+): Promise<User> {
+  const validLocales = ['en', 'ne', 'ko'];
+  
+  if (!validLocales.includes(language)) {
+    throw new Error('Invalid language code');
+  }
+
+  const result = await query<User>(
+    `UPDATE users SET preferred_language = $1, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $2
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, preferred_language, email_verified, created_at, updated_at`,
+    [language, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error('User not found');
+  }
+
+  logger.info('User language preference updated', { userId, language });
+
+  return result.rows[0];
 }

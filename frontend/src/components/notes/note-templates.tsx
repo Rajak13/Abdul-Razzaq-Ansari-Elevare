@@ -1,14 +1,18 @@
 'use client'
 
 import { NoteTemplate } from '@/types/note';
+import { useTranslations } from 'next-intl';
 
-export const noteTemplates: NoteTemplate[] = [
-  {
-    id: 'basic',
-    name: 'Basic Note',
-    description: 'A simple note with title and content',
-    preview: 'Simple text editor for general note-taking',
-    content: `# My Note
+export function useNoteTemplates(): NoteTemplate[] {
+  const t = useTranslations('notes.templates');
+  
+  return [
+    {
+      id: 'basic',
+      name: t('blank'),
+      description: t('meetingDescription'),
+      preview: t('meetingDescription'),
+      content: `# ${t('blank')}
 
 Start writing your thoughts here...
 
@@ -27,13 +31,13 @@ function hello() {
   console.log("Hello, World!");
 }
 \`\`\``,
-  },
-  {
-    id: 'study',
-    name: 'Study Notes',
-    description: 'Structured template for academic study notes',
-    preview: 'Organized sections for topic, objectives, key concepts, and review',
-    content: `# Study Notes - [Subject/Topic]
+    },
+    {
+      id: 'study',
+      name: t('lecture'),
+      description: t('lectureDescription'),
+      preview: t('lectureDescription'),
+      content: `# ${t('lecture')} - [Subject/Topic]
 
 **Date:** ${new Date().toLocaleDateString()}
 
@@ -77,13 +81,13 @@ Definition and explanation...
 - [ ] Practice exercises
 - [ ] Review materials
 - [ ] Prepare for next session`,
-  },
-  {
-    id: 'meeting',
-    name: 'Meeting Notes',
-    description: 'Template for meeting notes with agenda and action items',
-    preview: 'Structured format for meeting documentation and follow-ups',
-    content: `# Meeting Notes
+    },
+    {
+      id: 'meeting',
+      name: t('meeting'),
+      description: t('meetingDescription'),
+      preview: t('meetingDescription'),
+      content: `# ${t('meeting')}
 
 **Date:** ${new Date().toLocaleDateString()}
 **Time:** [Meeting Time]
@@ -116,13 +120,13 @@ Definition and explanation...
 **Agenda Preview:**
 - Follow up on action items
 - New topics to discuss`,
-  },
-  {
-    id: 'project',
-    name: 'Project Planning',
-    description: 'Template for project planning and tracking',
-    preview: 'Structured format for project documentation',
-    content: `# Project: [Project Name]
+    },
+    {
+      id: 'project',
+      name: t('project'),
+      description: t('projectDescription'),
+      preview: t('projectDescription'),
+      content: `# ${t('project')}: [Project Name]
 
 **Start Date:** ${new Date().toLocaleDateString()}
 **Status:** Planning
@@ -168,13 +172,13 @@ Brief description of what this project aims to achieve.
 
 ## 📝 Notes & Updates
 [Add project updates, decisions, and important notes here]`,
-  },
-  {
-    id: 'research',
-    name: 'Research Notes',
-    description: 'Template for research and investigation notes',
-    preview: 'Structured format for research documentation',
-    content: `# Research: [Topic]
+    },
+    {
+      id: 'research',
+      name: t('research'),
+      description: t('researchDescription'),
+      preview: t('researchDescription'),
+      content: `# ${t('research')}: [Topic]
 
 **Date:** ${new Date().toLocaleDateString()}
 **Research Question:** [Main question being investigated]
@@ -220,13 +224,24 @@ Brief description of what this project aims to achieve.
 - [ ] Follow-up research needed
 - [ ] Additional sources to explore
 - [ ] Questions to investigate further`,
-  },
-];
+    },
+  ];
+}
 
 export function getTemplateById(id: string): NoteTemplate | undefined {
-  return noteTemplates.find((template) => template.id === id);
+  // This needs to be called within a component that has access to translations
+  // For now, return undefined and handle in the component
+  return undefined;
 }
 
 export function getDefaultTemplate(): NoteTemplate {
-  return noteTemplates[0]; // Basic template
+  // This needs to be called within a component that has access to translations
+  // For now, return a basic template structure
+  return {
+    id: 'basic',
+    name: 'Basic Note',
+    description: 'A simple note with title and content',
+    preview: 'Simple text editor for general note-taking',
+    content: '# My Note\n\nStart writing...',
+  };
 }

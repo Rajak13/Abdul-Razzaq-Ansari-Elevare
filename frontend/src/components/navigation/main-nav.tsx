@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/navigation';
+import { useTranslations } from 'next-intl';
 import { 
   HomeIcon,
   UserGroupIcon,
@@ -14,19 +14,20 @@ import {
   BookmarkIcon
 } from '@heroicons/react/24/outline';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Study Groups', href: '/study-groups', icon: UserGroupIcon },
-  { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
-  { name: 'Resources', href: '/resources', icon: BookmarkIcon },
-  { name: 'Notes', href: '/notes', icon: DocumentTextIcon },
-  { name: 'Profile', href: '/profile', icon: UserIcon },
-  { name: 'Notifications', href: '/notifications', icon: BellIcon },
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-];
-
 export function MainNav() {
   const pathname = usePathname();
+  const t = useTranslations('common');
+
+  const navigation = [
+    { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon },
+    { name: t('navigation.groups'), href: '/study-groups', icon: UserGroupIcon },
+    { name: t('navigation.search'), href: '/search', icon: MagnifyingGlassIcon },
+    { name: t('navigation.resources'), href: '/resources', icon: BookmarkIcon },
+    { name: t('navigation.notes'), href: '/notes', icon: DocumentTextIcon },
+    { name: t('navigation.profile'), href: '/profile', icon: UserIcon },
+    { name: t('navigation.notifications'), href: '/notifications', icon: BellIcon },
+    { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
+  ];
 
   return (
     <nav className="bg-white shadow-sm border-b">
@@ -44,7 +45,7 @@ export function MainNav() {
                 return (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={item.href as any}
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
                       isActive
                         ? 'border-blue-500 text-gray-900'

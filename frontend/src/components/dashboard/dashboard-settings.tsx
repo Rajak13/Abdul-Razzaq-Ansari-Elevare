@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useDashboardStore } from '@/lib/stores/dashboard-store'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface DashboardSettingsProps {
   open: boolean
@@ -20,6 +21,8 @@ interface DashboardSettingsProps {
 }
 
 export function DashboardSettings({ open, onOpenChange }: DashboardSettingsProps) {
+  const t = useTranslations('dashboard.settings')
+  const tCommon = useTranslations('common')
   const { layout, updateLayout } = useDashboardStore()
   const [localLayout, setLocalLayout] = useState(layout)
 
@@ -37,7 +40,7 @@ export function DashboardSettings({ open, onOpenChange }: DashboardSettingsProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Dashboard Settings</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
             Customize your dashboard layout and appearance.
           </DialogDescription>
@@ -107,9 +110,9 @@ export function DashboardSettings({ open, onOpenChange }: DashboardSettingsProps
         
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {tCommon('cancel')}
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>{tCommon('save')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

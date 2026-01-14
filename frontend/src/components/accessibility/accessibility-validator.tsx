@@ -137,7 +137,6 @@ export function AccessibilityValidator() {
                 </div>
               </div>
             )}
-            </div>
           </div>
         </CardContent>
       </Card>

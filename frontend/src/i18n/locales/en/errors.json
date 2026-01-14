@@ -1,0 +1,133 @@
+{
+  "general": {
+    "unknown": "An unknown error occurred",
+    "tryAgain": "Please try again",
+    "contactSupport": "If the problem persists, please contact support",
+    "somethingWentWrong": "Something went wrong"
+  },
+  "network": {
+    "offline": "You are offline. Please check your internet connection.",
+    "timeout": "Request timed out. Please try again.",
+    "connectionLost": "Connection lost. Reconnecting...",
+    "slowConnection": "Slow connection detected",
+    "noInternet": "No internet connection"
+  },
+  "server": {
+    "error": "Server error. Please try again later.",
+    "maintenance": "Server is under maintenance. Please try again later.",
+    "unavailable": "Service temporarily unavailable",
+    "overloaded": "Server is overloaded. Please try again later."
+  },
+  "authentication": {
+    "required": "Authentication required",
+    "failed": "Authentication failed",
+    "invalidCredentials": "Invalid email or password",
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "accountLocked": "Your account has been locked. Please contact support.",
+    "accountDisabled": "Your account has been disabled",
+    "emailNotVerified": "Please verify your email address",
+    "tooManyAttempts": "Too many login attempts. Please try again later.",
+    "invalidToken": "Invalid or expired token",
+    "unauthorized": "You are not authorized to perform this action",
+    "forbidden": "Access forbidden"
+  },
+  "validation": {
+    "failed": "Validation failed",
+    "invalidInput": "Invalid input",
+    "missingRequired": "Required fields are missing",
+    "invalidFormat": "Invalid format"
+  },
+  "notFound": {
+    "page": "Page not found",
+    "resource": "Resource not found",
+    "user": "User not found",
+    "task": "Task not found",
+    "note": "Note not found",
+    "group": "Group not found",
+    "file": "File not found",
+    "data": "Data not found"
+  },
+  "permission": {
+    "denied": "Permission denied",
+    "insufficientPermissions": "You don't have permission to perform this action",
+    "ownerOnly": "Only the owner can perform this action",
+    "adminOnly": "Only administrators can perform this action",
+    "memberOnly": "Only group members can perform this action"
+  },
+  "rateLimit": {
+    "exceeded": "Rate limit exceeded. Please try again later.",
+    "tooManyRequests": "Too many requests. Please slow down.",
+    "quotaExceeded": "Quota exceeded"
+  },
+  "file": {
+    "uploadFailed": "File upload failed",
+    "downloadFailed": "File download failed",
+    "tooLarge": "File is too large",
+    "invalidType": "Invalid file type",
+    "corrupted": "File is corrupted",
+    "notFound": "File not found",
+    "accessDenied": "Access to file denied"
+  },
+  "database": {
+    "error": "Database error",
+    "connectionFailed": "Database connection failed",
+    "queryFailed": "Database query failed",
+    "duplicateEntry": "Duplicate entry",
+    "constraintViolation": "Constraint violation"
+  },
+  "pages": {
+    "404": {
+      "title": "404 - Page Not Found",
+      "heading": "Oops! Page not found",
+      "message": "The page you're looking for doesn't exist or has been moved.",
+      "backHome": "Back to Home",
+      "searchSite": "Search Site"
+    },
+    "500": {
+      "title": "500 - Server Error",
+      "heading": "Something went wrong",
+      "message": "We're experiencing technical difficulties. Please try again later.",
+      "refresh": "Refresh Page",
+      "reportIssue": "Report Issue"
+    },
+    "403": {
+      "title": "403 - Access Forbidden",
+      "heading": "Access Denied",
+      "message": "You don't have permission to access this page.",
+      "backHome": "Back to Home",
+      "contactAdmin": "Contact Administrator"
+    },
+    "503": {
+      "title": "503 - Service Unavailable",
+      "heading": "Service Temporarily Unavailable",
+      "message": "We're performing maintenance. Please check back soon.",
+      "checkStatus": "Check Status"
+    }
+  },
+  "actions": {
+    "createFailed": "Failed to create {item}",
+    "updateFailed": "Failed to update {item}",
+    "deleteFailed": "Failed to delete {item}",
+    "loadFailed": "Failed to load {item}",
+    "saveFailed": "Failed to save {item}",
+    "uploadFailed": "Failed to upload {item}",
+    "downloadFailed": "Failed to download {item}",
+    "sendFailed": "Failed to send {item}",
+    "fetchFailed": "Failed to fetch {item}"
+  },
+  "specific": {
+    "taskNotFound": "Task not found or has been deleted",
+    "noteNotFound": "Note not found or has been deleted",
+    "groupNotFound": "Group not found or has been deleted",
+    "groupFull": "This group is full",
+    "alreadyMember": "You are already a member of this group",
+    "notMember": "You are not a member of this group",
+    "inviteExpired": "This invite has expired",
+    "inviteInvalid": "This invite is invalid",
+    "resourceNotFound": "Resource not found or has been deleted",
+    "commentNotFound": "Comment not found or has been deleted",
+    "userNotFound": "User not found",
+    "emailTaken": "This email is already registered",
+    "usernameTaken": "This username is already taken"
+  }
+}

@@ -3,9 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { noteTemplates } from './note-templates';
+import { useNoteTemplates } from './note-templates';
 import { NoteTemplate } from '@/types/note';
 import { FileText, BookOpen, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface TemplateSelectorProps {
   open: boolean;
@@ -17,6 +18,8 @@ const templateIcons = {
   basic: FileText,
   study: BookOpen,
   meeting: Users,
+  project: FileText,
+  research: BookOpen,
 };
 
 export function TemplateSelector({
@@ -24,11 +27,14 @@ export function TemplateSelector({
   onOpenChange,
   onTemplateSelect,
 }: TemplateSelectorProps) {
+  const t = useTranslations('notes.templates');
+  const noteTemplates = useNoteTemplates();
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Choose a Template</DialogTitle>
+          <DialogTitle>{t('selectTemplate')}</DialogTitle>
         </DialogHeader>
         
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -53,7 +59,7 @@ export function TemplateSelector({
                 <CardContent>
                   <p className="text-sm text-muted-foreground">{template.preview}</p>
                   <Button className="mt-3 w-full" variant="outline">
-                    Use Template
+                    {t('useTemplate')}
                   </Button>
                 </CardContent>
               </Card>

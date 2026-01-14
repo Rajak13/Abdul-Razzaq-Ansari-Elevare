@@ -50,13 +50,13 @@ export function useRetryManager({
   }, [retryState.nextRetryAt])
 
   const scheduleRetry = useCallback((error: ErrorResponse) => {
-    if (!isRetryableError(error.code) || retryState.attempt >= maxRetries) {
+    if (!isRetryableError(error.code as any) || retryState.attempt >= maxRetries) {
       setRetryState(prev => ({ ...prev, canRetry: false }))
       onMaxRetriesReached?.()
       return
     }
 
-    const delay = getRetryDelay(error.code, retryState.attempt + 1)
+    const delay = getRetryDelay(error.code as any, retryState.attempt + 1)
     const nextRetryAt = new Date(Date.now() + delay)
 
     setRetryState(prev => ({
@@ -101,7 +101,7 @@ export function useRetryManager({
       
       // Schedule next retry if this was a retryable error
       if (error instanceof Error && 'code' in error) {
-        scheduleRetry(error as ErrorResponse)
+        scheduleRetry(error as unknown as ErrorResponse)
       }
     }
   }, [retryState.canRetry, retryState.isRetrying, onRetry, scheduleRetry])

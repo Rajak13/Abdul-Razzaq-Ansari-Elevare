@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { AlertCircle, CheckCircle, Loader2, RefreshCw, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 
 interface SummaryGeneratorProps {
   noteContent: string
@@ -31,6 +32,7 @@ export function SummaryGenerator({
   disabled = false,
   className = ''
 }: SummaryGeneratorProps) {
+  const t = useTranslations('notes.summary');
   const [state, setState] = useState<GenerationState>('idle')
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -63,7 +65,7 @@ export function SummaryGenerator({
 
     if (!noteContent.trim()) {
       console.log('❌ SummaryGenerator: No content, showing error toast');
-      toast.error('Please add some content to your note before generating a summary.');
+      toast.error(t('error'));
       return;
     }
 
@@ -114,9 +116,9 @@ export function SummaryGenerator({
       if (!response.ok) {
         const errorData = await response.json();
         console.log('❌ SummaryGenerator: API error response:', errorData);
-        setError(errorData.userMessage || 'Failed to generate summary');
+        setError(errorData.userMessage || t('error'));
         setState('error');
-        toast.error(errorData.userMessage || 'Failed to generate summary');
+        toast.error(errorData.userMessage || t('error'));
         return;
       }
 
@@ -132,7 +134,7 @@ export function SummaryGenerator({
       
       // Show success message only once
       console.log('🎉 SummaryGenerator: Showing success toast');
-      toast.success('Summary generated successfully!', {
+      toast.success(t('generating'), {
         description: `Processed in ${(totalTime / 1000).toFixed(1)}s`
       });
 
@@ -147,9 +149,9 @@ export function SummaryGenerator({
       clearInterval(progressInterval);
       console.error('🌐 SummaryGenerator: Network error:', networkError);
       
-      setError('Failed to connect to summarization service');
+      setError(t('error'));
       setState('error');
-      toast.error('Failed to connect to summarization service');
+      toast.error(t('error'));
     } finally {
       console.log('🏁 SummaryGenerator: Setting isGenerating to false');
       setIsGenerating(false);
@@ -166,28 +168,28 @@ export function SummaryGenerator({
         return (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
+            {t('generating')}
           </>
         )
       case 'success':
         return (
           <>
             <CheckCircle className="mr-2 h-4 w-4" />
-            Generated!
+            {t('generating')}
           </>
         )
       case 'error':
         return (
           <>
             <AlertCircle className="mr-2 h-4 w-4" />
-            Failed
+            {t('error')}
           </>
         )
       default:
         return (
           <>
             <Sparkles className="mr-2 h-4 w-4" />
-            Generate Summary
+            {t('generate')}
           </>
         )
     }

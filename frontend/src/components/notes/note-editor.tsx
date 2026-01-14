@@ -11,14 +11,15 @@ import { useAutoSaveNote, useCreateNote, useUpdateNote } from '@/hooks/use-notes
 import { useContentChangeDetection } from '@/hooks/use-content-change-detection';
 import { useUpdateNoteSummary } from '@/hooks/use-summary';
 import { generateContentHashSync } from '@/lib/content-hash';
-import { getDefaultTemplate, getTemplateById } from './note-templates';
+import { useNoteTemplates } from './note-templates';
 import { SummaryGenerator } from './summary-generator';
 import { SummaryDisplay } from './summary-display';
 import { Note, CreateNoteData } from '@/types/note';
 import { Eye, EyeOff, Folder, Hash, Maximize, Minimize, Plus, Save, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface NoteEditorProps {
   note?: Note;
@@ -37,6 +38,9 @@ export function NoteEditor({
   onCancel,
   className = '',
 }: NoteEditorProps) {
+  const t = useTranslations('notes');
+  const tCommon = useTranslations('common');
+  const noteTemplates = useNoteTemplates();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [title, setTitle] = useState(note?.title || '');
@@ -73,7 +77,7 @@ export function NoteEditor({
       }
     } else if (template) {
       // Use the selected template content
-      const selectedTemplate = getTemplateById(template);
+      const selectedTemplate = noteTemplates.find(t => t.id === template);
       if (selectedTemplate) {
         initialContent = typeof selectedTemplate.content === 'string' 
           ? selectedTemplate.content 
@@ -83,14 +87,16 @@ export function NoteEditor({
 
     if (!initialContent) {
       // Fallback to default template
-      const defaultTemplate = getDefaultTemplate();
-      initialContent = typeof defaultTemplate.content === 'string' 
-        ? defaultTemplate.content 
-        : extractTextFromContent(defaultTemplate.content);
+      const defaultTemplate = noteTemplates[0];
+      if (defaultTemplate) {
+        initialContent = typeof defaultTemplate.content === 'string' 
+          ? defaultTemplate.content 
+          : extractTextFromContent(defaultTemplate.content);
+      }
     }
 
     setContent(initialContent);
-  }, [note, template]);
+  }, [note, template, noteTemplates]);
 
   // Initialize summary from note
   useEffect(() => {
@@ -136,7 +142,7 @@ export function NoteEditor({
 
     try {
       const noteData = {
-        title: title.trim() || 'Untitled Note',
+        title: title.trim() || t('untitled'),
         content: content, // Store as plain markdown string
         tags,
         folder_id: selectedFolderId,
@@ -168,7 +174,7 @@ export function NoteEditor({
         onSave?.(updatedNote);
         // Only show toast for manual saves, not auto-saves
         if (!isAutoSaving) {
-          toast.success('Note saved successfully');
+          toast.success(t('messages.updateSuccess'));
         }
       } else {
         console.log('➕ NoteEditor: Creating new note');
@@ -187,11 +193,11 @@ export function NoteEditor({
           console.log('🔄 NoteEditor: Navigating to new note page:', `/notes/${newNote.id}`);
           router.push(`/notes/${newNote.id}`);
         }
-        toast.success('Note created successfully');
+        toast.success(t('messages.createSuccess'));
       }
     } catch (error) {
       console.error('❌ NoteEditor: Save error:', error);
-      toast.error('Failed to save note. Please try again.');
+      toast.error(t('messages.updateError'));
     }
   };
 
@@ -253,7 +259,7 @@ export function NoteEditor({
         // toast.success('Summary generated and saved successfully');
       } catch (error) {
         console.error('❌ NoteEditor: Failed to save summary:', error);
-        toast.error('Summary generated but failed to save. Please save the note manually.');
+        toast.error(t('summary.error'));
       }
     } else {
       console.log('⚠️ NoteEditor: No note.id, summary not saved to database');
@@ -278,7 +284,7 @@ export function NoteEditor({
         console.log('✅ NoteEditor: Edited summary saved successfully');
       } catch (error) {
         console.error('❌ NoteEditor: Failed to save edited summary:', error);
-        toast.error('Failed to save summary changes. Please try again.');
+        toast.error(t('summary.error'));
       }
     } else {
       console.log('⚠️ NoteEditor: Summary edited for unsaved note, will be saved when note is saved');
@@ -310,7 +316,7 @@ export function NoteEditor({
           <div className="flex items-center justify-between">
             <div className="mr-4 flex-1">
               <Input
-                placeholder="Note title..."
+                placeholder={t('editor.titlePlaceholder')}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="border-none bg-transparent p-0 text-lg font-semibold text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 dark:text-white dark:placeholder:text-gray-400"
@@ -320,7 +326,7 @@ export function NoteEditor({
             <div className="flex items-center gap-2">
               {isAutoSaving && (
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Saving...
+                  {t('editor.saving')}
                 </span>
               )}
 
@@ -328,7 +334,7 @@ export function NoteEditor({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsPreviewMode(!isPreviewMode)}
-                title={isPreviewMode ? 'Edit mode' : 'Preview mode'}
+                title={isPreviewMode ? t('editor.title') : t('editor.content')}
               >
                 {isPreviewMode ? (
                   <Eye className="h-4 w-4" />
@@ -341,7 +347,7 @@ export function NoteEditor({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                title={isFullscreen ? tCommon('cancel') : tCommon('save')}
               >
                 {isFullscreen ? (
                   <Minimize className="h-4 w-4" />
@@ -352,7 +358,7 @@ export function NoteEditor({
 
               <Button onClick={handleSave} disabled={isLoading} size="sm">
                 <Save className="mr-1 h-4 w-4" />
-                {note?.id ? 'Save' : 'Create'}
+                {note?.id ? tCommon('save') : tCommon('create')}
               </Button>
 
               {onCancel && (
@@ -375,14 +381,14 @@ export function NoteEditor({
                 }
               >
                 <SelectTrigger className="h-7 w-48 text-xs text-gray-900 dark:text-white">
-                  <SelectValue placeholder="Select folder" />
+                  <SelectValue placeholder={t('detail.folder')} />
                 </SelectTrigger>
                 <SelectContent className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <SelectItem
                     value="none"
                     className="text-gray-900 dark:text-white"
                   >
-                    No folder
+                    {t('folders.uncategorized')}
                   </SelectItem>
                   {folders.map((folder) => (
                     <SelectItem
@@ -420,7 +426,7 @@ export function NoteEditor({
 
               <div className="flex items-center gap-1">
                 <Input
-                  placeholder="Add tag..."
+                  placeholder={t('detail.tags')}
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyPress}
@@ -466,19 +472,7 @@ export function NoteEditor({
                 <Textarea
                   value={content}
                   onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder="Start writing your note in markdown format...
-
-# Heading 1
-## Heading 2
-### Heading 3
-
-**Bold text**
-*Italic text*
-
-* Bullet point
-1. Numbered list
-
-[Link text](https://example.com)"
+                  placeholder={t('editor.contentPlaceholder')}
                   className="flex-1 resize-none border-none bg-transparent p-4 text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 dark:text-white dark:placeholder:text-gray-400"
                 />
               </div>
@@ -488,7 +482,7 @@ export function NoteEditor({
                 <div className="p-4 flex-1 overflow-auto">
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      AI Summary
+                      {t('summary.title')}
                     </h3>
                     
                     {/* Summary Generator */}

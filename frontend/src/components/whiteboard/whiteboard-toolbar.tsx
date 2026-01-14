@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { WhiteboardExport } from './whiteboard-export';
 import { WhiteboardHistory } from './whiteboard-history';
+import { useTranslations } from 'next-intl';
 import { 
   Pencil, 
   Eraser, 
@@ -111,6 +112,8 @@ export function WhiteboardToolbar({
   isConnected,
   className = ''
 }: WhiteboardToolbarProps) {
+  const t = useTranslations('groups.whiteboard');
+  
   const handleToolSelect = (type: DrawingTool['type']) => {
     onToolChange({ type });
   };
@@ -137,7 +140,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={() => handleToolSelect('pen')}
           disabled={!canEdit}
-          title="Pen Tool"
+          title={t('pen')}
         >
           <Pencil className="h-4 w-4" />
         </Button>
@@ -146,7 +149,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={() => handleToolSelect('eraser')}
           disabled={!canEdit}
-          title="Eraser Tool"
+          title={t('eraser')}
         >
           <Eraser className="h-4 w-4" />
         </Button>
@@ -155,7 +158,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={() => handleToolSelect('rectangle')}
           disabled={!canEdit}
-          title="Rectangle Tool"
+          title={t('shapes')}
         >
           <Square className="h-4 w-4" />
         </Button>
@@ -164,7 +167,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={() => handleToolSelect('circle')}
           disabled={!canEdit}
-          title="Circle Tool"
+          title={t('shapes')}
         >
           <Circle className="h-4 w-4" />
         </Button>
@@ -173,7 +176,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={() => handleToolSelect('text')}
           disabled={!canEdit}
-          title="Text Tool"
+          title={t('text')}
         >
           <Type className="h-4 w-4" />
         </Button>
@@ -190,7 +193,7 @@ export function WhiteboardToolbar({
               size="sm"
               disabled={!canEdit}
               className="flex items-center gap-2"
-              title="Select Color"
+              title={t('color')}
             >
               <Palette className="h-4 w-4" />
               <div 
@@ -230,13 +233,13 @@ export function WhiteboardToolbar({
 
       {/* Stroke Width */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Size:</span>
+        <span className="text-sm text-muted-foreground">{t('thickness')}:</span>
         <Button
           variant="outline"
           size="sm"
           onClick={() => adjustSize(-2)}
           disabled={!canEdit || currentTool.size <= 2}
-          title="Decrease Size"
+          title={t('thickness')}
         >
           <Minus className="h-3 w-3" />
         </Button>
@@ -306,7 +309,7 @@ export function WhiteboardToolbar({
             size="sm"
             onClick={onUndo}
             disabled={!canEdit}
-            title="Undo"
+            title={t('undo')}
           >
             <Undo className="h-4 w-4" />
           </Button>
@@ -317,7 +320,7 @@ export function WhiteboardToolbar({
             size="sm"
             onClick={onRedo}
             disabled={!canEdit}
-            title="Redo"
+            title={t('redo')}
           >
             <Redo className="h-4 w-4" />
           </Button>
@@ -327,7 +330,7 @@ export function WhiteboardToolbar({
           size="sm"
           onClick={onClearCanvas}
           disabled={!canEdit}
-          title="Clear Canvas"
+          title={t('clear')}
         >
           <Trash2 className="h-4 w-4" />
         </Button>

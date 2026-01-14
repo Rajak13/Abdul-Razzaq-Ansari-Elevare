@@ -18,6 +18,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface ResourceUploadModalProps {
   isOpen: boolean;
@@ -33,6 +34,9 @@ interface UploadFormData {
 }
 
 export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: ResourceUploadModalProps) {
+  const t = useTranslations('resources.upload');
+  const tCommon = useTranslations('common');
+  const tMessages = useTranslations('resources.messages');
   const [formData, setFormData] = useState<UploadFormData>({
     title: '',
     description: '',
@@ -53,8 +57,8 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
     const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
       toast({
-        title: 'File too large',
-        description: 'Please select a file smaller than 50MB',
+        title: tMessages('fileTooLarge', { size: '50MB' }),
+        description: tCommon('error'),
         variant: 'destructive'
       });
       return;
@@ -63,13 +67,13 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
     // Show warning for large files
     if (file.size > 10 * 1024 * 1024) { // 10MB
       toast({
-        title: 'Large file detected',
-        description: 'This file is large and may take longer to upload',
+        title: t('fileSelected', { name: file.name }),
+        description: tMessages('fileTooLarge', { size: '10MB' }),
       });
     }
 
     setFormData(prev => ({ ...prev, file, title: prev.title || file.name.replace(/\.[^/.]+$/, '') }));
-  }, [toast]);
+  }, [toast, t, tMessages, tCommon]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -140,8 +144,8 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
     
     if (!formData.file || !formData.title.trim()) {
       toast({
-        title: 'Missing required fields',
-        description: 'Please provide a title and select a file',
+        title: tMessages('uploadError'),
+        description: tCommon('error'),
         variant: 'destructive'
       });
       return;
@@ -175,8 +179,8 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
       }
 
       toast({
-        title: 'Resource uploaded successfully',
-        description: 'Your resource has been shared with the community'
+        title: tMessages('uploadSuccess'),
+        description: tCommon('success')
       });
 
       // Reset form
@@ -193,19 +197,19 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
     } catch (error) {
       console.error('Upload error:', error);
       
-      let errorMessage = 'Please try again';
+      let errorMessage = tCommon('error');
       if (error instanceof Error) {
         if (error.message.includes('413') || error.message.includes('Body exceeded')) {
-          errorMessage = 'File is too large. Please select a smaller file (max 50MB)';
+          errorMessage = tMessages('fileTooLarge', { size: '50MB' });
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
-          errorMessage = 'Network error. Please check your connection and try again';
+          errorMessage = tMessages('uploadError');
         } else {
           errorMessage = error.message;
         }
       }
       
       toast({
-        title: 'Upload failed',
+        title: tMessages('uploadError'),
         description: errorMessage,
         variant: 'destructive'
       });
@@ -231,13 +235,13 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Upload Resource</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* File Upload Area */}
           <div className="space-y-2">
-            <Label>File</Label>
+            <Label>{t('selectFile')}</Label>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                 dragActive 
@@ -267,7 +271,7 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
                     onClick={() => setFormData(prev => ({ ...prev, file: null }))}
                   >
                     <X className="mr-2 h-4 w-4" />
-                    Remove
+                    {tCommon('remove')}
                   </Button>
                 </div>
               ) : (
@@ -275,9 +279,9 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                   <div>
                     <p className="text-foreground font-medium">
-                      Drop your file here, or{' '}
+                      {t('dropHere')}, {tCommon('or')}{' '}
                       <label className="text-primary cursor-pointer hover:underline">
-                        browse
+                        {tCommon('upload')}
                         <input
                           type="file"
                           className="hidden"
@@ -287,7 +291,7 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
                       </label>
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Supports: PDF, DOC, PPT, images, videos (max 50MB)
+                      {t('maxFileSize', { size: '50MB' })}
                     </p>
                   </div>
                 </div>
@@ -297,37 +301,37 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
 
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">{t('fileName')} *</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Enter resource title"
+              placeholder={t('fileNamePlaceholder')}
               required
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('description')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Describe your resource (optional)"
+              placeholder={t('descriptionPlaceholder')}
               rows={3}
             />
           </div>
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label>Tags</Label>
+            <Label>{t('tags')}</Label>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyPress={handleTagInputKeyPress}
-                placeholder="Add tags (press Enter)"
+                placeholder={t('tagsPlaceholder')}
                 className="flex-1"
               />
               <Button
@@ -367,7 +371,7 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
               onClick={handleClose}
               disabled={isUploading}
             >
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
@@ -376,12 +380,12 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading...
+                  {t('uploading')}
                 </>
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload Resource
+                  {t('submit')}
                 </>
               )}
             </Button>

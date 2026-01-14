@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
+import { useTranslations } from 'next-intl'
 
 interface ActivityItem {
   id: string
@@ -47,6 +48,8 @@ const activityColors = {
 export function ProfileActivity() {
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
+  const t = useTranslations('profile.activity')
+  const tCommon = useTranslations('common')
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -126,8 +129,8 @@ export function ProfileActivity() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Your latest actions and participation</CardDescription>
+          <CardTitle>{t('recentActivity')}</CardTitle>
+          <CardDescription>{t('title')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -152,10 +155,10 @@ export function ProfileActivity() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Recent Activity
+            {t('recentActivity')}
           </CardTitle>
           <CardDescription>
-            Your latest actions and participation in study groups
+            {t('title')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -189,7 +192,7 @@ export function ProfileActivity() {
                           )}
                           {activity.metadata.participants && (
                             <Badge variant="outline" className="text-xs">
-                              {activity.metadata.participants} participants
+                              {activity.metadata.participants} {tCommon('navigation.profile')}
                             </Badge>
                           )}
                           {activity.metadata.duration && (
@@ -211,26 +214,26 @@ export function ProfileActivity() {
       {/* Activity Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Activity Summary</CardTitle>
-          <CardDescription>Overview of your participation this week</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('thisWeek')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="text-center p-4 border rounded-lg">
               <div className="text-2xl font-bold text-blue-600">3</div>
-              <p className="text-sm text-muted-foreground">Video Calls</p>
+              <p className="text-sm text-muted-foreground">{tCommon('navigation.notifications')}</p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <div className="text-2xl font-bold text-green-600">7</div>
-              <p className="text-sm text-muted-foreground">Tasks Completed</p>
+              <p className="text-sm text-muted-foreground">{tCommon('status.completed')}</p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <div className="text-2xl font-bold text-purple-600">5</div>
-              <p className="text-sm text-muted-foreground">Notes Created</p>
+              <p className="text-sm text-muted-foreground">{tCommon('navigation.notes')}</p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <div className="text-2xl font-bold text-orange-600">12</div>
-              <p className="text-sm text-muted-foreground">Messages Sent</p>
+              <p className="text-sm text-muted-foreground">{tCommon('messages.operationSuccess')}</p>
             </div>
           </div>
         </CardContent>

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
+import { useLocale } from 'next-intl';
 import apiClient from '@/lib/api-client';
 import socketService from '@/services/socket-service';
 import {
@@ -32,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
   const router = useRouter();
+  const locale = useLocale();
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -94,8 +96,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Initialize socket connection
       socketService.connect(token);
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Set language preference cookie if user has one
+      if (user.preferred_language) {
+        document.cookie = `NEXT_LOCALE=${user.preferred_language};path=/;max-age=31536000`;
+        // Redirect to dashboard with user's preferred locale
+        router.replace('/dashboard', { locale: user.preferred_language });
+      } else {
+        // Redirect to dashboard with current locale
+        router.push('/dashboard');
+      }
     } catch (error) {
       throw error;
     }

@@ -6,13 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, Clock, Plus } from 'lucide-react'
 import { useTasks } from '@/hooks/use-tasks'
 import { format, isToday, parseISO } from 'date-fns'
-import Link from 'next/link'
+import { enUS, ko } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
+import { Link } from '@/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface CalendarWidgetProps {
   className?: string
 }
 
+// Date-fns doesn't have a Nepali locale, so we'll use English as fallback
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  ko: ko,
+  ne: enUS // Fallback to English for Nepali
+}
+
 export function CalendarWidget({ className }: CalendarWidgetProps) {
+  const t = useTranslations('dashboard.widgets.calendar')
+  const locale = useLocale()
+  const dateLocale = localeMap[locale] || enUS
   const today = new Date()
   
   // Get tasks due today
@@ -45,12 +58,12 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-lg font-semibold flex items-center">
           <Calendar className="h-5 w-5 mr-2" />
-          {todaysTasks.length > 0 ? "Today's Tasks" : "Upcoming Tasks"}
+          {todaysTasks.length > 0 ? t('today') : t('title')}
         </CardTitle>
         <Link href="/tasks">
           <Button size="sm" variant="outline" className="h-8">
             <Plus className="mr-1 h-3 w-3" />
-            Add Task
+            {t('noEvents')}
           </Button>
         </Link>
       </CardHeader>
@@ -59,7 +72,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
           <div className="text-center py-2">
             <p className="text-2xl font-bold">{today.getDate()}</p>
             <p className="text-sm text-muted-foreground">
-              {today.toLocaleDateString('en-US', { 
+              {today.toLocaleDateString(locale, { 
                 weekday: 'long',
                 month: 'short'
               })}
@@ -94,8 +107,8 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                     <p className="text-xs text-muted-foreground">
                       {task.due_date ? (
                         isToday(parseISO(task.due_date)) 
-                          ? 'Due today'
-                          : `Due ${format(parseISO(task.due_date), 'MMM d')}`
+                          ? t('today')
+                          : `Due ${format(parseISO(task.due_date), 'MMM d', { locale: dateLocale })}`
                       ) : 'No due date'}
                     </p>
                   </div>
@@ -120,7 +133,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                 <Calendar className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground mb-2">
                   {todaysTasks.length === 0 && upcomingTasks.length === 0 
-                    ? 'No tasks scheduled'
+                    ? t('noEvents')
                     : 'No tasks due today'
                   }
                 </p>

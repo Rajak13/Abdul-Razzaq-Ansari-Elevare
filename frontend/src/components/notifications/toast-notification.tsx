@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Notification } from '../../types/notification';
 
 interface ToastNotificationProps {
@@ -11,6 +12,7 @@ interface ToastNotificationProps {
 
 export function ToastNotification({ notification, playSound = true }: ToastNotificationProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const t = useTranslations('notifications');
 
   useEffect(() => {
     // Create audio element for notification sound
@@ -33,7 +35,7 @@ export function ToastNotification({ notification, playSound = true }: ToastNotif
       description: notification.content,
       duration: 5000,
       action: notification.link ? {
-        label: 'View',
+        label: t('actions.view'),
         onClick: () => {
           window.location.href = notification.link!;
         }
@@ -53,6 +55,7 @@ export function ToastNotification({ notification, playSound = true }: ToastNotif
 // Hook for showing toast notifications
 export function useToastNotification() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const t = useTranslations('notifications');
 
   useEffect(() => {
     // Create audio element for notification sound
@@ -75,7 +78,7 @@ export function useToastNotification() {
       description: notification.content,
       duration: 5000,
       action: notification.link ? {
-        label: 'View',
+        label: t('actions.view'),
         onClick: () => {
           window.location.href = notification.link!;
         }

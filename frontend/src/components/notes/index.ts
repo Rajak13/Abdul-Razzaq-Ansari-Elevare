@@ -1,10 +1,7 @@
 // Summary components
 export { SummaryGenerator } from './summary-generator'
 export { SummaryDisplay, useSummaryEditingShortcuts } from './summary-display'
-export { 
-  SummaryStalnessIndicator, 
-  SummaryRegenerationPrompt 
-} from './summary-staleness-indicator'
+export { SummaryStalnessIndicator } from './summary-staleness-indicator'
 
 // Error handling components
 export { ErrorDisplay, CompactErrorDisplay } from './error-display'

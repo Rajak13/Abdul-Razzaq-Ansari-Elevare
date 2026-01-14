@@ -1,0 +1,207 @@
+{
+  "languageSwitcher": {
+    "label": "언어 선택"
+  },
+  "navigation": {
+    "dashboard": "대시보드",
+    "tasks": "작업",
+    "notes": "노트",
+    "groups": "스터디 그룹",
+    "resources": "자료",
+    "profile": "프로필",
+    "files": "파일",
+    "notifications": "알림",
+    "search": "검색",
+    "more": "더보기",
+    "logout": "로그아웃",
+    "settings": "설정",
+    "quickActions": "빠른 작업",
+    "newTask": "새 작업",
+    "newNote": "새 노트",
+    "profileSettings": "프로필 설정",
+    "features": "기능",
+    "about": "정보",
+    "signIn": "로그인"
+  },
+  "theme": {
+    "light": "라이트 테마",
+    "light2": "라이트2 테마",
+    "dark": "다크 테마"
+  },
+  "save": "저장",
+  "cancel": "취소",
+  "delete": "삭제",
+  "edit": "편집",
+  "create": "생성",
+  "search": "검색",
+  "filter": "필터",
+  "filters": "필터",
+  "loading": "로딩 중...",
+  "error": "오류가 발생했습니다",
+  "success": "성공",
+  "submit": "제출",
+  "close": "닫기",
+  "back": "뒤로",
+  "next": "다음",
+  "previous": "이전",
+  "confirm": "확인",
+  "yes": "예",
+  "no": "아니오",
+  "ok": "확인",
+  "apply": "적용",
+  "reset": "재설정",
+  "clear": "지우기",
+  "clearAll": "모두 지우기",
+  "selectAll": "모두 선택",
+  "deselectAll": "모두 선택 해제",
+  "actions": "작업",
+  "view": "보기",
+  "viewDetails": "자세히 보기",
+  "download": "다운로드",
+  "upload": "업로드",
+  "share": "공유",
+  "copy": "복사",
+  "duplicate": "복제",
+  "move": "이동",
+  "rename": "이름 변경",
+  "refresh": "새로고침",
+  "sort": "정렬",
+  "sortBy": "정렬 기준",
+  "groupBy": "그룹화 기준",
+  "showMore": "더 보기",
+  "showLess": "간략히 보기",
+  "expand": "펼치기",
+  "collapse": "접기",
+  "add": "추가",
+  "remove": "제거",
+  "update": "업데이트",
+  "saving": "저장 중...",
+  "saved": "저장됨",
+  "deleting": "삭제 중...",
+  "deleted": "삭제됨",
+  "updating": "업데이트 중...",
+  "updated": "업데이트됨",
+  "creating": "생성 중...",
+  "created": "생성됨",
+  "uploading": "업로드 중...",
+  "uploaded": "업로드됨",
+  "downloading": "다운로드 중...",
+  "downloaded": "다운로드됨",
+  "processing": "처리 중...",
+  "processed": "처리됨",
+  "noResults": "결과가 없습니다",
+  "noData": "데이터가 없습니다",
+  "tryAgain": "다시 시도",
+  "learnMore": "자세히 알아보기",
+  "getStarted": "시작하기",
+  "or": "또는",
+  "and": "그리고",
+  "of": "의",
+  "trending": "인기",
+  "order": "순서",
+  "ascending": "오름차순",
+  "descending": "내림차순",
+  "type": "유형",
+  "page": "페이지",
+  "time": {
+    "justNow": "방금",
+    "minutesAgo": "{count, plural, =1 {1분 전} other {#분 전}}",
+    "hoursAgo": "{count, plural, =1 {1시간 전} other {#시간 전}}",
+    "daysAgo": "{count, plural, =1 {1일 전} other {#일 전}}",
+    "weeksAgo": "{count, plural, =1 {1주 전} other {#주 전}}",
+    "monthsAgo": "{count, plural, =1 {1개월 전} other {#개월 전}}",
+    "yearsAgo": "{count, plural, =1 {1년 전} other {#년 전}}",
+    "today": "오늘",
+    "yesterday": "어제",
+    "tomorrow": "내일",
+    "thisWeek": "이번 주",
+    "lastWeek": "지난 주",
+    "nextWeek": "다음 주",
+    "thisMonth": "이번 달",
+    "lastMonth": "지난 달",
+    "nextMonth": "다음 달"
+  },
+  "status": {
+    "active": "활성",
+    "inactive": "비활성",
+    "pending": "대기 중",
+    "completed": "완료됨",
+    "inProgress": "진행 중",
+    "cancelled": "취소됨",
+    "failed": "실패",
+    "draft": "초안",
+    "published": "게시됨",
+    "archived": "보관됨"
+  },
+  "messages": {
+    "confirmDelete": "이 항목을 삭제하시겠습니까?",
+    "confirmDeleteMultiple": "{count}개 항목을 삭제하시겠습니까?",
+    "cannotUndo": "이 작업은 취소할 수 없습니다.",
+    "unsavedChanges": "저장하지 않은 변경사항이 있습니다. 나가시겠습니까?",
+    "operationSuccess": "작업이 성공적으로 완료되었습니다",
+    "operationFailed": "작업이 실패했습니다. 다시 시도해주세요.",
+    "networkError": "네트워크 오류입니다. 연결을 확인해주세요.",
+    "sessionExpired": "세션이 만료되었습니다. 다시 로그인해주세요.",
+    "accessDenied": "접근이 거부되었습니다. 이 작업을 수행할 권한이 없습니다.",
+    "notFound": "요청한 리소스를 찾을 수 없습니다.",
+    "serverError": "서버 오류입니다. 나중에 다시 시도해주세요.",
+    "tryAgain": "다시 시도"
+  },
+  "auth": {
+    "pleaseLogin": "로그인해주세요",
+    "loginRequired": "프로필을 보려면 로그인이 필요합니다."
+  },
+  "updateInfo": "개인 정보 및 프로필 설정을 업데이트하세요",
+  "metadata": {
+    "siteName": "Elevare",
+    "siteDescription": "협업 학습 및 학업 성공을 위한 종합 플랫폼",
+    "home": {
+      "title": "Elevare - 협업 학습 플랫폼",
+      "description": "협업 도구, 스터디 그룹 및 포괄적인 리소스로 학습 경험을 향상시키려면 Elevare에 가입하세요"
+    },
+    "dashboard": {
+      "title": "대시보드 - Elevare",
+      "description": "작업, 노트 및 스터디 그룹 활동이 포함된 개인화된 대시보드를 확인하세요"
+    },
+    "tasks": {
+      "title": "작업 - Elevare",
+      "description": "포괄적인 작업 관리 시스템으로 작업을 관리하고 체계적으로 유지하세요"
+    },
+    "notes": {
+      "title": "노트 - Elevare",
+      "description": "강력한 편집 도구로 학습 노트를 생성, 정리 및 공유하세요"
+    },
+    "groups": {
+      "title": "스터디 그룹 - Elevare",
+      "description": "스터디 그룹에 참여하고, 동료들과 협력하며, 학습 경험을 향상시키세요"
+    },
+    "resources": {
+      "title": "리소스 - Elevare",
+      "description": "학습 커뮤니티와 교육 리소스에 액세스하고 공유하세요"
+    },
+    "profile": {
+      "title": "프로필 - Elevare",
+      "description": "프로필 설정을 관리하고 학습 통계를 확인하세요"
+    },
+    "login": {
+      "title": "로그인 - Elevare",
+      "description": "학습 대시보드에 액세스하려면 Elevare 계정에 로그인하세요"
+    },
+    "register": {
+      "title": "회원가입 - Elevare",
+      "description": "Elevare 계정을 만들고 협업 학습 여정을 시작하세요"
+    },
+    "search": {
+      "title": "검색 - Elevare",
+      "description": "작업, 노트, 그룹 및 리소스 전체에서 검색하세요"
+    },
+    "files": {
+      "title": "파일 - Elevare",
+      "description": "업로드된 파일과 문서를 관리하고 정리하세요"
+    },
+    "notifications": {
+      "title": "알림 - Elevare",
+      "description": "알림 및 경고를 확인하고 관리하세요"
+    }
+  }
+}

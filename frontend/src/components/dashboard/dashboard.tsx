@@ -4,12 +4,14 @@ import { useAuth } from '@/hooks/use-auth'
 import { useDashboardStore } from '@/lib/stores/dashboard-store'
 import { DashboardControls } from './dashboard-controls'
 import { DashboardGrid } from './dashboard-grid'
+import { useTranslations } from 'next-intl'
 
 interface DashboardProps {
   className?: string
 }
 
 export function Dashboard({ className }: DashboardProps) {
+  const t = useTranslations('dashboard')
   const { isEditing } = useDashboardStore()
 
   return (
@@ -26,11 +28,11 @@ export function Dashboard({ className }: DashboardProps) {
             <div className="flex items-center space-x-3">
               <div className="h-3 w-3 bg-primary rounded-full animate-pulse" />
               <p className="text-sm font-semibold text-primary">
-                Dashboard editing mode is active
+                {t('editMode')} {t('overview').toLowerCase()}
               </p>
             </div>
             <p className="text-xs text-primary/80 mt-2">
-              Drag widgets to reorder, use controls to add/remove widgets, or click &quot;Done Editing&quot; when finished.
+              Drag widgets to reorder, use controls to add/remove widgets, or click &quot;{t('cancelEdit')}&quot; when finished.
             </p>
           </div>
         )}

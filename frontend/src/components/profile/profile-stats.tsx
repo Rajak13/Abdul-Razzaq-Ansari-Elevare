@@ -13,6 +13,7 @@ import {
   Video
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface ProfileStats {
   studyGroups: {
@@ -47,6 +48,8 @@ interface ProfileStats {
 export function ProfileStats() {
   const [stats, setStats] = useState<ProfileStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const t = useTranslations('profile.stats')
+  const tCommon = useTranslations('common')
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -105,7 +108,7 @@ export function ProfileStats() {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-8">
-          <p className="text-muted-foreground">Failed to load statistics</p>
+          <p className="text-muted-foreground">{tCommon('error')}</p>
         </CardContent>
       </Card>
     )
@@ -117,13 +120,13 @@ export function ProfileStats() {
         {/* Study Groups */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Study Groups</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('groupsJoined')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.studyGroups.joined}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.studyGroups.created} created by you
+              {stats.studyGroups.created} {t('groupsJoined')}
             </p>
           </CardContent>
         </Card>
@@ -131,13 +134,13 @@ export function ProfileStats() {
         {/* Study Sessions */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Study Sessions</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('notesCreated')}</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.studySessions.total}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.studySessions.thisWeek} this week
+              {stats.studySessions.thisWeek} {t('thisWeek')}
             </p>
           </CardContent>
         </Card>
@@ -145,13 +148,13 @@ export function ProfileStats() {
         {/* Study Hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Study Hours</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('totalPoints')}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.studySessions.totalHours}h</div>
             <p className="text-xs text-muted-foreground">
-              Total time studied
+              {t('allTime')}
             </p>
           </CardContent>
         </Card>
@@ -159,14 +162,14 @@ export function ProfileStats() {
         {/* Task Completion */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Task Completion</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('tasksCompleted')}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.tasks.completionRate}%</div>
             <Progress value={stats.tasks.completionRate} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-2">
-              {stats.tasks.completed} completed, {stats.tasks.pending} pending
+              {stats.tasks.completed} {tCommon('status.completed')}, {stats.tasks.pending} {tCommon('status.pending')}
             </p>
           </CardContent>
         </Card>
@@ -174,13 +177,13 @@ export function ProfileStats() {
         {/* Notes */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Notes</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('notesCreated')}</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.notes.total}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.notes.shared} shared with groups
+              {stats.notes.shared} {t('resourcesShared')}
             </p>
           </CardContent>
         </Card>
@@ -188,13 +191,13 @@ export function ProfileStats() {
         {/* Video Calls */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Video Calls</CardTitle>
+            <CardTitle className="text-sm font-medium">{tCommon('navigation.notifications')}</CardTitle>
             <Video className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.videoCalls.attended}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round(stats.videoCalls.totalMinutes / 60)}h total call time
+              {Math.round(stats.videoCalls.totalMinutes / 60)}h {t('allTime')}
             </p>
           </CardContent>
         </Card>
@@ -205,26 +208,26 @@ export function ProfileStats() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5" />
-            Achievements
+            {t('achievements')}
           </CardTitle>
           <CardDescription>
-            Your learning milestones and accomplishments
+            {t('overview')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div>
-                <p className="font-medium">Badges Earned</p>
-                <p className="text-sm text-muted-foreground">Learning achievements</p>
+                <p className="font-medium">{t('badges')}</p>
+                <p className="text-sm text-muted-foreground">{t('achievements')}</p>
               </div>
               <div className="text-2xl font-bold text-primary">{stats.achievements.badges}</div>
             </div>
             
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div>
-                <p className="font-medium">Study Streak</p>
-                <p className="text-sm text-muted-foreground">Consecutive days</p>
+                <p className="font-medium">{t('streak')}</p>
+                <p className="text-sm text-muted-foreground">{t('days', { count: stats.achievements.streak })}</p>
               </div>
               <div className="text-2xl font-bold text-primary">{stats.achievements.streak}</div>
             </div>

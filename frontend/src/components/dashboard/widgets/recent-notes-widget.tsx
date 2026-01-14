@@ -5,14 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Plus } from 'lucide-react'
 import { useNotes } from '@/hooks/use-notes'
 import { formatDistanceToNow } from 'date-fns'
-import Link from 'next/link'
+import { enUS, ko } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
+import { Link } from '@/navigation'
 import { toast } from 'sonner'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface RecentNotesWidgetProps {
   className?: string
 }
 
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  ko: ko,
+  ne: enUS // Fallback to English for Nepali
+}
+
 export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
+  const t = useTranslations('dashboard.widgets.recentNotes')
+  const locale = useLocale() as 'en' | 'ko' | 'ne'
+  const dateLocale = localeMap[locale] || enUS
+
   const { data: notesResponse, isLoading, error } = useNotes({
     limit: 3,
     sort_by: 'updated_at',
@@ -43,11 +56,11 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
   return (
     <Card className={`${className} h-full`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold">Recent Notes</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
         <Link href="/notes/create">
           <Button size="sm" variant="outline" className="h-8">
             <Plus className="mr-1 h-3 w-3" />
-            New Note
+            {t('createNote')}
           </Button>
         </Link>
       </CardHeader>
@@ -79,7 +92,12 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
                         {getPreview(note.content)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
+                        {t('lastEdited', { 
+                          time: formatDistanceToNow(new Date(note.updated_at), { 
+                            addSuffix: true,
+                            locale: dateLocale
+                          })
+                        })}
                       </p>
                     </div>
                   </div>
@@ -88,18 +106,18 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
               
               <Link href="/notes/all">
                 <Button variant="ghost" size="sm" className="w-full text-xs">
-                  View All Notes
+                  {t('viewAll')}
                 </Button>
               </Link>
             </>
           ) : (
             <div className="text-center py-6">
               <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground mb-2">No notes yet</p>
+              <p className="text-sm text-muted-foreground mb-2">{t('noNotes')}</p>
               <Link href="/notes/create">
                 <Button size="sm" variant="outline">
                   <Plus className="mr-1 h-3 w-3" />
-                  Create your first note
+                  {t('createNote')}
                 </Button>
               </Link>
             </div>

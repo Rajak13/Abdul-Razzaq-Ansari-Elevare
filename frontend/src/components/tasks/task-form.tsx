@@ -1,10 +1,10 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format } from 'date-fns'
 import { CalendarIcon, PlusIcon, TagIcon, X, AlertCircle, Pencil, Save } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslations, useFormatter } from 'next-intl'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,24 +39,26 @@ interface TaskFormProps {
   className?: string
 }
 
-const priorityOptions: { value: 'low' | 'medium' | 'high' | 'urgent'; label: string; color: string }[] = [
-  { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800 border-green-200' },
-  { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800 border-red-200' },
-]
-
-const statusOptions: { value: 'pending' | 'completed'; label: string }[] = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'completed', label: 'Completed' },
-]
-
 export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: TaskFormProps) {
+  const t = useTranslations('tasks')
+  const format = useFormatter()
   const [tagInput, setTagInput] = useState('')
   const [calendarOpen, setCalendarOpen] = useState(false)
   
   const { data: categoriesResponse } = useTaskCategories()
   const categories = Array.isArray(categoriesResponse) ? categoriesResponse : []
+
+  const priorityOptions: { value: 'low' | 'medium' | 'high' | 'urgent'; label: string; color: string }[] = [
+    { value: 'low', label: t('priority.low'), color: 'bg-green-100 text-green-800 border-green-200' },
+    { value: 'medium', label: t('priority.medium'), color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    { value: 'high', label: t('priority.high'), color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { value: 'urgent', label: t('priority.urgent'), color: 'bg-red-100 text-red-800 border-red-200' },
+  ]
+
+  const statusOptions: { value: 'pending' | 'completed'; label: string }[] = [
+    { value: 'pending', label: t('status.pending') },
+    { value: 'completed', label: t('status.completed') },
+  ]
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -114,18 +116,18 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {task ? <Pencil className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
-          {task ? 'Edit Task' : 'Create New Task'}
+          {task ? t('editTask') : t('createNewTask')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-medium">Title *</Label>
+            <Label htmlFor="title" className="text-sm font-medium">{t('form.title')} *</Label>
             <Input
               id="title"
               {...register('title')}
-              placeholder="Enter task title..."
+              placeholder={t('form.titlePlaceholder')}
               className={cn(
                 "transition-all duration-200",
                 errors.title ? 'border-red-500 focus:border-red-500' : 'focus:border-primary'
@@ -141,11 +143,11 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+            <Label htmlFor="description" className="text-sm font-medium">{t('form.description')}</Label>
             <Textarea
               id="description"
               {...register('description')}
-              placeholder="Enter task description..."
+              placeholder={t('form.descriptionPlaceholder')}
               rows={3}
               className={cn(
                 "transition-all duration-200 resize-none",
@@ -163,13 +165,13 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
           {/* Priority and Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Priority</Label>
+              <Label className="text-sm font-medium">{t('form.priority')}</Label>
               <Select
                 value={watch('priority')}
                 onValueChange={(value: 'low' | 'medium' | 'high' | 'urgent') => setValue('priority', value)}
               >
                 <SelectTrigger className="transition-all duration-200 focus:border-primary">
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder={t('form.priorityPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {priorityOptions.map((option) => (
@@ -186,13 +188,13 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Status</Label>
+              <Label className="text-sm font-medium">{t('form.status')}</Label>
               <Select
                 value={watch('status')}
                 onValueChange={(value: 'pending' | 'completed') => setValue('status', value)}
               >
                 <SelectTrigger className="transition-all duration-200 focus:border-primary">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t('form.statusPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((option) => (
@@ -210,19 +212,19 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
           {/* Category and Due Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Category</Label>
+              <Label className="text-sm font-medium">{t('form.category')}</Label>
               <Select
                 value={watch('category_id') || 'none'}
                 onValueChange={(value) => setValue('category_id', value === 'none' ? undefined : value)}
               >
                 <SelectTrigger className="transition-all duration-200 focus:border-primary">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t('form.categoryPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">
                     <div className="flex items-center gap-2">
                       <span>📂</span>
-                      No category
+                      {t('form.noCategory')}
                     </div>
                   </SelectItem>
                   {categories.map((category) => (
@@ -241,7 +243,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Due Date</Label>
+              <Label className="text-sm font-medium">{t('form.dueDate')}</Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -254,9 +256,9 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {watchedDueDate ? (
-                      format(new Date(watchedDueDate), 'PPP')
+                      format.dateTime(new Date(watchedDueDate), { dateStyle: 'long' })
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t('form.dueDatePlaceholder')}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -277,13 +279,13 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Tags</Label>
+            <Label className="text-sm font-medium">{t('form.tags')}</Label>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Add a tag..."
+                placeholder={t('form.tagsPlaceholder')}
                 className="flex-1 transition-all duration-200 focus:border-primary"
               />
               <Button
@@ -334,12 +336,12 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Saving...
+                  {t('form.submitting')}
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   {task ? <Save className="w-4 h-4" /> : <PlusIcon className="w-4 h-4" />}
-                  {task ? 'Update Task' : 'Create Task'}
+                  {task ? t('updateTask') : t('createTask')}
                 </div>
               )}
             </Button>
@@ -350,7 +352,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
                 onClick={onCancel}
                 className="hover:bg-muted transition-all duration-200"
               >
-                Cancel
+                {t('form.cancel')}
               </Button>
             )}
           </div>

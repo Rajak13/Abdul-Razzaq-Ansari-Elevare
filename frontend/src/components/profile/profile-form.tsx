@@ -4,6 +4,7 @@ import { Camera, Loader2, User, Save } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslations } from 'next-intl'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,8 +30,11 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [profileLoading, setProfileLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { user, updateProfile, uploadAvatar } = useAuth()
+  const authContext = useAuth() as any
+  const { user, updateProfile, uploadAvatar } = authContext
   const { toast } = useToast()
+  const t = useTranslations('profile')
+  const tValidation = useTranslations('validation')
 
   const {
     register,
@@ -58,8 +62,8 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: 'Invalid file type',
-        description: 'Please select an image file.',
+        title: tValidation('file.invalidType'),
+        description: tValidation('file.imageRequired'),
         variant: 'destructive',
       })
       return
@@ -68,8 +72,8 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: 'File too large',
-        description: 'Please select an image smaller than 5MB.',
+        title: tValidation('file.tooLarge'),
+        description: t('form.maxFileSize', { size: '5MB' }),
         variant: 'destructive',
       })
       return
@@ -82,13 +86,13 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
       await uploadAvatar(file)
       
       toast({
-        title: 'Avatar updated',
-        description: 'Your profile picture has been updated successfully.',
+        title: t('messages.avatarUpdateSuccess'),
+        description: t('messages.avatarUpdateSuccess'),
       })
     } catch (error: any) {
       toast({
-        title: 'Upload failed',
-        description: error.message || 'Failed to upload avatar',
+        title: t('messages.avatarUpdateError'),
+        description: error.message || t('messages.avatarUpdateError'),
         variant: 'destructive',
       })
     } finally {
@@ -110,8 +114,8 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
       })
 
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been updated successfully.',
+        title: t('messages.updateSuccess'),
+        description: t('messages.updateSuccess'),
       })
 
       if (onSuccess) {
@@ -119,8 +123,8 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
       }
     } catch (error: any) {
       toast({
-        title: 'Update failed',
-        description: error.message || 'Failed to update profile',
+        title: t('messages.updateError'),
+        description: error.message || t('messages.updateError'),
         variant: 'destructive',
       })
     } finally {
@@ -135,14 +139,14 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Avatar Section */}
         <div className="space-y-4">
-          <Label>Profile Picture</Label>
+          <Label>{t('form.avatar')}</Label>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-border">
                 {currentAvatar ? (
                   <Image
                     src={currentAvatar}
-                    alt="Profile picture"
+                    alt={t('form.avatar')}
                     width={80}
                     height={80}
                     className="h-full w-full object-cover"
@@ -169,9 +173,9 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
               </Button>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium">Change profile picture</p>
+              <p className="text-sm font-medium">{t('form.changeAvatar')}</p>
               <p className="text-xs text-muted-foreground">
-                JPG, PNG or GIF. Max size 5MB.
+                {t('form.allowedFormats')}
               </p>
             </div>
           </div>
@@ -187,13 +191,13 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
         {/* Basic Information */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+            <Label htmlFor="name">{t('form.name')} *</Label>
             <Input
               id="name"
-              placeholder="Enter your full name"
+              placeholder={t('form.namePlaceholder')}
               {...register('name', { 
-                required: 'Name is required',
-                minLength: { value: 2, message: 'Name must be at least 2 characters' }
+                required: tValidation('required'),
+                minLength: { value: 2, message: tValidation('minLength', { min: 2 }) }
               })}
               disabled={profileLoading}
             />
@@ -203,14 +207,14 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">{t('form.email')}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder={t('form.emailPlaceholder')}
               {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+                required: tValidation('required'),
+                pattern: { value: /^\S+@\S+$/i, message: tValidation('email.invalid') }
               })}
               disabled={true} // Email should not be editable
               className="bg-muted"
@@ -224,20 +228,20 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
         {/* Academic Information */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="university">University</Label>
+            <Label htmlFor="university">{t('form.location')}</Label>
             <Input
               id="university"
-              placeholder="Enter your university"
+              placeholder={t('form.locationPlaceholder')}
               {...register('university')}
               disabled={profileLoading}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="major">Major</Label>
+            <Label htmlFor="major">{t('form.phone')}</Label>
             <Input
               id="major"
-              placeholder="Enter your major"
+              placeholder={t('form.phonePlaceholder')}
               {...register('major')}
               disabled={profileLoading}
             />
@@ -246,7 +250,7 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="graduation_date">Graduation Date</Label>
+            <Label htmlFor="graduation_date">{t('form.dateOfBirth')}</Label>
             <Input
               id="graduation_date"
               type="date"
@@ -258,13 +262,13 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
 
         {/* Bio */}
         <div className="space-y-2">
-          <Label htmlFor="bio">Bio</Label>
+          <Label htmlFor="bio">{t('form.bio')}</Label>
           <Textarea
             id="bio"
-            placeholder="Tell us a bit about yourself..."
+            placeholder={t('form.bioPlaceholder')}
             rows={4}
             {...register('bio', {
-              maxLength: { value: 500, message: 'Bio must be less than 500 characters' }
+              maxLength: { value: 500, message: tValidation('maxLength', { max: 500 }) }
             })}
             disabled={profileLoading}
           />
@@ -283,12 +287,12 @@ export function ProfileForm({ onSuccess }: ProfileFormProps) {
             {profileLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('form.saving')}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                {t('form.save')}
               </>
             )}
           </Button>

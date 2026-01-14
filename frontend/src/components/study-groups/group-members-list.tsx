@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslations } from 'next-intl';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +42,7 @@ export function GroupMembersList({
   currentUserRole,
   isCurrentUserMember,
 }: GroupMembersListProps) {
+  const t = useTranslations('groups.members');
   const removeMemberMutation = useRemoveMember();
 
   const handleRemoveMember = async (userId: string) => {
@@ -94,7 +96,7 @@ export function GroupMembersList({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Members</CardTitle>
+          <CardTitle className="text-lg">{t('title')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -116,7 +118,7 @@ export function GroupMembersList({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center space-x-2">
-          <span>Members</span>
+          <span>{t('title')}</span>
           <Badge variant="secondary" className="text-xs">
             {members.length}
           </Badge>
@@ -125,7 +127,7 @@ export function GroupMembersList({
       <CardContent className="space-y-3">
         {members.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No members found
+            {t('noMembers')}
           </p>
         ) : (
           members.map((member) => (
@@ -151,7 +153,7 @@ export function GroupMembersList({
 
               <div className="flex items-center space-x-2">
                 <Badge variant={getRoleBadgeVariant(member.role)} className="text-xs">
-                  {member.role}
+                  {t(member.role)}
                 </Badge>
 
                 {canRemoveMember(member) && (
@@ -168,7 +170,7 @@ export function GroupMembersList({
                         disabled={removeMemberMutation.isPending}
                       >
                         <UserMinus className="h-4 w-4 mr-2" />
-                        Remove Member
+                        {t('removeMember')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

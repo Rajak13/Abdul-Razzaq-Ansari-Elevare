@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageCircle, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface Comment {
   id: string;
@@ -21,6 +22,8 @@ interface ResourceCommentsProps {
 }
 
 export function ResourceComments({ resourceId }: ResourceCommentsProps) {
+  const t = useTranslations('resources.comments');
+  const tCommon = useTranslations('common');
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -75,14 +78,14 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
       fetchComments(); // Refresh comments
       
       toast({
-        title: 'Comment added',
-        description: 'Your comment has been posted successfully'
+        title: t('commentSuccess'),
+        description: tCommon('success')
       });
     } catch (error) {
       console.error('Error adding comment:', error);
       toast({
-        title: 'Comment failed',
-        description: 'Please try again later',
+        title: t('commentError'),
+        description: tCommon('error'),
         variant: 'destructive'
       });
     } finally {
@@ -106,14 +109,14 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5" />
-          Comments ({comments.length})
+          {t('title')} ({comments.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Comment Form */}
         <div className="space-y-3">
           <Textarea
-            placeholder="Write a comment..."
+            placeholder={t('addComment')}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -122,7 +125,7 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
           />
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Press Ctrl+Enter to submit
+              {tCommon('submit')}
             </p>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
@@ -138,7 +141,7 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
                 ) : (
                   <Send className="mr-2 h-4 w-4" />
                 )}
-                Post Comment
+                {t('post')}
               </Button>
             </div>
           </div>
@@ -149,13 +152,13 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
           {isLoading ? (
             <div className="text-center py-4">
               <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-              <p className="mt-2 text-sm text-muted-foreground">Loading comments...</p>
+              <p className="mt-2 text-sm text-muted-foreground">{tCommon('loading')}</p>
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No comments yet</p>
-              <p className="text-sm">Be the first to share your thoughts!</p>
+              <p>{t('noComments')}</p>
+              <p className="text-sm">{t('beFirst')}</p>
             </div>
           ) : (
             comments.map((comment) => (

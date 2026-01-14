@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { format, isPast, isToday, isTomorrow } from 'date-fns'
+import { isPast, isToday, isTomorrow } from 'date-fns'
+import { useTranslations, useFormatter } from 'next-intl'
 import {
   AlertCircle,
   Calendar,
@@ -69,16 +70,16 @@ interface TaskListProps {
   className?: string
 }
 
-const priorityConfig: Record<string, { color: string; label: string }> = {
-  low: { color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', label: 'Low' },
-  medium: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800', label: 'Medium' },
-  high: { color: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800', label: 'High' },
-  urgent: { color: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800', label: 'Urgent' },
+const priorityConfig: Record<string, { color: string; labelKey: string }> = {
+  low: { color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', labelKey: 'priority.low' },
+  medium: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800', labelKey: 'priority.medium' },
+  high: { color: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800', labelKey: 'priority.high' },
+  urgent: { color: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800', labelKey: 'priority.urgent' },
 }
 
-const statusConfig: Record<string, { color: string; label: string }> = {
-  pending: { color: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800', label: 'Pending' },
-  completed: { color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', label: 'Completed' },
+const statusConfig: Record<string, { color: string; labelKey: string }> = {
+  pending: { color: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800', labelKey: 'status.pending' },
+  completed: { color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', labelKey: 'status.completed' },
 }
 
 function TaskItem({
@@ -102,6 +103,8 @@ function TaskItem({
   isDragEnabled?: boolean
   viewMode?: 'list' | 'grid'
 }) {
+  const t = useTranslations('tasks')
+  const format = useFormatter()
   const updateTask = useUpdateTask()
 
   const {
@@ -134,7 +137,7 @@ function TaskItem({
   }
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this task?')) {
+    if (confirm(t('actions.confirmDelete'))) {
       onDelete?.(task.id)
     }
   }
@@ -148,13 +151,13 @@ function TaskItem({
     const dueDate = new Date(task.due_date)
 
     if (isToday(dueDate)) {
-      return { text: 'Today', color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/20', icon: <Calendar className="w-4 h-4" /> }
+      return { text: t('dueDate.today'), color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/20', icon: <Calendar className="w-4 h-4" /> }
     } else if (isTomorrow(dueDate)) {
-      return { text: 'Tomorrow', color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-900/20', icon: <Calendar className="w-4 h-4" /> }
+      return { text: t('dueDate.tomorrow'), color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-900/20', icon: <Calendar className="w-4 h-4" /> }
     } else if (isPast(dueDate) && !isCompleted) {
-      return { text: `Overdue (${format(dueDate, 'MMM d')})`, color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-900/20', icon: <AlertTriangle className="w-4 h-4" /> }
+      return { text: t('dueDate.overdue', { date: format.dateTime(dueDate, { dateStyle: 'medium' }) }), color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-900/20', icon: <AlertTriangle className="w-4 h-4" /> }
     } else {
-      return { text: format(dueDate, 'MMM d, yyyy'), color: 'text-gray-600', bgColor: 'bg-gray-50 dark:bg-gray-900/20', icon: <Calendar className="w-4 h-4" /> }
+      return { text: format.dateTime(dueDate, { dateStyle: 'medium' }), color: 'text-gray-600', bgColor: 'bg-gray-50 dark:bg-gray-900/20', icon: <Calendar className="w-4 h-4" /> }
     }
   }
 
@@ -223,18 +226,18 @@ function TaskItem({
                 {onView && (
                   <DropdownMenuItem onClick={() => onView(task)}>
                     <Eye className="mr-2 h-4 w-4" />
-                    View Details
+                    {t('actions.viewDetails')}
                   </DropdownMenuItem>
                 )}
                 {onEdit && (
                   <DropdownMenuItem onClick={() => onEdit(task)}>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit Task
+                    {t('actions.edit')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={handleToggleComplete}>
                   <CheckCircle2 className="mr-2 h-4 w-4" />
-                  {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+                  {isCompleted ? t('actions.markIncomplete') : t('actions.markComplete')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -242,7 +245,7 @@ function TaskItem({
                   className="text-red-600 focus:text-red-600"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Task
+                  {t('actions.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -274,14 +277,14 @@ function TaskItem({
               {/* Priority */}
               <div className="flex items-center gap-1">
                 <Badge className={cn('text-xs border', priorityConfig[task.priority].color)}>
-                  {priorityConfig[task.priority].label}
+                  {t(priorityConfig[task.priority].labelKey)}
                 </Badge>
               </div>
 
               {/* Status */}
               <div className="flex items-center gap-1">
                 <Badge variant="outline" className={cn('text-xs', statusConfig[task.status].color)}>
-                  {statusConfig[task.status].label}
+                  {t(statusConfig[task.status].labelKey)}
                 </Badge>
               </div>
 
@@ -411,14 +414,14 @@ function TaskItem({
                   {/* Priority */}
                   <div className="flex items-center gap-1">
                     <Badge className={cn('text-xs border', priorityConfig[task.priority].color)}>
-                      {priorityConfig[task.priority].label}
+                      {t(priorityConfig[task.priority].labelKey)}
                     </Badge>
                   </div>
 
                   {/* Status */}
                   <div className="flex items-center gap-1">
                     <Badge variant="outline" className={cn('text-xs', statusConfig[task.status].color)}>
-                      {statusConfig[task.status].label}
+                      {t(statusConfig[task.status].labelKey)}
                     </Badge>
                   </div>
 
@@ -514,6 +517,7 @@ export function TaskList({
   isDragEnabled = true,
   className
 }: TaskListProps) {
+  const t = useTranslations('tasks')
   const [activeId, setActiveId] = useState<string | null>(null)
   
   const sensors = useSensors(
@@ -557,8 +561,8 @@ export function TaskList({
         <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
           <CheckCircle2 className="h-12 w-12 text-gray-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No tasks found</h3>
-        <p className="text-gray-600 dark:text-gray-400">Create your first task to get started with organizing your work.</p>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{t('noTasks')}</h3>
+        <p className="text-gray-600 dark:text-gray-400">{t('noTasksDescription')}</p>
       </div>
     )
   }
@@ -569,7 +573,7 @@ export function TaskList({
         <div className="absolute top-0 left-0 right-0 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4 z-10">
           <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
             <span>💡</span>
-            Switch to "Custom Order" in the sort dropdown to enable drag and drop reordering
+            {t('filters.customOrderHint')}
           </p>
         </div>
       )}
@@ -616,12 +620,12 @@ export function TaskList({
                       <div className="flex gap-2 mt-1">
                         <div className="flex items-center gap-1">
                           <Badge variant="outline" className={cn('text-xs', statusConfig[activeTask.status].color)}>
-                            {statusConfig[activeTask.status].label}
+                            {t(statusConfig[activeTask.status].labelKey)}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-1">
                           <Badge className={cn('text-xs border', priorityConfig[activeTask.priority].color)}>
-                            {priorityConfig[activeTask.priority].label}
+                            {t(priorityConfig[activeTask.priority].labelKey)}
                           </Badge>
                         </div>
                       </div>

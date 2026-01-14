@@ -1,0 +1,113 @@
+{
+  "title": "대시보드",
+  "welcome": "환영합니다",
+  "welcomeMessage": "환영합니다, {name}님!",
+  "overview": "개요",
+  "customize": "대시보드 사용자 지정",
+  "resetLayout": "레이아웃 재설정",
+  "addWidget": "위젯 추가",
+  "removeWidget": "위젯 제거",
+  "editMode": "편집 모드",
+  "saveLayout": "레이아웃 저장",
+  "cancelEdit": "취소",
+  "widgets": {
+    "stats": {
+      "title": "통계",
+      "description": "주요 통계 보기",
+      "totalTasks": "전체 작업",
+      "completedTasks": "완료됨",
+      "pendingTasks": "대기 중",
+      "overdueTasks": "기한 초과",
+      "totalNotes": "전체 노트",
+      "totalGroups": "스터디 그룹",
+      "totalResources": "자료",
+      "activeMembers": "활성 멤버"
+    },
+    "tasks": {
+      "title": "작업 개요",
+      "description": "작업 빠른 보기",
+      "upcomingTasks": "예정된 작업",
+      "dueSoon": "곧 마감",
+      "noDueTasks": "예정된 작업이 없습니다",
+      "viewAll": "모든 작업 보기",
+      "createTask": "작업 생성",
+      "dueToday": "오늘 마감",
+      "dueTomorrow": "내일 마감",
+      "overdue": "기한 초과"
+    },
+    "recentNotes": {
+      "title": "최근 노트",
+      "description": "최근 편집한 노트",
+      "noNotes": "노트가 없습니다",
+      "viewAll": "모든 노트 보기",
+      "createNote": "노트 생성",
+      "lastEdited": "{time}에 마지막 편집"
+    },
+    "studyGroups": {
+      "title": "스터디 그룹",
+      "description": "활성 스터디 그룹",
+      "noGroups": "스터디 그룹이 없습니다",
+      "viewAll": "모든 그룹 보기",
+      "createGroup": "그룹 생성",
+      "members": "{count}명의 멤버",
+      "joinGroup": "그룹 가입"
+    },
+    "calendar": {
+      "title": "캘린더",
+      "description": "일정 보기",
+      "noEvents": "예정된 이벤트가 없습니다",
+      "today": "오늘",
+      "thisWeek": "이번 주",
+      "thisMonth": "이번 달"
+    },
+    "activity": {
+      "title": "최근 활동",
+      "description": "최근 작업",
+      "noActivity": "최근 활동이 없습니다",
+      "viewAll": "모든 활동 보기",
+      "taskCompleted": "작업 완료: {task}",
+      "noteCreated": "노트 생성: {note}",
+      "groupJoined": "그룹 가입: {group}",
+      "resourceUploaded": "자료 업로드: {resource}"
+    },
+    "productivity": {
+      "title": "생산성 차트",
+      "description": "생산성 추적",
+      "tasksCompleted": "완료된 작업",
+      "notesCreated": "생성된 노트",
+      "studyTime": "학습 시간",
+      "thisWeek": "이번 주",
+      "lastWeek": "지난 주",
+      "thisMonth": "이번 달"
+    },
+    "progress": {
+      "title": "진행 통계",
+      "description": "진행 상황 개요",
+      "completionRate": "완료율",
+      "streak": "현재 연속 기록",
+      "days": "{count}일",
+      "totalPoints": "총 포인트",
+      "level": "레벨 {level}"
+    }
+  },
+  "settings": {
+    "title": "대시보드 설정",
+    "layout": "레이아웃",
+    "widgets": "위젯",
+    "appearance": "외관",
+    "compact": "컴팩트",
+    "comfortable": "편안함",
+    "spacious": "넓음",
+    "showWidgetTitles": "위젯 제목 표시",
+    "showWidgetBorders": "위젯 테두리 표시",
+    "enableAnimations": "애니메이션 활성화"
+  },
+  "controls": {
+    "refresh": "새로고침",
+    "fullscreen": "전체 화면",
+    "exitFullscreen": "전체 화면 종료",
+    "print": "인쇄",
+    "export": "내보내기",
+    "share": "공유"
+  }
+}

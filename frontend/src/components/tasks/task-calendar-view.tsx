@@ -1,8 +1,9 @@
 'use client'
 
-import { eachDayOfInterval, endOfMonth, format, isPast, isSameDay, isToday, startOfMonth } from 'date-fns'
+import { eachDayOfInterval, endOfMonth, isPast, isSameDay, isToday, startOfMonth } from 'date-fns'
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle, Clock } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslations, useFormatter } from 'next-intl'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -43,6 +44,9 @@ function CalendarDay({
   onTaskClick?: (task: Task) => void
   onDateClick?: (date: Date) => void
 }) {
+  const t = useTranslations('tasks')
+  const format = useFormatter()
+  
   const dayTasks = tasks.filter(task => 
     task.due_date && isSameDay(new Date(task.due_date), date)
   )
@@ -74,7 +78,7 @@ function CalendarDay({
           isPastDay && 'text-gray-400',
           hasOverdueTasks && 'text-red-600 dark:text-red-400'
         )}>
-          {format(date, 'd')}
+          {format.dateTime(date, { day: 'numeric' })}
         </span>
         {dayTasks.length > 0 && (
           <div className="flex items-center gap-1">
@@ -169,6 +173,8 @@ export function TaskCalendarView({
   onDateClick, 
   className 
 }: TaskCalendarViewProps) {
+  const t = useTranslations('tasks')
+  const format = useFormatter()
   const [currentDate, setCurrentDate] = useState(new Date())
   
   const monthStart = startOfMonth(currentDate)
@@ -208,13 +214,13 @@ export function TaskCalendarView({
             <Calendar className="h-6 w-6 text-primary" />
             <div>
               <CardTitle className="text-xl font-semibold">
-                {format(currentDate, 'MMMM yyyy')}
+                {format.dateTime(currentDate, { year: 'numeric', month: 'long' })}
               </CardTitle>
               {totalThisMonth > 0 && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {completedThisMonth}/{totalThisMonth} tasks completed
+                  {t('calendar.tasksOn', { date: `${completedThisMonth}/${totalThisMonth}` })}
                   {overdueThisMonth > 0 && (
-                    <span className="text-red-600 ml-2">• {overdueThisMonth} overdue</span>
+                    <span className="text-red-600 ml-2">• {overdueThisMonth} {t('statistics.overdue')}</span>
                   )}
                 </p>
               )}
@@ -228,7 +234,7 @@ export function TaskCalendarView({
               onClick={goToToday}
               className="text-xs"
             >
-              Today
+              {t('calendar.today')}
             </Button>
             
             <div className="flex items-center">
@@ -284,19 +290,19 @@ export function TaskCalendarView({
         <div className="flex items-center justify-center gap-4 mt-4 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Low Priority</span>
+            <span>{t('priority.low')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span>Medium Priority</span>
+            <span>{t('priority.medium')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-            <span>High Priority</span>
+            <span>{t('priority.high')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span>Urgent Priority</span>
+            <span>{t('priority.urgent')}</span>
           </div>
         </div>
 
@@ -304,19 +310,19 @@ export function TaskCalendarView({
         <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span>Completed</span>
+            <span>{t('status.completed')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-blue-500" />
-            <span>Pending</span>
+            <span>{t('status.pending')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-1 bg-blue-500 rounded"></div>
-            <span>Today</span>
+            <span>{t('dueDate.today')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-1 bg-red-500 rounded"></div>
-            <span>Overdue</span>
+            <span>{t('statistics.overdue')}</span>
           </div>
         </div>
       </CardContent>

@@ -1,0 +1,113 @@
+{
+  "title": "ड्यासबोर्ड",
+  "welcome": "फेरि स्वागत छ",
+  "welcomeMessage": "फेरि स्वागत छ, {name}!",
+  "overview": "सारांश",
+  "customize": "ड्यासबोर्ड अनुकूलन गर्नुहोस्",
+  "resetLayout": "लेआउट रिसेट गर्नुहोस्",
+  "addWidget": "विजेट थप्नुहोस्",
+  "removeWidget": "विजेट हटाउनुहोस्",
+  "editMode": "सम्पादन मोड",
+  "saveLayout": "लेआउट सुरक्षित गर्नुहोस्",
+  "cancelEdit": "रद्द गर्नुहोस्",
+  "widgets": {
+    "stats": {
+      "title": "तथ्याङ्कहरू",
+      "description": "तपाईंको मुख्य तथ्याङ्कहरू हेर्नुहोस्",
+      "totalTasks": "कुल कार्यहरू",
+      "completedTasks": "पूरा भयो",
+      "pendingTasks": "पेन्डिङ",
+      "overdueTasks": "समय सकिएको",
+      "totalNotes": "कुल नोटहरू",
+      "totalGroups": "अध्ययन समूहहरू",
+      "totalResources": "स्रोतहरू",
+      "activeMembers": "सक्रिय सदस्यहरू"
+    },
+    "tasks": {
+      "title": "कार्यहरूको सारांश",
+      "description": "तपाईंको कार्यहरूको द्रुत दृश्य",
+      "upcomingTasks": "आगामी कार्यहरू",
+      "dueSoon": "छिट्टै समाप्त हुने",
+      "noDueTasks": "कुनै आगामी कार्यहरू छैनन्",
+      "viewAll": "सबै कार्यहरू हेर्नुहोस्",
+      "createTask": "कार्य सिर्जना गर्नुहोस्",
+      "dueToday": "आज समाप्त हुने",
+      "dueTomorrow": "भोलि समाप्त हुने",
+      "overdue": "समय सकिएको"
+    },
+    "recentNotes": {
+      "title": "हालैका नोटहरू",
+      "description": "तपाईंले हालै सम्पादन गर्नुभएका नोटहरू",
+      "noNotes": "अहिलेसम्म कुनै नोटहरू छैनन्",
+      "viewAll": "सबै नोटहरू हेर्नुहोस्",
+      "createNote": "नोट सिर्जना गर्नुहोस्",
+      "lastEdited": "अन्तिम सम्पादन {time}"
+    },
+    "studyGroups": {
+      "title": "अध्ययन समूहहरू",
+      "description": "तपाईंका सक्रिय अध्ययन समूहहरू",
+      "noGroups": "अहिलेसम्म कुनै अध्ययन समूहहरू छैनन्",
+      "viewAll": "सबै समूहहरू हेर्नुहोस्",
+      "createGroup": "समूह सिर्जना गर्नुहोस्",
+      "members": "{count} सदस्यहरू",
+      "joinGroup": "समूहमा सामेल हुनुहोस्"
+    },
+    "calendar": {
+      "title": "पात्रो",
+      "description": "तपाईंको तालिका हेर्नुहोस्",
+      "noEvents": "कुनै कार्यक्रमहरू तालिकाबद्ध छैनन्",
+      "today": "आज",
+      "thisWeek": "यो हप्ता",
+      "thisMonth": "यो महिना"
+    },
+    "activity": {
+      "title": "हालैको गतिविधि",
+      "description": "तपाईंका हालैका कार्यहरू",
+      "noActivity": "कुनै हालैको गतिविधि छैन",
+      "viewAll": "सबै गतिविधि हेर्नुहोस्",
+      "taskCompleted": "कार्य पूरा गरियो: {task}",
+      "noteCreated": "नोट सिर्जना गरियो: {note}",
+      "groupJoined": "समूहमा सामेल हुनुभयो: {group}",
+      "resourceUploaded": "स्रोत अपलोड गरियो: {resource}"
+    },
+    "productivity": {
+      "title": "उत्पादकता चार्ट",
+      "description": "तपाईंको उत्पादकता ट्र्याक गर्नुहोस्",
+      "tasksCompleted": "कार्यहरू पूरा भयो",
+      "notesCreated": "नोटहरू सिर्जना गरियो",
+      "studyTime": "अध्ययन समय",
+      "thisWeek": "यो हप्ता",
+      "lastWeek": "गत हप्ता",
+      "thisMonth": "यो महिना"
+    },
+    "progress": {
+      "title": "प्रगति तथ्याङ्कहरू",
+      "description": "तपाईंको प्रगति सारांश",
+      "completionRate": "पूर्णता दर",
+      "streak": "हालको स्ट्रिक",
+      "days": "{count} दिनहरू",
+      "totalPoints": "कुल अंकहरू",
+      "level": "स्तर {level}"
+    }
+  },
+  "settings": {
+    "title": "ड्यासबोर्ड सेटिङहरू",
+    "layout": "लेआउट",
+    "widgets": "विजेटहरू",
+    "appearance": "उपस्थिति",
+    "compact": "कम्प्याक्ट",
+    "comfortable": "आरामदायक",
+    "spacious": "विशाल",
+    "showWidgetTitles": "विजेट शीर्षकहरू देखाउनुहोस्",
+    "showWidgetBorders": "विजेट सीमाहरू देखाउनुहोस्",
+    "enableAnimations": "एनिमेसनहरू सक्षम गर्नुहोस्"
+  },
+  "controls": {
+    "refresh": "ताजा गर्नुहोस्",
+    "fullscreen": "पूर्ण स्क्रिन",
+    "exitFullscreen": "पूर्ण स्क्रिनबाट बाहिर निस्कनुहोस्",
+    "print": "प्रिन्ट गर्नुहोस्",
+    "export": "निर्यात गर्नुहोस्",
+    "share": "साझा गर्नुहोस्"
+  }
+}

@@ -136,3 +136,14 @@ export const validate = (req: Request, res: Response, next: NextFunction): void 
   
   next();
 };
+
+/**
+ * Validation rules for language preference update
+ */
+export const languagePreferenceValidation: ValidationChain[] = [
+  body('preferred_language')
+    .notEmpty()
+    .withMessage('Language preference is required')
+    .isIn(['en', 'ne', 'ko'])
+    .withMessage('Language must be one of: en, ne, ko'),
+];

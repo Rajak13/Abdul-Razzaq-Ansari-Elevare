@@ -11,6 +11,7 @@ import {
   profileUpdateValidation,
   verifyOTPValidation,
   resendOTPValidation,
+  languagePreferenceValidation,
 } from '../middleware/validation';
 
 const router = Router();
@@ -69,6 +70,13 @@ router.post(
   uploadAvatar,
   handleUploadError,
   authController.uploadAvatar
+);
+
+router.patch(
+  '/language',
+  authenticate,
+  languagePreferenceValidation,
+  authController.updateLanguagePreference
 );
 
 export default router;

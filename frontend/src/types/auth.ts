@@ -7,6 +7,7 @@ export interface User {
   university?: string;
   major?: string;
   graduation_date?: string;
+  preferred_language?: string;
   email_verified: boolean;
   created_at: string;
   updated_at: string;

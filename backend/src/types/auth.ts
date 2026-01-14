@@ -18,6 +18,7 @@ export interface User {
   university?: string;
   major?: string;
   graduation_date?: string;
+  preferred_language?: string;
   email_verified: boolean;
   created_at: Date;
   updated_at: Date;
@@ -53,4 +54,5 @@ export interface ProfileUpdateRequest {
   university?: string;
   major?: string;
   graduation_date?: string;
+  preferred_language?: string;
 }

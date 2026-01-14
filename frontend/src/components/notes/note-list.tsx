@@ -9,6 +9,7 @@ import { Note } from '@/types/note';
 import { formatDistanceToNow } from 'date-fns';
 import { Calendar, Edit, Eye, FileText, Hash, MoreVertical, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface NoteListProps {
   notes: Note[];
@@ -29,6 +30,8 @@ export function NoteList({
   isLoading = false,
   className = '',
 }: NoteListProps) {
+  const t = useTranslations('notes');
+  const tCommon = useTranslations('common');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -112,7 +115,7 @@ export function NoteList({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
             <Input
-              placeholder="Search notes..."
+              placeholder={t('search.placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -123,7 +126,7 @@ export function NoteList({
         {onCreateNew && (
           <Button onClick={onCreateNew}>
             <Plus className="mr-2 h-4 w-4" />
-            New Note
+            {t('newNote')}
           </Button>
         )}
       </div>
@@ -149,7 +152,7 @@ export function NoteList({
               onClick={() => setSelectedTags([])}
               className="h-6 text-xs"
             >
-              Clear filters
+              {tCommon('filter')}
             </Button>
           )}
         </div>
@@ -160,17 +163,17 @@ export function NoteList({
         <div className="py-12 text-center">
           <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
           <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
-            {searchQuery || selectedTags.length > 0 ? 'No notes found' : 'No notes yet'}
+            {searchQuery || selectedTags.length > 0 ? t('search.noResults') : t('noNotes')}
           </h3>
           <p className="text-gray-500 dark:text-gray-400">
             {searchQuery || selectedTags.length > 0
-              ? 'No notes match your current filters'
-              : 'Create your first note to get started'}
+              ? t('search.noResults')
+              : t('noNotesDescription')}
           </p>
           {onCreateNew && !searchQuery && selectedTags.length === 0 && (
             <Button className="mt-4" onClick={onCreateNew}>
               <Plus className="mr-2 h-4 w-4" />
-              Create Note
+              {t('createNote')}
             </Button>
           )}
         </div>
@@ -207,7 +210,7 @@ export function NoteList({
                         }}
                       >
                         <Eye className="mr-2 h-4 w-4" />
-                        View
+                        {t('viewNote')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -216,7 +219,7 @@ export function NoteList({
                         }}
                       >
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        {t('editNote')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -226,7 +229,7 @@ export function NoteList({
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                        {t('deleteNote')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

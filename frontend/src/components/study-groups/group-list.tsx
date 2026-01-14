@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StudyGroupCard } from './study-group-card';
 import { useStudyGroups } from '@/hooks/use-study-groups';
 import { StudyGroupQueryParams } from '@/types/study-group';
+import { useTranslations } from 'next-intl';
 import { 
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -26,6 +27,8 @@ export function GroupList({
   showCreateButton = true, 
   className = '' 
 }: GroupListProps) {
+  const t = useTranslations('groups');
+  const tCommon = useTranslations('common');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'my-groups' | 'public'>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,17 +53,17 @@ export function GroupList({
   const filterOptions = [
     { 
       id: 'all', 
-      label: 'All Groups', 
+      label: t('allGroups'), 
       count: groupsData?.total || 0 
     },
     { 
       id: 'my-groups', 
-      label: 'My Groups', 
+      label: t('myGroups'), 
       count: groups.filter(g => g.is_member).length 
     },
     { 
       id: 'public', 
-      label: 'Public Groups', 
+      label: t('search.publicGroups'), 
       count: groups.filter(g => !g.is_private).length 
     }
   ];
@@ -85,8 +88,8 @@ export function GroupList({
         <CardContent className="p-6">
           <div className="text-center">
             <div className="text-red-500 mb-2">⚠️</div>
-            <p className="text-red-700 font-medium">Failed to load study groups</p>
-            <p className="text-red-600 text-sm mt-1">Please try again later</p>
+            <p className="text-red-700 font-medium">{t('messages.loadError')}</p>
+            <p className="text-red-600 text-sm mt-1">{tCommon('messages.tryAgain')}</p>
           </div>
         </CardContent>
       </Card>
@@ -102,7 +105,7 @@ export function GroupList({
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search study groups..."
+              placeholder={t('search.placeholder')}
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10"
@@ -180,7 +183,7 @@ export function GroupList({
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
                   >
-                    Previous
+                    {tCommon('previous')}
                   </Button>
                   
                   <div className="flex items-center space-x-2">
@@ -222,7 +225,7 @@ export function GroupList({
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages}
                   >
-                    Next
+                    {tCommon('next')}
                   </Button>
                 </div>
               )}
@@ -231,17 +234,17 @@ export function GroupList({
             <div className="text-center py-12">
               <UserGroupIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? 'No groups found' : 'No study groups yet'}
+                {searchTerm ? t('search.noResults') : t('noGroups')}
               </h3>
               <p className="text-gray-600 mb-6">
                 {searchTerm 
-                  ? `No groups match "${searchTerm}". Try a different search term.`
-                  : 'Get started by creating your first study group or joining an existing one.'
+                  ? t('search.noResults')
+                  : t('noGroupsDescription')
                 }
               </p>
               {!searchTerm && showCreateButton && onCreateGroup && (
                 <Button onClick={onCreateGroup}>
-                  Create Your First Group
+                  {t('createGroup')}
                 </Button>
               )}
             </div>

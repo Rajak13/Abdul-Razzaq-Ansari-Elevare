@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { notificationService } from '../services/notification-service';
 import { socketService } from '../services/socket-service';
 import { Notification, NotificationPreferencesData } from '../types/notification';
@@ -10,6 +11,7 @@ export function useNotifications() {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const t = useTranslations('notifications');
 
   // Query for notifications
   const {
@@ -70,20 +72,20 @@ export function useNotifications() {
       notificationService.updatePreferences(preferences),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'preferences'] });
-      toast.success('Notification preferences updated');
+      toast.success(t('preferences.saved'));
     },
     onError: () => {
-      toast.error('Failed to update notification preferences');
+      toast.error(t('toast.error'));
     },
   });
 
   const sendTestNotificationMutation = useMutation({
     mutationFn: () => notificationService.sendTestNotification(),
     onSuccess: () => {
-      toast.success('Test notification sent');
+      toast.success(t('toast.success'));
     },
     onError: () => {
-      toast.error('Failed to send test notification');
+      toast.error(t('toast.error'));
     },
   });
 
@@ -123,7 +125,7 @@ export function useNotifications() {
         description: notification.content,
         duration: 5000,
         action: notification.link ? {
-          label: 'View',
+          label: t('actions.view'),
           onClick: () => window.location.href = notification.link!
         } : undefined,
         className: 'notification-toast',

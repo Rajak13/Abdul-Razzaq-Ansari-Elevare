@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, CheckCircle, Clock, Users, FileText } from 'lucide-react'
 import { useTasks } from '@/hooks/use-tasks'
 import { useNotes } from '@/hooks/use-notes'
+import { useTranslations } from 'next-intl'
 
 interface StatsWidgetProps {
   className?: string
 }
 
 export function StatsWidget({ className }: StatsWidgetProps) {
+  const t = useTranslations('dashboard.widgets.stats')
   const { data: tasksResponse, isLoading: tasksLoading } = useTasks({ limit: 100 })
   const { data: notesResponse, isLoading: notesLoading } = useNotes()
 
@@ -23,28 +25,28 @@ export function StatsWidget({ className }: StatsWidgetProps) {
 
   const stats = [
     {
-      label: 'Tasks Completed',
+      label: t('completedTasks'),
       value: completedTasks,
       icon: CheckCircle,
       color: 'text-green-500',
       loading: tasksLoading,
     },
     {
-      label: 'Tasks Pending',
+      label: t('pendingTasks'),
       value: pendingTasks,
       icon: Clock,
       color: 'text-blue-500',
       loading: tasksLoading,
     },
     {
-      label: 'Total Notes',
+      label: t('totalNotes'),
       value: totalNotes,
       icon: FileText,
       color: 'text-purple-500',
       loading: notesLoading,
     },
     {
-      label: 'Total Tasks',
+      label: t('totalTasks'),
       value: totalTasks,
       icon: BarChart3,
       color: 'text-orange-500',
@@ -55,7 +57,7 @@ export function StatsWidget({ className }: StatsWidgetProps) {
   return (
     <Card className={`${className} h-full`}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">Quick Stats</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className="pb-4">
         <div className="grid grid-cols-2 gap-4">

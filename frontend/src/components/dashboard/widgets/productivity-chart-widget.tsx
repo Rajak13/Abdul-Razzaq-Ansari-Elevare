@@ -5,12 +5,25 @@ import { BarChart3, TrendingUp } from 'lucide-react'
 import { useTasks } from '@/hooks/use-tasks'
 import { useNotes } from '@/hooks/use-notes'
 import { format, subDays, eachDayOfInterval, isWithinInterval } from 'date-fns'
+import { enUS, ko } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface ProductivityChartWidgetProps {
   className?: string
 }
 
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  ko: ko,
+  ne: enUS // Fallback to English for Nepali
+}
+
 export function ProductivityChartWidget({ className }: ProductivityChartWidgetProps) {
+  const t = useTranslations('dashboard.widgets.productivity')
+  const locale = useLocale() as 'en' | 'ko' | 'ne'
+  const dateLocale = localeMap[locale] || enUS
+
   const { data: tasksResponse } = useTasks({ limit: 100 })
   const { data: notesResponse } = useNotes({ limit: 100 })
 
@@ -38,7 +51,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
     ).length
 
     return {
-      date: format(day, 'MMM dd'),
+      date: format(day, 'MMM dd', { locale: dateLocale }),
       tasks: completedTasks,
       notes: createdNotes,
       total: completedTasks + createdNotes
@@ -54,7 +67,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold flex items-center">
           <BarChart3 className="h-5 w-5 mr-2" />
-          Productivity Chart
+          {t('title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-4">
@@ -63,7 +76,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{totalThisWeek}</div>
-              <div className="text-xs text-muted-foreground">This Week</div>
+              <div className="text-xs text-muted-foreground">{t('thisWeek')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{avgPerDay}</div>
@@ -85,7 +98,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
                     style={{ 
                       width: `${Math.max((day.tasks / maxValue) * 100, day.tasks > 0 ? 10 : 0)}%` 
                     }}
-                    title={`${day.tasks} tasks completed`}
+                    title={`${day.tasks} ${t('tasksCompleted')}`}
                   />
                   {/* Notes bar */}
                   <div 
@@ -93,7 +106,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
                     style={{ 
                       width: `${Math.max((day.notes / maxValue) * 100, day.notes > 0 ? 10 : 0)}%` 
                     }}
-                    title={`${day.notes} notes created`}
+                    title={`${day.notes} ${t('notesCreated')}`}
                   />
                 </div>
                 <div className="w-6 text-xs text-right text-muted-foreground">
@@ -107,11 +120,11 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
           <div className="flex items-center justify-center space-x-4 text-xs">
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-blue-500 rounded-sm" />
-              <span>Tasks</span>
+              <span>{t('tasksCompleted')}</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-green-500 rounded-sm" />
-              <span>Notes</span>
+              <span>{t('notesCreated')}</span>
             </div>
           </div>
 

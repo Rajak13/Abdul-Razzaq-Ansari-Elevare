@@ -8,6 +8,7 @@ import { buildFolderTree, useNoteFolders } from '@/hooks/use-note-folders';
 import { NoteFolder } from '@/types/note';
 import { ChevronDown, ChevronRight, Folder, FolderOpen, MoreVertical, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface FolderTreeProps {
   selectedFolderId?: string | null;
@@ -44,6 +45,7 @@ function FolderNode({
   onFolderDelete,
   onFolderMove,
 }: FolderNodeProps) {
+  const t = useTranslations('notes');
   const [isDragOver, setIsDragOver] = useState(false);
   const isExpanded = expandedFolders.has(folder.id);
   const isSelected = selectedFolderId === folder.id;
@@ -126,16 +128,16 @@ function FolderNode({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onFolderCreate?.(folder.id)}>
               <Plus className="mr-2 h-4 w-4" />
-              New Subfolder
+              {t('folders.createFolder')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onFolderEdit?.(folder)}>
-              Edit
+              {t('folders.editFolder')}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onFolderDelete?.(folder)}
               className="text-destructive"
             >
-              Delete
+              {t('folders.deleteFolder')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -173,6 +175,7 @@ export function FolderTree({
   onFolderMove,
   className = '',
 }: FolderTreeProps) {
+  const t = useTranslations('notes');
   const { data: folders = [], isLoading } = useNoteFolders();
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -222,7 +225,7 @@ export function FolderTree({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search folders..."
+            placeholder={t('search.placeholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -246,7 +249,7 @@ export function FolderTree({
           onClick={() => onFolderSelect?.(null)}
         >
           <Folder className="h-4 w-4" />
-          <span>All Notes</span>
+          <span>{t('folders.allNotes')}</span>
           <Badge variant="secondary" className="ml-auto text-xs">
             {folders.length}
           </Badge>
@@ -254,7 +257,7 @@ export function FolderTree({
 
         {filteredTree.length === 0 && searchQuery ? (
           <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-            No folders found
+            {t('folders.noFolders')}
           </div>
         ) : (
           filteredTree.map((folder) => (

@@ -1,9 +1,12 @@
 'use client'
 
-import Link from "next/link";
+import { Link } from "@/navigation";
+import { useTranslations } from "next-intl";
 import { ThemeSwitcher } from "./theme-switcher";
 
 export function Navigation(){
+    const t = useTranslations('common');
+    
     return (
         <header>
             <div className="">
@@ -14,15 +17,15 @@ export function Navigation(){
                 </Link>
                 <nav className="">
                     <Link href="#features" className="">
-                    Features
+                    {t('navigation.features')}
                     </Link>
                     <Link href="#about" className="">
-                    Features
+                    {t('navigation.about')}
                     </Link>
                     <ThemeSwitcher/>
                     <Link 
                         href="/login" className="">
-                    Sign In
+                    {t('navigation.signIn')}
                     </Link>
                 </nav>   
             </div>

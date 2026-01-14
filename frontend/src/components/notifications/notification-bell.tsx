@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Bell, BellRing } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -12,6 +13,7 @@ export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { unreadCount, isConnected } = useNotifications();
+  const t = useTranslations('notifications');
 
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
@@ -25,13 +27,21 @@ export function NotificationBell() {
         variant="ghost"
         size="sm"
         className="relative h-9 w-9 p-0"
-        aria-label="Notifications"
+        aria-label={t('title')}
         disabled
       >
         <Bell className="h-4 w-4" />
       </Button>
     );
   }
+
+  const ariaLabel = unreadCount > 0 
+    ? `${t('title')} (${unreadCount} ${t('unread')})`
+    : t('title');
+  
+  const titleText = unreadCount > 0
+    ? `${t('title')} - ${unreadCount} ${t('unread')}`
+    : t('title');
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -40,8 +50,8 @@ export function NotificationBell() {
           variant="ghost"
           size="sm"
           className="relative h-9 w-9 p-0"
-          aria-label={`Notification Center${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-          title={`Notification Center${unreadCount > 0 ? ` - ${unreadCount} unread notifications` : ''}`}
+          aria-label={ariaLabel}
+          title={titleText}
         >
           {isConnected && unreadCount > 0 ? (
             <BellRing className="h-4 w-4" />
@@ -57,7 +67,7 @@ export function NotificationBell() {
             </Badge>
           )}
           {!isConnected && (
-            <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-yellow-500 border border-background" title="Offline - Real-time notifications unavailable" />
+            <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-yellow-500 border border-background" title={t('offline')} />
           )}
         </Button>
       </PopoverTrigger>

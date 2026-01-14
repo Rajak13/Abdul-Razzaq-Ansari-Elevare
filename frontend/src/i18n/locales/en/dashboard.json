@@ -1,0 +1,113 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome back",
+  "welcomeMessage": "Welcome back, {name}!",
+  "overview": "Overview",
+  "customize": "Customize Dashboard",
+  "resetLayout": "Reset Layout",
+  "addWidget": "Add Widget",
+  "removeWidget": "Remove Widget",
+  "editMode": "Edit Mode",
+  "saveLayout": "Save Layout",
+  "cancelEdit": "Cancel",
+  "widgets": {
+    "stats": {
+      "title": "Statistics",
+      "description": "View your key statistics",
+      "totalTasks": "Total Tasks",
+      "completedTasks": "Completed",
+      "pendingTasks": "Pending",
+      "overdueTasks": "Overdue",
+      "totalNotes": "Total Notes",
+      "totalGroups": "Study Groups",
+      "totalResources": "Resources",
+      "activeMembers": "Active Members"
+    },
+    "tasks": {
+      "title": "Tasks Overview",
+      "description": "Quick view of your tasks",
+      "upcomingTasks": "Upcoming Tasks",
+      "dueSoon": "Due Soon",
+      "noDueTasks": "No upcoming tasks",
+      "viewAll": "View All Tasks",
+      "createTask": "Create Task",
+      "dueToday": "Due Today",
+      "dueTomorrow": "Due Tomorrow",
+      "overdue": "Overdue"
+    },
+    "recentNotes": {
+      "title": "Recent Notes",
+      "description": "Your recently edited notes",
+      "noNotes": "No notes yet",
+      "viewAll": "View All Notes",
+      "createNote": "Create Note",
+      "lastEdited": "Last edited {time}"
+    },
+    "studyGroups": {
+      "title": "Study Groups",
+      "description": "Your active study groups",
+      "noGroups": "No study groups yet",
+      "viewAll": "View All Groups",
+      "createGroup": "Create Group",
+      "members": "{count} members",
+      "joinGroup": "Join Group"
+    },
+    "calendar": {
+      "title": "Calendar",
+      "description": "View your schedule",
+      "noEvents": "No events scheduled",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "description": "Your recent actions",
+      "noActivity": "No recent activity",
+      "viewAll": "View All Activity",
+      "taskCompleted": "Completed task: {task}",
+      "noteCreated": "Created note: {note}",
+      "groupJoined": "Joined group: {group}",
+      "resourceUploaded": "Uploaded resource: {resource}"
+    },
+    "productivity": {
+      "title": "Productivity Chart",
+      "description": "Track your productivity",
+      "tasksCompleted": "Tasks Completed",
+      "notesCreated": "Notes Created",
+      "studyTime": "Study Time",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month"
+    },
+    "progress": {
+      "title": "Progress Stats",
+      "description": "Your progress overview",
+      "completionRate": "Completion Rate",
+      "streak": "Current Streak",
+      "days": "{count} days",
+      "totalPoints": "Total Points",
+      "level": "Level {level}"
+    }
+  },
+  "settings": {
+    "title": "Dashboard Settings",
+    "layout": "Layout",
+    "widgets": "Widgets",
+    "appearance": "Appearance",
+    "compact": "Compact",
+    "comfortable": "Comfortable",
+    "spacious": "Spacious",
+    "showWidgetTitles": "Show Widget Titles",
+    "showWidgetBorders": "Show Widget Borders",
+    "enableAnimations": "Enable Animations"
+  },
+  "controls": {
+    "refresh": "Refresh",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
+    "print": "Print",
+    "export": "Export",
+    "share": "Share"
+  }
+}

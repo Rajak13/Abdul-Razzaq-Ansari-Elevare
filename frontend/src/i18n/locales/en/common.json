@@ -1,0 +1,207 @@
+{
+  "languageSwitcher": {
+    "label": "Select language"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "notes": "Notes",
+    "groups": "Study Groups",
+    "resources": "Resources",
+    "profile": "Profile",
+    "files": "Files",
+    "notifications": "Notifications",
+    "search": "Search",
+    "more": "More",
+    "logout": "Logout",
+    "settings": "Settings",
+    "quickActions": "Quick Actions",
+    "newTask": "New Task",
+    "newNote": "New Note",
+    "profileSettings": "Profile Settings",
+    "features": "Features",
+    "about": "About",
+    "signIn": "Sign In"
+  },
+  "theme": {
+    "light": "Light Theme",
+    "light2": "Light2 Theme",
+    "dark": "Dark Theme"
+  },
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "create": "Create",
+  "search": "Search",
+  "filter": "Filter",
+  "filters": "Filters",
+  "loading": "Loading...",
+  "error": "An error occurred",
+  "success": "Success",
+  "submit": "Submit",
+  "close": "Close",
+  "back": "Back",
+  "next": "Next",
+  "previous": "Previous",
+  "confirm": "Confirm",
+  "yes": "Yes",
+  "no": "No",
+  "ok": "OK",
+  "apply": "Apply",
+  "reset": "Reset",
+  "clear": "Clear",
+  "clearAll": "Clear all",
+  "selectAll": "Select all",
+  "deselectAll": "Deselect all",
+  "actions": "Actions",
+  "view": "View",
+  "viewDetails": "View Details",
+  "download": "Download",
+  "upload": "Upload",
+  "share": "Share",
+  "copy": "Copy",
+  "duplicate": "Duplicate",
+  "move": "Move",
+  "rename": "Rename",
+  "refresh": "Refresh",
+  "sort": "Sort",
+  "sortBy": "Sort by",
+  "groupBy": "Group by",
+  "showMore": "Show more",
+  "showLess": "Show less",
+  "expand": "Expand",
+  "collapse": "Collapse",
+  "add": "Add",
+  "remove": "Remove",
+  "update": "Update",
+  "saving": "Saving...",
+  "saved": "Saved",
+  "deleting": "Deleting...",
+  "deleted": "Deleted",
+  "updating": "Updating...",
+  "updated": "Updated",
+  "creating": "Creating...",
+  "created": "Created",
+  "uploading": "Uploading...",
+  "uploaded": "Uploaded",
+  "downloading": "Downloading...",
+  "downloaded": "Downloaded",
+  "processing": "Processing...",
+  "processed": "Processed",
+  "noResults": "No results found",
+  "noData": "No data available",
+  "tryAgain": "Try again",
+  "learnMore": "Learn more",
+  "getStarted": "Get started",
+  "or": "or",
+  "and": "and",
+  "of": "of",
+  "trending": "Trending",
+  "order": "Order",
+  "ascending": "Ascending",
+  "descending": "Descending",
+  "type": "Type",
+  "page": "Page",
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{count, plural, =1 {1 minute ago} other {# minutes ago}}",
+    "hoursAgo": "{count, plural, =1 {1 hour ago} other {# hours ago}}",
+    "daysAgo": "{count, plural, =1 {1 day ago} other {# days ago}}",
+    "weeksAgo": "{count, plural, =1 {1 week ago} other {# weeks ago}}",
+    "monthsAgo": "{count, plural, =1 {1 month ago} other {# months ago}}",
+    "yearsAgo": "{count, plural, =1 {1 year ago} other {# years ago}}",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "nextWeek": "Next week",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "nextMonth": "Next month"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "cancelled": "Cancelled",
+    "failed": "Failed",
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived"
+  },
+  "messages": {
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "confirmDeleteMultiple": "Are you sure you want to delete {count} items?",
+    "cannotUndo": "This action cannot be undone.",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+    "operationSuccess": "Operation completed successfully",
+    "operationFailed": "Operation failed. Please try again.",
+    "networkError": "Network error. Please check your connection.",
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "accessDenied": "Access denied. You don't have permission to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Server error. Please try again later.",
+    "tryAgain": "Try again"
+  },
+  "auth": {
+    "pleaseLogin": "Please log in",
+    "loginRequired": "You need to be logged in to view your profile."
+  },
+  "updateInfo": "Update your personal information and profile settings",
+  "metadata": {
+    "siteName": "Elevare",
+    "siteDescription": "A comprehensive platform for collaborative learning and academic success",
+    "home": {
+      "title": "Elevare - Collaborative Learning Platform",
+      "description": "Join Elevare to enhance your learning experience with collaborative tools, study groups, and comprehensive resources"
+    },
+    "dashboard": {
+      "title": "Dashboard - Elevare",
+      "description": "View your personalized dashboard with tasks, notes, and study group activities"
+    },
+    "tasks": {
+      "title": "Tasks - Elevare",
+      "description": "Manage your tasks and stay organized with our comprehensive task management system"
+    },
+    "notes": {
+      "title": "Notes - Elevare",
+      "description": "Create, organize, and share your study notes with powerful editing tools"
+    },
+    "groups": {
+      "title": "Study Groups - Elevare",
+      "description": "Join study groups, collaborate with peers, and enhance your learning experience"
+    },
+    "resources": {
+      "title": "Resources - Elevare",
+      "description": "Access and share educational resources with your learning community"
+    },
+    "profile": {
+      "title": "Profile - Elevare",
+      "description": "Manage your profile settings and view your learning statistics"
+    },
+    "login": {
+      "title": "Login - Elevare",
+      "description": "Sign in to your Elevare account to access your learning dashboard"
+    },
+    "register": {
+      "title": "Register - Elevare",
+      "description": "Create your Elevare account and start your collaborative learning journey"
+    },
+    "search": {
+      "title": "Search - Elevare",
+      "description": "Search across tasks, notes, groups, and resources"
+    },
+    "files": {
+      "title": "Files - Elevare",
+      "description": "Manage and organize your uploaded files and documents"
+    },
+    "notifications": {
+      "title": "Notifications - Elevare",
+      "description": "View and manage your notifications and alerts"
+    }
+  }
+}

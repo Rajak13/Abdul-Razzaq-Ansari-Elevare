@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/navigation';
+import { useTranslations } from 'next-intl';
 import { 
   Home,
   CheckSquare,
@@ -18,24 +18,25 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-const primaryNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-  { name: 'Notes', href: '/notes', icon: FileText },
-  { name: 'Groups', href: '/groups', icon: Users },
-  { name: 'More', href: '/more', icon: MoreHorizontal, isMore: true },
-];
-
-const secondaryNavigation = [
-  { name: 'Files', href: '/files', icon: File },
-  { name: 'Resources', href: '/resources', icon: Calendar },
-  { name: 'Search', href: '/search', icon: Search },
-  { name: 'Profile', href: '/profile', icon: User },
-];
-
 export function MobileNav() {
   const pathname = usePathname();
+  const t = useTranslations('common');
   const [showMore, setShowMore] = React.useState(false);
+
+  const primaryNavigation = [
+    { name: t('navigation.dashboard'), href: '/dashboard', icon: Home },
+    { name: t('navigation.tasks'), href: '/tasks', icon: CheckSquare },
+    { name: t('navigation.notes'), href: '/notes', icon: FileText },
+    { name: t('navigation.groups'), href: '/groups', icon: Users },
+    { name: t('navigation.more'), href: '/more', icon: MoreHorizontal, isMore: true },
+  ];
+
+  const secondaryNavigation = [
+    { name: t('navigation.files'), href: '/files', icon: File },
+    { name: t('navigation.resources'), href: '/resources', icon: Calendar },
+    { name: t('navigation.search'), href: '/search', icon: Search },
+    { name: t('navigation.profile'), href: '/profile', icon: User },
+  ];
 
   // Check if current path is in secondary navigation
   const isSecondaryActive = secondaryNavigation.some(item => 
@@ -76,7 +77,7 @@ export function MobileNav() {
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={item.href as any}
                   onClick={() => setShowMore(false)}
                   className={cn(
                     'flex flex-col items-center justify-center space-y-3 p-4 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105',
@@ -100,28 +101,28 @@ export function MobileNav() {
           {/* Quick Actions */}
           <div className="border-t border-border pt-4">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 px-2">
-              Quick Actions
+              {t('navigation.quickActions')}
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <Link
-                href="/tasks/new"
+                href={"/tasks/new" as any}
                 onClick={() => setShowMore(false)}
                 className="flex items-center space-x-3 p-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 hover:scale-105"
               >
                 <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
                   <Plus className="h-4 w-4 text-green-600 dark:text-green-400" />
                 </div>
-                <span>New Task</span>
+                <span>{t('navigation.newTask')}</span>
               </Link>
               <Link
-                href="/notes/create"
+                href={"/notes/create" as any}
                 onClick={() => setShowMore(false)}
                 className="flex items-center space-x-3 p-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 hover:scale-105"
               >
                 <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
                   <Plus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
-                <span>New Note</span>
+                <span>{t('navigation.newNote')}</span>
               </Link>
             </div>
           </div>
@@ -164,7 +165,7 @@ export function MobileNav() {
                       'text-xs transition-colors duration-200',
                       showMore || isSecondaryActive ? 'text-primary font-semibold' : 'text-muted-foreground'
                     )}>
-                      More
+                      {t('navigation.more')}
                     </span>
                   </button>
                 );
@@ -174,7 +175,7 @@ export function MobileNav() {
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={item.href as any}
                   className={cn(
                     'flex flex-col items-center justify-center space-y-1 text-xs font-medium transition-all duration-200 relative group',
                     isActive

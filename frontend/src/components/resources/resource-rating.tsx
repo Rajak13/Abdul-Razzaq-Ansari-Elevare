@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface ResourceRatingProps {
   resourceId: string;
@@ -20,6 +21,7 @@ export function ResourceRating({
   ratingCount = 0,
   onRatingChange
 }: ResourceRatingProps) {
+  const t = useTranslations('resources.rating');
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -45,16 +47,16 @@ export function ResourceRating({
       }
 
       toast({
-        title: 'Rating submitted',
-        description: `You rated this resource ${rating} star${rating !== 1 ? 's' : ''}`
+        title: t('rateSuccess'),
+        description: t('yourRating') + `: ${rating}`
       });
 
       onRatingChange?.();
     } catch (error) {
       console.error('Rating error:', error);
       toast({
-        title: 'Rating failed',
-        description: 'Please try again later',
+        title: t('rateError'),
+        description: t('rateError'),
         variant: 'destructive'
       });
     } finally {
@@ -87,7 +89,7 @@ export function ResourceRating({
           </Button>
         ))}
         <span className="ml-2 text-sm text-muted-foreground">
-          {currentRating > 0 ? `Your rating: ${currentRating}` : 'Rate this resource'}
+          {currentRating > 0 ? t('yourRating') + `: ${currentRating}` : t('rate')}
         </span>
       </div>
 
@@ -98,7 +100,7 @@ export function ResourceRating({
             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
             <span>{averageRating.toFixed(1)}</span>
           </div>
-          <span>({ratingCount} rating{ratingCount !== 1 ? 's' : ''})</span>
+          <span>({t('ratingCount', { count: ratingCount })})</span>
         </div>
       )}
     </div>

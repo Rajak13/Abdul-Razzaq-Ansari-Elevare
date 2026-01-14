@@ -561,3 +561,70 @@ export async function uploadAvatar(
     });
   }
 }
+
+/**
+ * Update user language preference
+ * PATCH /api/auth/language
+ */
+export async function updateLanguagePreference(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input data',
+          details: errors.array(),
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    const userId = req.user!.userId;
+    const { preferred_language } = req.body;
+
+    const user = await authService.updateLanguagePreference(userId, preferred_language);
+
+    res.status(200).json({
+      message: 'Language preference updated successfully',
+      user,
+    });
+  } catch (error: any) {
+    logger.error('Update language preference error', { error: error.message });
+
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: error.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    if (error.message === 'Invalid language code') {
+      res.status(400).json({
+        error: {
+          code: 'INVALID_LANGUAGE',
+          message: error.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    res.status(500).json({
+      error: {
+        code: 'UPDATE_LANGUAGE_FAILED',
+        message: 'Failed to update language preference',
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+}

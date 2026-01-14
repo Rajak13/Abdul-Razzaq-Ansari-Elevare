@@ -1,10 +1,10 @@
 INFO:app.main:Initialized cache with max_size=1000, ttl=3600s
-INFO:     Started server process [69921]
+INFO:     Started server process [9070]
 INFO:     Waiting for application startup.
 INFO:app.main:Starting PEGASUS Summarization Service...
 INFO:app.main:Loading PEGASUS model: google/pegasus-xsum
 INFO:app.main:Using device: cpu
-INFO:app.main:System resources - CPU: 34.2%, Memory: 57.5%, Available Memory: 6.8GB
+INFO:app.main:System resources - CPU: 13.1%, Memory: 74.6%, Available Memory: 4.1GB
 INFO:app.main:Loading tokenizer...
 INFO:app.main:Tokenizer loaded successfully
 INFO:app.main:Loading model...
@@ -12,7 +12,7 @@ Some weights of PegasusForConditionalGeneration were not initialized from the mo
 You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
 INFO:app.main:Model loaded successfully
 INFO:app.main:PEGASUS model initialization complete
-INFO:app.main:Post-loading resources - Memory: 63.6%
+INFO:app.main:Post-loading resources - Memory: 82.8%
 INFO:app.main:Service startup complete - ready to accept requests
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
@@ -25,63 +25,6 @@ Cache size: 1000
 Max concurrent requests: 10
 PyTorch threads: 4
 =============================================
-INFO:     127.0.0.1:51789 - "GET /health HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 5.40s
-INFO:app.main:Cached result for key: 5b7bceb4...
-INFO:     127.0.0.1:52091 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 8.40s
-INFO:app.main:Cached result for key: a2036b76...
-INFO:     127.0.0.1:52469 - "POST /summarize HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52504 - "GET /health HTTP/1.1" 200 OK
-INFO:app.main:Cache hit for key: a2036b76...
-INFO:app.main:Returning cached summary result
-INFO:     127.0.0.1:52530 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 5.73s
-INFO:app.main:Cached result for key: 31a0f405...
-INFO:     127.0.0.1:52955 - "POST /summarize HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53372 - "GET /health HTTP/1.1" 200 OK
-INFO:app.main:Cache hit for key: 31a0f405...
-INFO:app.main:Returning cached summary result
-INFO:     127.0.0.1:53394 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Cache hit for key: 31a0f405...
-INFO:app.main:Returning cached summary result
-INFO:     127.0.0.1:53442 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Cache hit for key: 31a0f405...
-INFO:app.main:Returning cached summary result
-INFO:     127.0.0.1:53686 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 5.54s
-INFO:app.main:Cached result for key: 9f3dfd09...
-INFO:     127.0.0.1:54025 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 5.41s
-INFO:app.main:Cached result for key: 5a316fa4...
-INFO:     127.0.0.1:54583 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Cache hit for key: 5a316fa4...
-INFO:app.main:Returning cached summary result
-INFO:     127.0.0.1:54776 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 5.22s
-INFO:app.main:Cached result for key: bae1baec...
-INFO:     127.0.0.1:54887 - "POST /summarize HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58212 - "GET /health HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 3.82s
-INFO:app.main:Cached result for key: 5a316fa4...
-INFO:     127.0.0.1:58260 - "POST /summarize HTTP/1.1" 200 OK
-INFO:app.main:Text split into 1 chunks
-INFO:app.main:Processing chunk 1/1
-INFO:app.main:Successfully generated summary in 3.53s
-INFO:app.main:Cached result for key: a2036b76...
-INFO:     127.0.0.1:58277 - "POST /summarize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52697 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52699 - "GET /health HTTP/1.1" 200 OK
 INFO:app.main:Received signal 15, initiating graceful shutdown...

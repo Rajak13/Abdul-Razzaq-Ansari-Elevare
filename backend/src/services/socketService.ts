@@ -45,7 +45,7 @@ export class SocketService {
         
         // Get user details from database
         const userResult = await query(
-          'SELECT id, name, email FROM users WHERE id = $1',
+          'SELECT id, name, email, preferred_language FROM users WHERE id = $1',
           [decoded.userId]
         );
 
@@ -55,6 +55,7 @@ export class SocketService {
 
         socket.userId = decoded.userId;
         socket.user = userResult.rows[0];
+        socket.user.locale = userResult.rows[0].preferred_language || 'en';
         
         logger.info('Socket authenticated', { userId: decoded.userId, socketId: socket.id });
         next();

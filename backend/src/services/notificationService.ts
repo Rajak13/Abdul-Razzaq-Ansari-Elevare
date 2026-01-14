@@ -233,18 +233,28 @@ export class NotificationService {
         return;
       }
 
+      // Get user's preferred language
+      const userResult = await query<{ preferred_language: string }>(
+        'SELECT preferred_language FROM users WHERE id = $1',
+        [data.notification.user_id]
+      );
+      const userLocale = userResult.rows[0]?.preferred_language || 'en';
+
       // Create notification in database
       const notification = await this.createNotification(data.notification);
 
-      // Send via WebSocket if enabled (immediate)
+      // Send via WebSocket if enabled (immediate) - include locale
       if (data.delivery_channels.websocket && this.socketService) {
-        this.socketService.sendNotification(data.notification.user_id, notification);
+        this.socketService.sendNotification(data.notification.user_id, {
+          ...notification,
+          locale: userLocale
+        });
       }
 
       // Send via email if enabled (async - don't wait)
       if (data.delivery_channels.email) {
         // Fire and forget - don't await email sending to avoid blocking the response
-        this.sendEmailNotification(notification).catch(error => {
+        this.sendEmailNotification(notification, userLocale).catch(error => {
           logger.error('Async email notification failed', { 
             error, 
             notificationId: notification.id,
@@ -256,6 +266,7 @@ export class NotificationService {
       logger.info('Notification sent successfully', {
         notificationId: notification.id,
         userId: notification.user_id,
+        locale: userLocale,
         channels: data.delivery_channels
       });
     } catch (error) {
@@ -267,7 +278,7 @@ export class NotificationService {
   /**
    * Send email notification
    */
-  private async sendEmailNotification(notification: Notification): Promise<void> {
+  private async sendEmailNotification(notification: Notification, locale: string = 'en'): Promise<void> {
     try {
       // Get user email from database
       const userResult = await query<{ email: string, name: string }>(
@@ -281,32 +292,65 @@ export class NotificationService {
 
       const user = userResult.rows[0];
       
+      // Localize email content based on user's preferred language
+      const localizedContent = this.getLocalizedEmailContent(notification, locale);
+      
       await this.emailService.sendNotificationEmail({
         to: user.email,
-        subject: notification.title,
-        text: notification.content,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">${notification.title}</h2>
-            <p>${notification.content}</p>
-            ${notification.link ? `<p><a href="${notification.link}" style="color: #2563eb;">View Details</a></p>` : ''}
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
-            <p style="color: #6b7280; font-size: 14px;">
-              This is an automated notification from Elevare. 
-              You can manage your notification preferences in your account settings.
-            </p>
-          </div>
-        `
+        subject: localizedContent.subject,
+        text: localizedContent.text,
+        html: localizedContent.html
       });
 
       logger.info('Email notification sent', {
         notificationId: notification.id,
-        email: user.email
+        email: user.email,
+        locale
       });
     } catch (error) {
       logger.error('Error sending email notification', { error, notificationId: notification.id });
       // Don't throw error for email failures - notification was still created
     }
+  }
+
+  /**
+   * Get localized email content based on user's locale
+   */
+  private getLocalizedEmailContent(notification: Notification, locale: string): { subject: string; text: string; html: string } {
+    // For now, we'll use English content
+    // In a full implementation, you would load translations from files or a translation service
+    const translations: Record<string, any> = {
+      en: {
+        footer: 'This is an automated notification from Elevare. You can manage your notification preferences in your account settings.',
+        viewDetails: 'View Details'
+      },
+      ne: {
+        footer: 'यो Elevare बाट स्वचालित सूचना हो। तपाईं आफ्नो खाता सेटिङहरूमा आफ्नो सूचना प्राथमिकताहरू व्यवस्थापन गर्न सक्नुहुन्छ।',
+        viewDetails: 'विवरण हेर्नुहोस्'
+      },
+      ko: {
+        footer: 'Elevare의 자동 알림입니다. 계정 설정에서 알림 기본 설정을 관리할 수 있습니다.',
+        viewDetails: '자세히 보기'
+      }
+    };
+
+    const t = translations[locale] || translations['en'];
+
+    return {
+      subject: notification.title,
+      text: notification.content,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">${notification.title}</h2>
+          <p>${notification.content}</p>
+          ${notification.link ? `<p><a href="${notification.link}" style="color: #2563eb;">${t.viewDetails}</a></p>` : ''}
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; font-size: 14px;">
+            ${t.footer}
+          </p>
+        </div>
+      `
+    };
   }
 
   /**

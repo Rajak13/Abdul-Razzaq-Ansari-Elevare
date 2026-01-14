@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGroupMessages, useSendMessage } from '@/hooks/use-study-groups';
 import { useAuth } from '@/contexts/auth-context';
+import { useTranslations } from 'next-intl';
 import socketService from '@/services/socket-service';
 import { MessageCircle, Send, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -19,6 +20,7 @@ interface GroupChatProps {
 }
 
 export function GroupChat({ groupId }: GroupChatProps) {
+  const t = useTranslations('groups.chat');
   const [message, setMessage] = useState('');
   const [realtimeMessages, setRealtimeMessages] = useState<any[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -174,7 +176,7 @@ export function GroupChat({ groupId }: GroupChatProps) {
         <CardHeader>
           <CardTitle className="text-lg flex items-center space-x-2">
             <MessageCircle className="h-5 w-5" />
-            <span>Group Chat</span>
+            <span>{t('title')}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col space-y-4">
@@ -201,7 +203,7 @@ export function GroupChat({ groupId }: GroupChatProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center space-x-2">
             <MessageCircle className="h-5 w-5" />
-            <span>Group Chat</span>
+            <span>{t('title')}</span>
           </CardTitle>
           <Button
             variant="ghost"
@@ -220,9 +222,9 @@ export function GroupChat({ groupId }: GroupChatProps) {
             {allMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-8">
                 <div className="text-4xl mb-2">💬</div>
-                <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('noMessages')}</h3>
                 <p className="text-muted-foreground">
-                  Be the first to start the conversation!
+                  {t('startConversation')}
                 </p>
               </div>
             ) : (
@@ -279,8 +281,8 @@ export function GroupChat({ groupId }: GroupChatProps) {
                 </div>
                 <span>
                   {typingUsers.length === 1 
-                    ? 'Someone is typing...' 
-                    : `${typingUsers.length} people are typing...`
+                    ? t('typing', { name: '' }) 
+                    : t('multipleTyping', { count: typingUsers.length })
                   }
                 </span>
               </div>
@@ -294,7 +296,7 @@ export function GroupChat({ groupId }: GroupChatProps) {
         <div className="border-t p-4 flex-shrink-0">
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <Input
-              placeholder="Type your message..."
+              placeholder={t('sendMessage')}
               value={message}
               onChange={handleInputChange}
               disabled={sendMessageMutation.isPending}
