@@ -203,8 +203,6 @@ Ready to transform your academic experience?
 4. **Join or Create a Study Group**: Connect with classmates
 5. **Explore Features**: Discover tasks, resources, and collaboration tools
 
-For detailed setup instructions, see [DEVELOPMENT.md](DEVELOPMENT.md)
-
 ---
 
 ## Platform Statistics
@@ -233,19 +231,9 @@ Elevare is designed specifically for the academic environment:
 
 ## Contact & Support
 
-**For Students:**
 - In-app support and help documentation
-- Email: support@elevare.edu
-- Community forums and FAQs
+- Email: rajakansar833@gmail.com
 
-**For Institutions:**
-- Enterprise inquiries: enterprise@elevare.edu
-- Partnership opportunities: partnerships@elevare.edu
-
-**For Developers:**
-- Technical documentation: [DEVELOPMENT.md](DEVELOPMENT.md)
-- Deployment guide: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-- API documentation: Available in the developer portal
 
 ---
 
@@ -255,16 +243,6 @@ To empower students worldwide with intelligent tools that make learning more org
 
 ---
 
-## Documentation
-
-- [Development Guide](DEVELOPMENT.md) - Setup and development instructions
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Production deployment
-- [Admin Setup](ADMIN_QUICK_START.md) - Admin dashboard configuration
-- [Testing Guide](ADMIN_TESTING_GUIDE.md) - Testing procedures
-- [Title Defense](title-defense/) - Project documentation and defense materials
-
----
-
 **Elevare** - Elevating Education Through Technology
 
-Built with ❤️ for students, by students
+Built with care for students, by students
