@@ -109,8 +109,8 @@ export function MobileNav() {
                 onClick={() => setShowMore(false)}
                 className="flex items-center space-x-3 p-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 hover:scale-105"
               >
-                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                  <Plus className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Plus className="h-4 w-4 text-primary" />
                 </div>
                 <span>{t('navigation.newTask')}</span>
               </Link>
@@ -119,8 +119,8 @@ export function MobileNav() {
                 onClick={() => setShowMore(false)}
                 className="flex items-center space-x-3 p-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 hover:scale-105"
               >
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <Plus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Plus className="h-4 w-4 text-primary" />
                 </div>
                 <span>{t('navigation.newNote')}</span>
               </Link>

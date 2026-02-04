@@ -1,12 +1,15 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import path from 'path';
 import config from './config';
 import logger from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { securityHeaders } from './middleware/securityHeaders';
+import { sanitizeInput, checkSqlInjection } from './middleware/inputValidation';
+import { checkBlockedIP, ddosProtection, standardRateLimiter } from './middleware/advancedRateLimiter';
+import { enforceHttps, tlsSecurityHeaders } from './middleware/encryption';
 
 const app: Application = express();
 
@@ -16,20 +19,35 @@ app.use(
     origin: config.corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     maxAge: 600, // 10 minutes
   })
 );
 
-// Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+// Enforce HTTPS/TLS in production
+app.use(enforceHttps);
+app.use(tlsSecurityHeaders);
+
+// Check for blocked IPs first
+app.use(checkBlockedIP);
+
+// DDoS protection
+app.use(ddosProtection);
+
+// Comprehensive security headers (OWASP best practices)
+app.use(securityHeaders);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input sanitization and SQL injection prevention
+app.use(sanitizeInput);
+app.use(checkSqlInjection);
+
+// Standard rate limiting for all API endpoints
+app.use('/api', standardRateLimiter);
 
 // Compression middleware
 app.use(compression());
@@ -73,6 +91,7 @@ import searchRoutes from './routes/searchRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import resourceRoutes from './routes/resourceRoutes';
 import fileRoutes from './routes/fileRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -87,6 +106,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/analytics', dashboardRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

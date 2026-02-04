@@ -25,6 +25,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       notifications: (await import('./locales/ko/notifications.json')).default,
       validation: (await import('./locales/ko/validation.json')).default,
       errors: (await import('./locales/ko/errors.json')).default,
+      files: (await import('./locales/ko/files.json')).default,
     };
   } else if (locale === 'ne') {
     messages = {
@@ -39,6 +40,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       notifications: (await import('./locales/ne/notifications.json')).default,
       validation: (await import('./locales/ne/validation.json')).default,
       errors: (await import('./locales/ne/errors.json')).default,
+      files: (await import('./locales/ne/files.json')).default,
     };
   } else {
     // Default to English
@@ -54,6 +56,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       notifications: (await import('./locales/en/notifications.json')).default,
       validation: (await import('./locales/en/validation.json')).default,
       errors: (await import('./locales/en/errors.json')).default,
+      files: (await import('./locales/en/files.json')).default,
     };
   }
 

@@ -25,8 +25,8 @@ function CreateNoteContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+    <div className="p-6 space-y-6">
+      <div className="container mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Link href="/notes">
@@ -38,10 +38,10 @@ function CreateNoteContent() {
           
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold text-transparent dark:from-white dark:to-slate-300">
+              <h1 className="text-3xl font-bold">
                 Create New Note
               </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 {template ? `Using ${template.name} template` : 'Start writing your note'}
               </p>
             </div>
@@ -66,8 +66,8 @@ function CreateNoteContent() {
 export default function CreateNotePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+      <div className="p-6 space-y-6">
+        <div className="container mx-auto">
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-48 rounded bg-gray-200"></div>
             <div className="h-96 rounded bg-gray-200"></div>

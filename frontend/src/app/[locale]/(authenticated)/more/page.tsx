@@ -128,16 +128,16 @@ export default function MorePage() {
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="container mx-auto px-4 py-6 pb-24 max-w-6xl">
+    <div className="p-6 space-y-6 pb-24">
+      <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">More</h1>
+          <h1 className="text-3xl font-bold mb-2">More</h1>
           <p className="text-muted-foreground">Access additional features and settings</p>
         </div>
 
         {/* User Profile Section */}
-        <Card className="mb-8 border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
+        <Card className="mb-8">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">

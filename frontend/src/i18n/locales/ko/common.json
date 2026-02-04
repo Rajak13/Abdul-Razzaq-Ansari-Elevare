@@ -103,6 +103,15 @@
   "descending": "내림차순",
   "type": "유형",
   "page": "페이지",
+  "pagination": {
+    "showing": "{start}에서 {end}까지 (총 {total}개)",
+    "perPage": "페이지당",
+    "page": "{total}페이지 중 {current}페이지",
+    "first": "처음",
+    "last": "마지막",
+    "previous": "이전",
+    "next": "다음"
+  },
   "time": {
     "justNow": "방금",
     "minutesAgo": "{count, plural, =1 {1분 전} other {#분 전}}",

@@ -24,8 +24,8 @@ export default function EditNotePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+      <div className="p-6 space-y-6">
+        <div className="container mx-auto">
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-48 rounded bg-gray-200"></div>
             <div className="h-96 rounded bg-gray-200"></div>
@@ -37,11 +37,11 @@ export default function EditNotePage() {
 
   if (!note) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+      <div className="p-6 space-y-6">
+        <div className="container mx-auto">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Note not found</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <h1 className="text-2xl font-bold">Note not found</h1>
+            <p className="mt-2 text-muted-foreground">
               The note you're trying to edit doesn't exist or has been deleted.
             </p>
             <Link href="/notes">
@@ -57,8 +57,8 @@ export default function EditNotePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+    <div className="p-6 space-y-6">
+      <div className="container mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Link href={`/notes/${noteId}`}>
@@ -70,10 +70,10 @@ export default function EditNotePage() {
           
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold text-transparent dark:from-white dark:to-slate-300">
+              <h1 className="text-3xl font-bold">
                 Edit Note
               </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Make changes to "{note.title}"
               </p>
             </div>

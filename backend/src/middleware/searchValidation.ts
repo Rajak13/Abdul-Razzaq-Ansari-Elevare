@@ -16,15 +16,15 @@ export const searchValidation = [
     .custom((value) => {
       if (typeof value === 'string') {
         const types = value.split(',');
-        const validTypes = ['task', 'note', 'resource', 'file'];
+        const validTypes = ['task', 'note', 'resource', 'group'];
         return types.every(type => validTypes.includes(type.trim()));
       } else if (Array.isArray(value)) {
-        const validTypes = ['task', 'note', 'resource', 'file'];
+        const validTypes = ['task', 'note', 'resource', 'group'];
         return value.every(type => validTypes.includes(type));
       }
       return false;
     })
-    .withMessage('Content type must be one or more of: task, note, resource, file'),
+    .withMessage('Content type must be one or more of: task, note, resource, group'),
 
   query('date_from')
     .optional()
@@ -79,15 +79,15 @@ export const multiKeywordSearchValidation = [
     .optional()
     .custom((value) => {
       if (Array.isArray(value)) {
-        const validTypes = ['task', 'note', 'resource', 'file'];
+        const validTypes = ['task', 'note', 'resource', 'group'];
         return value.every(type => validTypes.includes(type));
       } else if (typeof value === 'string') {
-        const validTypes = ['task', 'note', 'resource', 'file'];
+        const validTypes = ['task', 'note', 'resource', 'group'];
         return validTypes.includes(value);
       }
       return false;
     })
-    .withMessage('Content type must be one or more of: task, note, resource, file'),
+    .withMessage('Content type must be one or more of: task, note, resource, group'),
 
   body('date_from')
     .optional()

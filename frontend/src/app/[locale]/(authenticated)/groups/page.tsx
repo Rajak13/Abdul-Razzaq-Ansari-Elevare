@@ -3,14 +3,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Pagination } from '@/components/ui/pagination';
 import { useStudyGroups } from '@/hooks/use-study-groups';
 import { StudyGroupForm } from '@/components/study-groups/study-group-form';
 import { StudyGroupCard } from '@/components/study-groups/study-group-card';
-import { StudyGroupFilters } from '@/components/study-groups/study-group-filters';
 import { StudyGroupQueryParams } from '@/types/study-group';
 import { Plus, Search, Users, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,18 +20,21 @@ import { usePageMetadata } from '@/hooks/use-page-metadata';
 
 export default function GroupsPage() {
   const t = useTranslations('groups');
-  const tCommon = useTranslations('common');
   usePageMetadata('groups');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('discover');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<StudyGroupQueryParams>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
 
   // Build query parameters based on active tab and filters
   const getQueryParams = (): StudyGroupQueryParams => {
     const params: StudyGroupQueryParams = {
       ...filters,
       search: searchQuery || undefined,
+      page: currentPage,
+      limit: pageSize,
     };
 
     switch (activeTab) {
@@ -57,7 +59,21 @@ export default function GroupsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search is automatically triggered by the query parameter change
+    setCurrentPage(1);
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleCreateSuccess = () => {
@@ -132,7 +148,7 @@ export default function GroupsPage() {
 
         {/* Tabs */}
         <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse" />}>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="discover">{t('search.allSubjects')}</TabsTrigger>
               <TabsTrigger value="my-groups">{t('myGroups')}</TabsTrigger>
@@ -170,12 +186,18 @@ export default function GroupsPage() {
                     ))}
                   </div>
                   
-                  {/* Pagination info */}
-                  {groupsData.total > groupsData.groups.length && (
-                    <div className="mt-6 text-center">
-                      <p className="text-sm text-muted-foreground">
-                        {t('search.resultsCount', { count: groupsData.groups.length })} {tCommon('of')} {groupsData.total}
-                      </p>
+                  {/* Pagination */}
+                  {groupsData.total > pageSize && (
+                    <div className="mt-6 pt-4 border-t">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(groupsData.total / pageSize)}
+                        totalItems={groupsData.total}
+                        pageSize={pageSize}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
+                        pageSizeOptions={[12, 24, 48]}
+                      />
                     </div>
                   )}
                 </>

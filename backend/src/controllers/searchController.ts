@@ -30,12 +30,12 @@ export async function search(req: Request, res: Response): Promise<void> {
     }
 
     // Parse content types
-    let contentTypes: ('task' | 'note' | 'resource' | 'file')[] | undefined;
+    let contentTypes: ('task' | 'note' | 'resource' | 'group')[] | undefined;
     if (content_type) {
       if (typeof content_type === 'string') {
-        contentTypes = content_type.split(',') as ('task' | 'note' | 'resource' | 'file')[];
+        contentTypes = content_type.split(',') as ('task' | 'note' | 'resource' | 'group')[];
       } else if (Array.isArray(content_type)) {
-        contentTypes = content_type as ('task' | 'note' | 'resource' | 'file')[];
+        contentTypes = content_type as ('task' | 'note' | 'resource' | 'group')[];
       }
     }
 
@@ -110,7 +110,7 @@ export async function multiKeywordSearchEndpoint(req: Request, res: Response): P
     }
 
     // Parse content types
-    let contentTypes: ('task' | 'note' | 'resource' | 'file')[] | undefined;
+    let contentTypes: ('task' | 'note' | 'resource' | 'group')[] | undefined;
     if (content_type) {
       contentTypes = Array.isArray(content_type) ? content_type : [content_type];
     }

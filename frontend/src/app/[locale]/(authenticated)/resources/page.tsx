@@ -23,16 +23,12 @@ import {
   FileText,
   Download,
   Eye,
-  ThumbsUp,
   Calendar,
-  User,
-  BookmarkCheck,
-  ExternalLink,
-  Star,
-  MessageCircle
+  Star
 } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import { ResourceUploadModal } from '@/components/resources/resource-upload-modal';
+import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/use-toast';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
@@ -136,7 +132,7 @@ export default function ResourcesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [pagination.page, pagination.limit, filters, searchQuery, toast]);
+  }, [pagination.page, pagination.limit, filters, searchQuery, toast, t, tCommon]);
 
   useEffect(() => {
     fetchResources();
@@ -159,6 +155,14 @@ export default function ResourcesPage() {
     setFilters({ sortBy: 'created_at', sortOrder: 'desc' });
     setSearchQuery('');
     setPagination(prev => ({ ...prev, page: 1 }));
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setPagination(prev => ({ ...prev, page }));
+  }, []);
+
+  const handlePageSizeChange = useCallback((limit: number) => {
+    setPagination(prev => ({ ...prev, limit, page: 1 }));
   }, []);
 
   const handleResourceView = useCallback((resource: Resource) => {
@@ -432,35 +436,6 @@ export default function ResourcesPage() {
 
         {!isLoading && currentResources.length > 0 && (
           <>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {t('search.resultsCount', { count: currentResources.length })} {tCommon('of')} {pagination.total}
-              </p>
-              {pagination.totalPages > 1 && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                    disabled={pagination.page === 1}
-                  >
-                    {tCommon('previous')}
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {tCommon('page')} {pagination.page} {tCommon('of')} {pagination.totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
-                    disabled={pagination.page === pagination.totalPages}
-                  >
-                    {tCommon('next')}
-                  </Button>
-                </div>
-              )}
-            </div>
-
             <div className={
               viewMode === 'grid'
                 ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'
@@ -561,6 +536,20 @@ export default function ResourcesPage() {
                 </Card>
               ))}
             </div>
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="mt-6 pt-4 border-t">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.total}
+                  pageSize={pagination.limit}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

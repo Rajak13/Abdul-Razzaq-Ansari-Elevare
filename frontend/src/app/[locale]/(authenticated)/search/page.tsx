@@ -10,20 +10,22 @@ import {
   Filter, 
   BookmarkCheck, 
   FileText, 
-  Users, 
   Calendar,
   Hash,
   Clock,
-  ThumbsUp,
   Eye,
+  CheckSquare,
+  BookOpen,
+  Users,
   Download,
   Star,
-  CheckSquare,
-  BookOpen
+  Lock,
+  Globe
 } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,32 +38,38 @@ import { usePageMetadata } from '@/hooks/use-page-metadata';
 
 interface SearchResult {
   id: string;
-  type: 'task' | 'note' | 'resource' | 'group' | 'whiteboard';
+  type: 'task' | 'note' | 'resource' | 'group';
   title: string;
   description?: string;
   content?: string;
+  snippet?: string;
+  highlighted_snippet?: string;
   created_at: string;
   updated_at: string;
-  created_by?: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
   // Type-specific fields
-  file_type?: string;
-  file_size?: number;
-  download_count?: number;
-  average_rating?: number;
   tags?: string[];
   status?: string;
   due_date?: string;
   priority?: string;
-  member_count?: number;
-  is_public?: boolean;
+  metadata?: {
+    priority?: string;
+    status?: string;
+    due_date?: string;
+    tags?: string[];
+    folder_name?: string;
+    category_name?: string;
+    file_type?: string;
+    file_size?: number;
+    download_count?: number;
+    average_rating?: number;
+    user_name?: string;
+    member_count?: number;
+    is_private?: boolean;
+  };
 }
 
 interface SearchFilters {
-  types: string[];
+  types: ('task' | 'note' | 'resource' | 'group')[];
   sort_by: 'relevance' | 'date' | 'popularity';
   tags?: string[];
   priority?: string[];
@@ -72,9 +80,10 @@ interface SearchFilters {
 export default function SearchPage() {
   usePageMetadata('search');
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [query, setQuery] = useState(searchParams?.get('q') || '');
   const [filters, setFilters] = useState<SearchFilters>({
-    types: ['task', 'note', 'resource', 'group', 'whiteboard'],
+    types: ['resource', 'group', 'task', 'note'],
     sort_by: 'relevance'
   });
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -94,8 +103,7 @@ export default function SearchPage() {
     try {
       const params = new URLSearchParams({
         q: query.trim(),
-        type: filters.types.join(','),
-        sort_by: filters.sort_by
+        content_type: filters.types.join(','),
       });
 
       // Get auth token from localStorage
@@ -113,8 +121,10 @@ export default function SearchPage() {
       }
 
       const data = await response.json();
-      setSearchResults(data.results || []);
-      setTotalResults(data.total || 0);
+      // Backend returns data in data.data structure
+      const searchData = data.data || data;
+      setSearchResults(searchData.results || []);
+      setTotalResults(searchData.total || 0);
     } catch (error) {
       console.error('Search error:', error);
       toast({
@@ -139,24 +149,21 @@ export default function SearchPage() {
     // Navigate to the appropriate page based on result type
     switch (result.type) {
       case 'task':
-        window.location.href = `/tasks?id=${result.id}`;
+        router.push(`/tasks?id=${result.id}` as any);
         break;
       case 'note':
-        window.location.href = `/notes/${result.id}`;
+        router.push(`/notes/${result.id}` as any);
         break;
       case 'resource':
-        window.location.href = `/resources/${result.id}`;
+        router.push(`/resources/${result.id}` as any);
         break;
       case 'group':
-        window.location.href = `/groups/${result.id}`;
-        break;
-      case 'whiteboard':
-        window.location.href = `/groups/${result.id}/whiteboard`;
+        router.push(`/groups/${result.id}` as any);
         break;
     }
-  }, []);
+  }, [router]);
 
-  const toggleType = useCallback((type: string) => {
+  const toggleType = useCallback((type: 'task' | 'note' | 'resource' | 'group') => {
     setFilters(prev => ({
       ...prev,
       types: prev.types.includes(type)
@@ -175,8 +182,6 @@ export default function SearchPage() {
         return <FileText className="h-4 w-4" />;
       case 'group':
         return <Users className="h-4 w-4" />;
-      case 'whiteboard':
-        return <FileText className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
@@ -192,8 +197,6 @@ export default function SearchPage() {
         return 'Resource';
       case 'group':
         return 'Study Group';
-      case 'whiteboard':
-        return 'Whiteboard';
       default:
         return 'Item';
     }
@@ -240,7 +243,7 @@ export default function SearchPage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">Search & Discovery</h1>
         <p className="text-muted-foreground">
-          Find and organize your tasks, notes, resources, groups, and whiteboards in one place
+          Discover resources, study groups, and content shared by the community
         </p>
       </div>
 
@@ -255,7 +258,7 @@ export default function SearchPage() {
             <CardHeader>
               <CardTitle>Unified Search</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Search across all your content with advanced filtering and suggestions
+                Search across resources, study groups, tasks, and notes
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -263,7 +266,7 @@ export default function SearchPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search tasks, notes, resources, groups, and whiteboards..."
+                  placeholder="Search resources, groups, tasks, notes..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="pl-10"
@@ -277,7 +280,7 @@ export default function SearchPage() {
                     <Button variant="outline" size="sm">
                       <Filter className="mr-2 h-4 w-4" />
                       Content Types
-                      {filters.types.length < 5 && (
+                      {filters.types.length < 4 && (
                         <Badge variant="secondary" className="ml-2">
                           {filters.types.length}
                         </Badge>
@@ -287,20 +290,6 @@ export default function SearchPage() {
                   <DropdownMenuContent>
                     <DropdownMenuLabel>Content Types</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem
-                      checked={filters.types.includes('task')}
-                      onCheckedChange={() => toggleType('task')}
-                    >
-                      <CheckSquare className="mr-2 h-4 w-4" />
-                      Tasks
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={filters.types.includes('note')}
-                      onCheckedChange={() => toggleType('note')}
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Notes
-                    </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={filters.types.includes('resource')}
                       onCheckedChange={() => toggleType('resource')}
@@ -316,11 +305,18 @@ export default function SearchPage() {
                       Study Groups
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
-                      checked={filters.types.includes('whiteboard')}
-                      onCheckedChange={() => toggleType('whiteboard')}
+                      checked={filters.types.includes('task')}
+                      onCheckedChange={() => toggleType('task')}
                     >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Whiteboards
+                      <CheckSquare className="mr-2 h-4 w-4" />
+                      My Tasks
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={filters.types.includes('note')}
+                      onCheckedChange={() => toggleType('note')}
+                    >
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      My Notes
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -381,7 +377,7 @@ export default function SearchPage() {
                       <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                       <p className="text-lg font-medium">Start searching</p>
                       <p className="mt-1 text-sm">
-                        Enter a search term to find tasks, notes, resources, groups, and whiteboards
+                        Discover resources, study groups, and more shared by the community
                       </p>
                     </CardContent>
                   </Card>
@@ -412,77 +408,113 @@ export default function SearchPage() {
                                       {getTypeLabel(result.type)}
                                     </span>
                                   </div>
-                                  {result.priority && (
-                                    <Badge className={`text-xs ${getPriorityColor(result.priority)}`}>
-                                      {result.priority} priority
+                                  {(result.priority || result.metadata?.priority) && (
+                                    <Badge className={`text-xs ${getPriorityColor(result.priority || result.metadata?.priority || '')}`}>
+                                      {result.priority || result.metadata?.priority} priority
                                     </Badge>
                                   )}
-                                  {result.status && (
-                                    <Badge className={`text-xs ${getStatusColor(result.status)}`}>
-                                      {result.status.replace('_', ' ')}
+                                  {(result.status || result.metadata?.status) && (
+                                    <Badge className={`text-xs ${getStatusColor(result.status || result.metadata?.status || '')}`}>
+                                      {(result.status || result.metadata?.status || '').replace('_', ' ')}
                                     </Badge>
                                   )}
                                 </div>
 
                                 <div>
                                   <h3 className="line-clamp-1 font-medium text-foreground">{result.title}</h3>
-                                  {result.description && (
+                                  {(result.snippet || result.description || result.content) && (
                                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                                      {result.description}
+                                      {result.snippet || result.description || result.content}
                                     </p>
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                  {result.created_by && (
-                                    <div className="flex items-center gap-1">
-                                      <span>{result.created_by.name}</span>
-                                    </div>
+                                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                                  {/* Shared by (for resources and groups) */}
+                                  {result.metadata?.user_name && (
+                                    <span>By {result.metadata.user_name}</span>
                                   )}
+                                  
+                                  {/* Date */}
                                   <div className="flex items-center gap-1">
                                     <Calendar className="h-3 w-3" />
                                     {new Date(result.created_at).toLocaleDateString()}
                                   </div>
-                                  {result.due_date && (
+                                  
+                                  {/* Due date for tasks */}
+                                  {(result.due_date || result.metadata?.due_date) && (
                                     <div className="flex items-center gap-1">
                                       <Clock className="h-3 w-3" />
-                                      Due {new Date(result.due_date).toLocaleDateString()}
+                                      Due {new Date(result.due_date || result.metadata?.due_date!).toLocaleDateString()}
                                     </div>
                                   )}
-                                  {result.member_count && (
+                                  
+                                  {/* Member count for groups */}
+                                  {result.metadata?.member_count !== undefined && (
                                     <div className="flex items-center gap-1">
                                       <Users className="h-3 w-3" />
-                                      {result.member_count} members
+                                      {result.metadata.member_count} members
                                     </div>
                                   )}
-                                  {result.download_count !== undefined && (
+                                  
+                                  {/* Private/Public for groups */}
+                                  {result.type === 'group' && result.metadata?.is_private !== undefined && (
+                                    <div className="flex items-center gap-1">
+                                      {result.metadata.is_private ? (
+                                        <>
+                                          <Lock className="h-3 w-3" />
+                                          Private
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Globe className="h-3 w-3" />
+                                          Public
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Download count for resources */}
+                                  {result.metadata?.download_count !== undefined && (
                                     <div className="flex items-center gap-1">
                                       <Download className="h-3 w-3" />
-                                      {result.download_count} downloads
+                                      {result.metadata.download_count} downloads
                                     </div>
                                   )}
-                                  {result.average_rating && (
+                                  
+                                  {/* Rating for resources */}
+                                  {result.metadata?.average_rating !== undefined && result.metadata.average_rating > 0 && (
                                     <div className="flex items-center gap-1">
                                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                      {Number(result.average_rating).toFixed(1)}
+                                      {result.metadata.average_rating.toFixed(1)}
                                     </div>
                                   )}
-                                  {result.file_size && (
-                                    <span>{formatFileSize(result.file_size)}</span>
+                                  
+                                  {/* File size for resources */}
+                                  {result.metadata?.file_size && (
+                                    <span>{formatFileSize(result.metadata.file_size)}</span>
+                                  )}
+                                  
+                                  {/* Folder/Category for notes/tasks */}
+                                  {result.metadata?.folder_name && (
+                                    <span>Folder: {result.metadata.folder_name}</span>
+                                  )}
+                                  {result.metadata?.category_name && (
+                                    <span>Category: {result.metadata.category_name}</span>
                                   )}
                                 </div>
 
-                                {result.tags && result.tags.length > 0 && (
+                                {((result.tags && result.tags.length > 0) || (result.metadata?.tags && result.metadata.tags.length > 0)) && (
                                   <div className="flex flex-wrap gap-1">
-                                    {result.tags.slice(0, 3).map((tag) => (
+                                    {(result.tags || result.metadata?.tags || []).slice(0, 3).map((tag) => (
                                       <Badge key={tag} variant="secondary" className="text-xs">
                                         <Hash className="mr-1 h-2 w-2" />
                                         {tag}
                                       </Badge>
                                     ))}
-                                    {result.tags.length > 3 && (
+                                    {(result.tags || result.metadata?.tags || []).length > 3 && (
                                       <Badge variant="secondary" className="text-xs">
-                                        +{result.tags.length - 3} more
+                                        +{(result.tags || result.metadata?.tags || []).length - 3} more
                                       </Badge>
                                     )}
                                   </div>

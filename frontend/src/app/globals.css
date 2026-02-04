@@ -406,3 +406,36 @@
   background-color: hsl(0 0% 11%);
   color: hsl(var(--foreground));
 }
+
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+/* Custom placeholder indent for search inputs with icons */
+.search-input-with-icon::placeholder {
+  padding-left: 2rem;
+}
+
+.search-input-with-icon::-webkit-input-placeholder {
+  padding-left: 2rem;
+}
+
+.search-input-with-icon::-moz-placeholder {
+  padding-left: 2rem;
+}
+
+.search-input-with-icon:-ms-input-placeholder {
+  padding-left: 2rem;
+}
+
+.search-input-with-icon::-ms-input-placeholder {
+  padding-left: 2rem;
+}

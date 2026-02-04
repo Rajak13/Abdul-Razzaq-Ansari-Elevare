@@ -103,6 +103,15 @@
   "descending": "Descending",
   "type": "Type",
   "page": "Page",
+  "pagination": {
+    "showing": "Showing {start} to {end} of {total}",
+    "perPage": "Per page",
+    "page": "Page {current} of {total}",
+    "first": "First",
+    "last": "Last",
+    "previous": "Previous",
+    "next": "Next"
+  },
   "time": {
     "justNow": "Just now",
     "minutesAgo": "{count, plural, =1 {1 minute ago} other {# minutes ago}}",

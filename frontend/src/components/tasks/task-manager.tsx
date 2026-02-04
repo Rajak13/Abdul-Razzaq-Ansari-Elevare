@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, Calendar, CheckSquare, HelpCircle, LayoutGrid, List, Plus, Settings, Square } from 'lucide-react'
+import { BarChart3, Calendar, CheckSquare, LayoutGrid, List, Plus, Settings, Square } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import { Pagination } from '@/components/ui/pagination'
 import { cn } from '@/lib/utils'
 
 import { TaskFilters } from '@/components/tasks/task-filters'
@@ -119,6 +120,14 @@ export function TaskManager({ className }: TaskManagerProps) {
     setFilters(prev => ({ ...prev, ...newFilters, page: 1 }))
   }, [])
 
+  const handlePageChange = useCallback((page: number) => {
+    setFilters(prev => ({ ...prev, page }))
+  }, [])
+
+  const handlePageSizeChange = useCallback((limit: number) => {
+    setFilters(prev => ({ ...prev, limit, page: 1 }))
+  }, [])
+
   const handleTaskSelect = (taskId: string, selected: boolean) => {
     if (selected) {
       setSelectedTasks(prev => [...prev, taskId])
@@ -226,13 +235,13 @@ export function TaskManager({ className }: TaskManagerProps) {
   }, [viewMode, handleSelectAll, handleClearSelection])
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ${className}`}>
+    <div className={`p-6 space-y-6 ${className}`}>
       <div className="space-y-4 sm:space-y-6">
         {/* Enhanced Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8 pb-0">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
+              <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-lg">
                 <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
@@ -285,7 +294,7 @@ export function TaskManager({ className }: TaskManagerProps) {
             
             <Button 
               onClick={() => setShowCreateDialog(true)}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+              className="bg-primary hover:bg-primary/90 shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Task
@@ -334,7 +343,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     variant={viewMode === 'list' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setViewMode('list')}
-                    className={viewMode === 'list' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
+                    className={viewMode === 'list' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <List className="h-4 w-4" />
                     <span className="hidden sm:inline ml-2">List</span>
@@ -343,7 +352,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     variant={viewMode === 'grid' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className={viewMode === 'grid' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
+                    className={viewMode === 'grid' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <LayoutGrid className="h-4 w-4" />
                     <span className="hidden sm:inline ml-2">Grid</span>
@@ -352,7 +361,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     variant={viewMode === 'calendar' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setViewMode('calendar')}
-                    className={viewMode === 'calendar' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
+                    className={viewMode === 'calendar' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <Calendar className="h-4 w-4" />
                     <span className="hidden sm:inline ml-2">Calendar</span>
@@ -364,7 +373,7 @@ export function TaskManager({ className }: TaskManagerProps) {
               {isLoading ? (
                 <div className="flex items-center justify-center py-16">
                   <div className="text-center space-y-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                     <p className="text-slate-600 dark:text-slate-400">Loading your tasks...</p>
                   </div>
                 </div>
@@ -424,32 +433,15 @@ export function TaskManager({ className }: TaskManagerProps) {
 
               {/* Enhanced Pagination */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 mt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleFiltersChange({ page: (pagination.page || 1) - 1 })}
-                      disabled={(pagination.page || 1) <= 1}
-                      className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80"
-                    >
-                      Previous
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleFiltersChange({ page: (pagination.page || 1) + 1 })}
-                      disabled={(pagination.page || 1) >= pagination.totalPages}
-                      className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80"
-                    >
-                      Next
-                    </Button>
-                  </div>
-                  
-                  <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                    Page {pagination.page} of {pagination.totalPages}
-                  </span>
+                <div className="pt-6 mt-6 border-t border-slate-200/50 dark:border-slate-700/50">
+                  <Pagination
+                    currentPage={pagination.page || 1}
+                    totalPages={pagination.totalPages}
+                    totalItems={pagination.total || 0}
+                    pageSize={filters.limit || 20}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
                 </div>
               )}
             </div>
@@ -534,7 +526,7 @@ export function TaskManager({ className }: TaskManagerProps) {
       {/* Floating Action Button for Mobile */}
       <Button
         onClick={() => setShowCreateDialog(true)}
-        className="fixed bottom-6 right-6 z-40 md:hidden h-14 w-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+        className="fixed bottom-6 right-6 z-40 md:hidden h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
         size="icon"
       >
         <Plus className="h-6 w-6" />

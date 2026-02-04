@@ -103,6 +103,15 @@
   "descending": "अवरोही",
   "type": "प्रकार",
   "page": "पृष्ठ",
+  "pagination": {
+    "showing": "{start} देखि {end} सम्म (कुल {total})",
+    "perPage": "प्रति पृष्ठ",
+    "page": "{total} मध्ये {current} पृष्ठ",
+    "first": "पहिलो",
+    "last": "अन्तिम",
+    "previous": "अघिल्लो",
+    "next": "अर्को"
+  },
   "time": {
     "justNow": "अहिले भर्खर",
     "minutesAgo": "{count, plural, =1 {१ मिनेट अघि} other {# मिनेट अघि}}",

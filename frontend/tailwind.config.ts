@@ -26,6 +26,9 @@ const config: Config = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        'dashboard-primary': '#22c55e',
+        'background-light': '#F8FAFC',
+        'background-dark': '#0f172a',
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',

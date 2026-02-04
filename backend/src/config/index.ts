@@ -3,11 +3,44 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+// Function to determine CORS origin based on environment
+const getCorsOrigin = (): string | boolean | string[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void) => {
+  if (process.env.CORS_ORIGIN) {
+    // If explicitly set, use it (can be comma-separated list)
+    const origins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+    return origins.length === 1 ? origins[0] : origins;
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    // In development, allow any localhost port
+    return (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Allow any localhost origin
+      if (origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
+        return callback(null, true);
+      }
+      
+      // Allow any 127.0.0.1 origin
+      if (origin.match(/^https?:\/\/127\.0\.0\.1(:\d+)?$/)) {
+        return callback(null, true);
+      }
+      
+      // Reject other origins in development
+      return callback(new Error('Not allowed by CORS'), false);
+    };
+  }
+  
+  // In production, default to specific origin
+  return 'https://your-production-domain.com';
+};
+
 interface Config {
   port: number;
   nodeEnv: string;
   apiUrl: string;
-  corsOrigin: string;
+  corsOrigin: string | boolean | string[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void);
   jwtSecret: string;
   jwtExpiresIn: string;
   jwtRefreshSecret: string;
@@ -46,7 +79,7 @@ const config: Config = {
   port: parseInt(process.env.PORT || '5001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
   apiUrl: process.env.API_URL || 'http://localhost:5001',
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  corsOrigin: getCorsOrigin(),
   jwtSecret: process.env.JWT_SECRET || 'your_jwt_secret_change_in_production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_change_in_production',

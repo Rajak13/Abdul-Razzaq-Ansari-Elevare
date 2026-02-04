@@ -3,7 +3,7 @@ import logger from '../utils/logger';
 
 export interface SearchResult {
   id: string;
-  type: 'task' | 'note' | 'resource' | 'file';
+  type: 'task' | 'note' | 'resource' | 'group';
   title: string;
   content?: string;
   snippet?: string;
@@ -19,11 +19,16 @@ export interface SearchResult {
     category_name?: string;
     file_type?: string;
     file_size?: number;
+    download_count?: number;
+    average_rating?: number;
+    user_name?: string;
+    member_count?: number;
+    is_private?: boolean;
   };
 }
 
 export interface SearchFilters {
-  content_type?: ('task' | 'note' | 'resource' | 'file')[];
+  content_type?: ('task' | 'note' | 'resource' | 'group')[];
   date_from?: string;
   date_to?: string;
   tags?: string[];
@@ -38,6 +43,8 @@ export interface SearchOptions {
 
 /**
  * Universal search across all content types
+ * - Resources and Groups are searched globally (all users can discover them)
+ * - Tasks and Notes are searched only for the current user
  */
 export async function universalSearch(
   userId: string,
@@ -53,35 +60,37 @@ export async function universalSearch(
     const { query: searchQuery, filters = {}, page = 1, limit = 20 } = options;
     const offset = (page - 1) * limit;
 
-    // Build content type filter
-    const contentTypes = filters.content_type || ['task', 'note'];
+    // Build content type filter - default to resources and groups for discovery
+    const contentTypes = filters.content_type || ['resource', 'group', 'task', 'note'];
     const searchResults: SearchResult[] = [];
     let totalCount = 0;
 
-    // Search tasks if included
+    // Search resources if included (GLOBAL - all users' resources)
+    if (contentTypes.includes('resource')) {
+      const resourceResults = await searchResources(searchQuery, filters);
+      searchResults.push(...resourceResults.results);
+      totalCount += resourceResults.total;
+    }
+
+    // Search groups if included (GLOBAL - all study groups)
+    if (contentTypes.includes('group')) {
+      const groupResults = await searchGroups(searchQuery, filters);
+      searchResults.push(...groupResults.results);
+      totalCount += groupResults.total;
+    }
+
+    // Search tasks if included (USER-SPECIFIC - only user's own tasks)
     if (contentTypes.includes('task')) {
       const taskResults = await searchTasks(userId, searchQuery, filters);
       searchResults.push(...taskResults.results);
       totalCount += taskResults.total;
     }
 
-    // Search notes if included
+    // Search notes if included (USER-SPECIFIC - only user's own notes)
     if (contentTypes.includes('note')) {
       const noteResults = await searchNotes(userId, searchQuery, filters);
       searchResults.push(...noteResults.results);
       totalCount += noteResults.total;
-    }
-
-    // Search resources if included (placeholder for future implementation)
-    if (contentTypes.includes('resource')) {
-      // TODO: Implement resource search when resources are implemented
-      logger.debug('Resource search not yet implemented');
-    }
-
-    // Search files if included (placeholder for future implementation)
-    if (contentTypes.includes('file')) {
-      // TODO: Implement file search when files are implemented
-      logger.debug('File search not yet implemented');
     }
 
     // Sort results by relevance/date
@@ -116,7 +125,7 @@ export async function universalSearch(
 }
 
 /**
- * Search tasks
+ * Search tasks (USER-SPECIFIC - only searches user's own tasks)
  */
 async function searchTasks(
   userId: string,
@@ -213,7 +222,7 @@ async function searchTasks(
 }
 
 /**
- * Search notes
+ * Search notes (USER-SPECIFIC - only searches user's own notes)
  */
 async function searchNotes(
   userId: string,
@@ -307,13 +316,204 @@ async function searchNotes(
 }
 
 /**
+ * Search resources (GLOBAL - searches all users' public resources)
+ */
+async function searchResources(
+  searchQuery: string,
+  filters: SearchFilters
+): Promise<{ results: SearchResult[]; total: number }> {
+  try {
+    let whereConditions: string[] = [];
+    let queryParams: any[] = [];
+    let paramIndex = 1;
+
+    // Add search condition
+    whereConditions.push(`(
+      r.title ILIKE $${paramIndex} OR 
+      r.description ILIKE $${paramIndex} OR
+      to_tsvector('english', r.title || ' ' || COALESCE(r.description, '')) @@ plainto_tsquery('english', $${paramIndex + 1})
+    )`);
+    queryParams.push(`%${searchQuery}%`, searchQuery);
+    paramIndex += 2;
+
+    // Add date filters
+    if (filters.date_from) {
+      whereConditions.push(`r.created_at >= $${paramIndex}`);
+      queryParams.push(filters.date_from);
+      paramIndex++;
+    }
+
+    if (filters.date_to) {
+      whereConditions.push(`r.created_at <= $${paramIndex}`);
+      queryParams.push(filters.date_to);
+      paramIndex++;
+    }
+
+    // Add tag filter
+    if (filters.tags && filters.tags.length > 0) {
+      whereConditions.push(`r.tags && $${paramIndex}`);
+      queryParams.push(filters.tags);
+      paramIndex++;
+    }
+
+    const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM resources r
+      ${whereClause}
+    `;
+    const countResult = await query<{ count: string }>(countQuery, queryParams);
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Get resources with user info and ratings
+    const resourcesQuery = `
+      SELECT 
+        r.*,
+        u.name as user_name,
+        u.avatar_url as user_avatar,
+        COALESCE(AVG(rt.rating), 0) as average_rating,
+        COUNT(rt.rating) as rating_count,
+        ts_rank(to_tsvector('english', r.title || ' ' || COALESCE(r.description, '')), plainto_tsquery('english', $${paramIndex})) as rank
+      FROM resources r
+      JOIN users u ON r.user_id = u.id
+      LEFT JOIN resource_ratings rt ON r.id = rt.resource_id
+      ${whereClause}
+      GROUP BY r.id, u.name, u.avatar_url
+      ORDER BY rank DESC, r.download_count DESC, r.created_at DESC
+    `;
+    
+    queryParams.push(searchQuery);
+    const resourcesResult = await query(resourcesQuery, queryParams);
+
+    const results: SearchResult[] = resourcesResult.rows.map((resource: any) => ({
+      id: resource.id,
+      type: 'resource' as const,
+      title: resource.title,
+      content: resource.description || '',
+      snippet: generateSnippet(resource.title + ' ' + (resource.description || ''), searchQuery),
+      highlighted_snippet: highlightKeywords(
+        generateSnippet(resource.title + ' ' + (resource.description || ''), searchQuery),
+        searchQuery
+      ),
+      created_at: resource.created_at,
+      updated_at: resource.updated_at,
+      metadata: {
+        tags: resource.tags || [],
+        file_type: resource.file_type,
+        file_size: resource.file_size,
+        download_count: resource.download_count,
+        average_rating: parseFloat(resource.average_rating) || 0,
+        user_name: resource.user_name,
+      },
+    }));
+
+    return { results, total };
+  } catch (error) {
+    logger.error('Error searching resources:', error);
+    throw error;
+  }
+}
+
+/**
+ * Search study groups (GLOBAL - searches all study groups)
+ */
+async function searchGroups(
+  searchQuery: string,
+  filters: SearchFilters
+): Promise<{ results: SearchResult[]; total: number }> {
+  try {
+    let whereConditions: string[] = [];
+    let queryParams: any[] = [];
+    let paramIndex = 1;
+
+    // Add search condition
+    whereConditions.push(`(
+      sg.name ILIKE $${paramIndex} OR 
+      sg.description ILIKE $${paramIndex} OR
+      to_tsvector('english', sg.name || ' ' || COALESCE(sg.description, '')) @@ plainto_tsquery('english', $${paramIndex + 1})
+    )`);
+    queryParams.push(`%${searchQuery}%`, searchQuery);
+    paramIndex += 2;
+
+    // Add date filters
+    if (filters.date_from) {
+      whereConditions.push(`sg.created_at >= $${paramIndex}`);
+      queryParams.push(filters.date_from);
+      paramIndex++;
+    }
+
+    if (filters.date_to) {
+      whereConditions.push(`sg.created_at <= $${paramIndex}`);
+      queryParams.push(filters.date_to);
+      paramIndex++;
+    }
+
+    const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM study_groups sg
+      ${whereClause}
+    `;
+    const countResult = await query<{ count: string }>(countQuery, queryParams);
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Get groups with member count and owner info
+    const groupsQuery = `
+      SELECT 
+        sg.*,
+        u.name as owner_name,
+        u.avatar_url as owner_avatar,
+        COUNT(gm.id) as member_count,
+        ts_rank(to_tsvector('english', sg.name || ' ' || COALESCE(sg.description, '')), plainto_tsquery('english', $${paramIndex})) as rank
+      FROM study_groups sg
+      JOIN users u ON sg.owner_id = u.id
+      LEFT JOIN group_members gm ON gm.group_id = sg.id
+      ${whereClause}
+      GROUP BY sg.id, u.name, u.avatar_url
+      ORDER BY rank DESC, member_count DESC, sg.created_at DESC
+    `;
+    
+    queryParams.push(searchQuery);
+    const groupsResult = await query(groupsQuery, queryParams);
+
+    const results: SearchResult[] = groupsResult.rows.map((group: any) => ({
+      id: group.id,
+      type: 'group' as const,
+      title: group.name,
+      content: group.description || '',
+      snippet: generateSnippet(group.name + ' ' + (group.description || ''), searchQuery),
+      highlighted_snippet: highlightKeywords(
+        generateSnippet(group.name + ' ' + (group.description || ''), searchQuery),
+        searchQuery
+      ),
+      created_at: group.created_at,
+      updated_at: group.updated_at,
+      metadata: {
+        member_count: parseInt(group.member_count) || 0,
+        is_private: group.is_private,
+        user_name: group.owner_name,
+      },
+    }));
+
+    return { results, total };
+  } catch (error) {
+    logger.error('Error searching groups:', error);
+    throw error;
+  }
+}
+
+/**
  * Generate a snippet around the search query
  */
-function generateSnippet(text: string, query: string, maxLength: number = 200): string {
-  if (!text || !query) return text?.substring(0, maxLength) || '';
+function generateSnippet(text: string, searchQuery: string, maxLength: number = 200): string {
+  if (!text || !searchQuery) return text?.substring(0, maxLength) || '';
 
   const lowerText = text.toLowerCase();
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = searchQuery.toLowerCase();
   const queryIndex = lowerText.indexOf(lowerQuery);
 
   if (queryIndex === -1) {
@@ -322,7 +522,7 @@ function generateSnippet(text: string, query: string, maxLength: number = 200): 
   }
 
   // Calculate snippet boundaries
-  const snippetStart = Math.max(0, queryIndex - Math.floor((maxLength - query.length) / 2));
+  const snippetStart = Math.max(0, queryIndex - Math.floor((maxLength - searchQuery.length) / 2));
   const snippetEnd = Math.min(text.length, snippetStart + maxLength);
 
   let snippet = text.substring(snippetStart, snippetEnd);
@@ -337,10 +537,10 @@ function generateSnippet(text: string, query: string, maxLength: number = 200): 
 /**
  * Highlight keywords in text
  */
-function highlightKeywords(text: string, query: string): string {
-  if (!text || !query) return text || '';
+function highlightKeywords(text: string, searchQuery: string): string {
+  if (!text || !searchQuery) return text || '';
 
-  const keywords = query.split(/\s+/).filter(k => k.length > 0);
+  const keywords = searchQuery.split(/\s+/).filter(k => k.length > 0);
   let highlightedText = text;
 
   keywords.forEach(keyword => {
@@ -354,8 +554,8 @@ function highlightKeywords(text: string, query: string): string {
 /**
  * Escape special regex characters
  */
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

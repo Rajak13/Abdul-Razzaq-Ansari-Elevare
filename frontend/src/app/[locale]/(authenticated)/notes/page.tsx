@@ -115,8 +115,8 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+    <div className="p-6 space-y-6">
+      <div className="container mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-3">

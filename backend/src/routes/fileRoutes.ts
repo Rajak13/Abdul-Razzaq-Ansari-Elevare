@@ -22,6 +22,13 @@ const router = Router();
 // All routes require authentication
 router.use(authenticate);
 
+// File folder management routes (must be before /:id routes)
+router.post('/folders', createFileFolder);
+router.get('/folders', getFileFolders);
+router.get('/folders/:id', getFileFolderById);
+router.put('/folders/:id', updateFileFolder);
+router.delete('/folders/:id', deleteFileFolder);
+
 // File management routes
 router.post('/', uploadFile, handleUploadError, uploadFileController);
 router.get('/', getFiles);
@@ -31,12 +38,5 @@ router.put('/:id', updateFile);
 router.delete('/:id', deleteFile);
 router.get('/:id/download', downloadFile);
 router.post('/:id/share', shareFile);
-
-// File folder management routes
-router.post('/folders', createFileFolder);
-router.get('/folders', getFileFolders);
-router.get('/folders/:id', getFileFolderById);
-router.put('/folders/:id', updateFileFolder);
-router.delete('/folders/:id', deleteFileFolder);
 
 export default router;
