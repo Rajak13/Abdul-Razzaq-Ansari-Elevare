@@ -87,7 +87,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public - Commented out to allow frontend/public images
 
 # Storybook build outputs
 .out
@@ -128,9 +128,17 @@ venv.bak/
 .coverage
 htmlcov/
 
-# Uploads and user-generated content
+# Uploads and user-generated content (but allow public folder images)
 uploads/
 backend/uploads/
+backend/uploads/**/*
+# Allow frontend public images
+!frontend/public/**/*.jpg
+!frontend/public/**/*.jpeg
+!frontend/public/**/*.png
+!frontend/public/**/*.gif
+!frontend/public/**/*.svg
+# Block all other images
 *.jpg
 *.jpeg
 *.png
