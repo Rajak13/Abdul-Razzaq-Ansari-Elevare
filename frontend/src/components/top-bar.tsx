@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/auth-context';
 import { useTranslations } from 'next-intl';
-import { Moon, Sun, ChevronDown, Settings, LogOut, Palette } from 'lucide-react';
+import { Moon, Sun, ChevronDown, Settings, LogOut, Palette, User, Search } from 'lucide-react';
 import { useTheme } from './theme-provider';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,9 @@ import {
 import { NotificationBell } from '@/components/notifications';
 import { ClientOnly } from '@/components/ui/client-only';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Link } from '@/navigation';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 
 interface TopBarProps {
   pathname: string;
@@ -24,60 +27,106 @@ export default function TopBar({ pathname }: TopBarProps) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const t = useTranslations('common');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Get page title based on pathname
-  const getPageInfo = (path: string) => {
-    switch (path) {
-      case '/dashboard':
-        return { title: t('navigation.dashboard'), subtitle: t('metadata.dashboard.description') }
-      case '/tasks':
-        return { title: t('navigation.tasks'), subtitle: t('metadata.tasks.description') }
-      case '/notes':
-        return { title: t('navigation.notes'), subtitle: t('metadata.notes.description') }
-      case '/groups':
-        return { title: t('navigation.groups'), subtitle: t('metadata.groups.description') }
-      case '/files':
-        return { title: t('navigation.files'), subtitle: t('metadata.files.description') }
-      case '/resources':
-        return { title: t('navigation.resources'), subtitle: t('metadata.resources.description') }
-      case '/search':
-        return { title: t('navigation.search'), subtitle: t('metadata.search.description') }
-      case '/profile':
-        return { title: t('navigation.profile'), subtitle: t('metadata.profile.description') }
-      default:
-        return { title: t('metadata.siteName'), subtitle: t('metadata.siteDescription') }
+  // Determine avatar color based on theme
+  const avatarGradient = theme === 'light' 
+    ? 'bg-[hsl(142,71%,45%)]' 
+    : 'bg-[hsl(348,83%,47%)]'
+
+  // Get breadcrumb based on pathname
+  const getBreadcrumb = (path: string) => {
+    const segments = path.split('/').filter(Boolean);
+    if (segments.length === 0) return null;
+    
+    // Don't show breadcrumb for main pages, only for sub-pages
+    if (segments.length === 1) return null;
+    
+    return segments.map((segment, index) => {
+      const isLast = index === segments.length - 1;
+      const href = '/' + segments.slice(0, index + 1).join('/');
+      const label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
+      
+      return { label, href, isLast };
+    });
+  };
+
+  const breadcrumbs = getBreadcrumb(pathname);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
     }
-  }
-
-  const { title, subtitle } = getPageInfo(pathname);
+  };
 
   return (
-    <div className="bg-card border-b px-6 py-4 h-16 flex items-center">
-      <div className="flex items-center justify-between w-full">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-          {subtitle && (
-            <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="flex h-14 items-center gap-4 px-4 lg:px-6">
+        {/* Left: Breadcrumbs or Search */}
+        <div className="flex-1 flex items-center gap-3">
+          {breadcrumbs && breadcrumbs.length > 0 ? (
+            <nav className="flex items-center gap-2 text-sm">
+              {breadcrumbs.map((crumb, index) => (
+                <div key={crumb.href} className="flex items-center gap-2">
+                  {index > 0 && <span className="text-muted-foreground">/</span>}
+                  {crumb.isLast ? (
+                    <span className="font-medium text-foreground">{crumb.label}</span>
+                  ) : (
+                    <Link href={crumb.href as any} className="text-muted-foreground hover:text-foreground transition-colors">
+                      {crumb.label}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </nav>
+          ) : (
+            <form onSubmit={handleSearch} className="relative w-full max-w-md hidden md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={t('searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+              />
+            </form>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
           {/* Language Switcher */}
           <ClientOnly>
-            <LanguageSwitcher />
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
           </ClientOnly>
 
           {/* Theme Switcher */}
-          <ClientOnly fallback={<Button variant="ghost" size="sm" className="h-9 w-9 p-0" disabled><Palette className="h-4 w-4" /></Button>}>
+          <ClientOnly fallback={
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-9 w-9 p-0 rounded-full" 
+              disabled
+            >
+              <Palette className="h-4 w-4 text-slate-700 dark:text-slate-400" />
+            </Button>
+          }>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-9 w-9 p-0 rounded-full"
+                >
                   {theme === 'dark' ? (
-                    <Moon className="h-4 w-4" />
+                    <Moon className="h-4 w-4 text-slate-700 dark:text-slate-400" />
                   ) : theme === 'light2' ? (
-                    <Palette className="h-4 w-4" />
+                    <Palette className="h-4 w-4 text-slate-700 dark:text-slate-400" />
                   ) : (
-                    <Sun className="h-4 w-4" />
+                    <Sun className="h-4 w-4 text-slate-700 dark:text-slate-400" />
                   )}
                 </Button>
               </DropdownMenuTrigger>
@@ -114,51 +163,98 @@ export default function TopBar({ pathname }: TopBarProps) {
 
           {/* User Profile */}
           <ClientOnly fallback={
-            <Button variant="ghost" className="flex items-center gap-2 h-9 px-3" disabled>
-              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-primary-foreground text-xs font-medium">
-                  {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
-                </span>
+            <Button 
+              variant="ghost" 
+              className="flex items-center gap-2 h-9 px-2 rounded-full" 
+              disabled
+            >
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
+                {user?.avatar_url ? (
+                  <img 
+                    src={user.avatar_url} 
+                    alt={user?.name || 'User'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white text-xs font-semibold">
+                    {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                )}
               </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-medium">
-                  {user?.name || 'User'}
-                </p>
-              </div>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           }>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 h-9 px-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground text-xs font-medium">
-                      {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </span>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center gap-2 h-9 px-2 rounded-full"
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
+                    {user?.avatar_url ? (
+                      <img 
+                        src={user.avatar_url} 
+                        alt={user?.name || 'User'} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white text-xs font-semibold">
+                        {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-left hidden sm:block">
-                    <p className="text-sm font-medium">
-                      {user?.name || 'User'}
-                    </p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden md:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                <div className="px-3 py-2 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
+                      {user?.avatar_url ? (
+                        <img 
+                          src={user.avatar_url} 
+                          alt={user?.name || 'User'} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-sm font-semibold">
+                          {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">
+                        {user?.name || 'User'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="py-1">
+                  <Link href="/profile">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <User className="h-4 w-4 mr-2" />
+                      {t('navigation.profile')}
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/profile">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Settings className="h-4 w-4 mr-2" />
+                      {t('navigation.settings')}
+                    </DropdownMenuItem>
+                  </Link>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="h-4 w-4 mr-2" />
-                  {t('navigation.settings')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-red-600">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {t('navigation.logout')}
-                </DropdownMenuItem>
+                <div className="py-1">
+                  <DropdownMenuItem 
+                    onClick={logout} 
+                    className="text-red-600 dark:text-red-400 cursor-pointer focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/20"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {t('navigation.logout')}
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </ClientOnly>

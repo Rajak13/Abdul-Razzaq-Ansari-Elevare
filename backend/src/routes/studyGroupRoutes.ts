@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as studyGroupController from '../controllers/studyGroupController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import { validate } from '../middleware/validation';
 import {
   createStudyGroupValidation,
@@ -17,6 +17,7 @@ const router = Router();
 
 // All study group routes require authentication
 router.use(authenticate);
+router.use(checkSuspension);
 
 // Study group routes
 router.post('/', createStudyGroupValidation, validate, studyGroupController.createStudyGroup);

@@ -22,6 +22,16 @@ export interface User {
   email_verified: boolean;
   created_at: Date;
   updated_at: Date;
+  // Additional profile fields
+  phone?: string;
+  date_of_birth?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  age?: number;
+  account_type?: 'student' | 'educator' | 'professional' | 'researcher' | 'other';
+  institution?: string;
+  timezone?: string;
+  account_status?: 'active' | 'suspended' | 'deleted' | 'pending';
+  last_login?: Date;
 }
 
 export interface UserWithPassword extends User {
@@ -55,4 +65,11 @@ export interface ProfileUpdateRequest {
   major?: string;
   graduation_date?: string;
   preferred_language?: string;
+  phone?: string;
+  date_of_birth?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  age?: number;
+  account_type?: 'student' | 'educator' | 'professional' | 'researcher' | 'other';
+  institution?: string;
+  timezone?: string;
 }

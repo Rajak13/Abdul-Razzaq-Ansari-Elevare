@@ -113,7 +113,7 @@ class AdminApiClient {
   async getOverviewMetrics() {
     const response = await this.client.get('/metrics/overview');
     const data = response.data.data;
-    
+
     // Transform the API response to match frontend expectations
     return {
       totalUsers: data.users?.total_users || 0,
@@ -171,28 +171,76 @@ class AdminApiClient {
   }
 
   async suspendUser(userId: string, reason: string, duration?: number) {
-    const response = await this.client.put(`/users/${userId}/suspend`, {
-      reason,
-      duration,
-    });
-    return response.data;
+    console.log('🚫 Admin: Suspending user', { userId, reason, duration });
+    try {
+      const response = await this.client.put(`/users/${userId}/suspend`, {
+        reason,
+        duration,
+      });
+      console.log('✅ Admin: User suspended successfully', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Admin: Failed to suspend user', {
+        userId,
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
+    }
   }
 
-  async unsuspendUser(userId: string) {
-    const response = await this.client.put(`/users/${userId}/unsuspend`);
-    return response.data;
+  async unsuspendUser(userId: string, reason: string = 'Administrative action') {
+    console.log('✅ Admin: Unsuspending user', { userId, reason });
+    try {
+      const response = await this.client.put(`/users/${userId}/unsuspend`, { reason });
+      console.log('✅ Admin: User unsuspended successfully', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Admin: Failed to unsuspend user', {
+        userId,
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
+    }
   }
 
   async resetUserPassword(userId: string) {
-    const response = await this.client.post(`/users/${userId}/reset-password`);
-    return response.data;
+    console.log('🔑 Admin: Resetting user password', { userId });
+    try {
+      const response = await this.client.post(`/users/${userId}/reset-password`);
+      console.log('✅ Admin: Password reset successfully', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Admin: Failed to reset password', {
+        userId,
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
+    }
   }
 
   async deleteUser(userId: string, reason: string) {
-    const response = await this.client.delete(`/users/${userId}`, {
-      data: { reason },
-    });
-    return response.data;
+    console.log('🗑️ Admin: Deleting user', { userId, reason });
+    try {
+      const response = await this.client.delete(`/users/${userId}`, {
+        data: { reason },
+      });
+      console.log('✅ Admin: User deleted successfully', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Admin: Failed to delete user', {
+        userId,
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
+    }
   }
 
   // Moderation endpoints

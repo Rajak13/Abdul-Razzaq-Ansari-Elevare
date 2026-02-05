@@ -3,9 +3,35 @@ import { Note, NoteFolder, CreateNoteData, UpdateNoteData, CreateNoteFolderData,
 
 export const noteService = {
   // Notes
-  async getNotes(): Promise<Note[]> {
-    const response = await apiClient.get('/notes');
-    return response.data.notes || [];
+  async getNotes(params?: {
+    folder_id?: string;
+    page?: number;
+    limit?: number;
+    sort_by?: string;
+    order?: string;
+  }): Promise<{
+    notes: Note[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.folder_id) queryParams.append('folder_id', params.folder_id);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+    if (params?.order) queryParams.append('order', params.order);
+
+    const response = await apiClient.get(`/notes?${queryParams.toString()}`);
+    console.log('Notes API Response:', response.data);
+    return {
+      notes: response.data.notes || [],
+      total: response.data.total || 0,
+      page: response.data.page || 1,
+      limit: response.data.limit || 20,
+      totalPages: response.data.totalPages || 0,
+    };
   },
 
   async getNoteById(id: string): Promise<Note> {

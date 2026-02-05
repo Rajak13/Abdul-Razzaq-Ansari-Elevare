@@ -197,7 +197,21 @@ export async function updateProfile(
     }
 
     const userId = req.user!.userId;
-    const { name, bio, avatar_url, university, major, graduation_date } = req.body;
+    const { 
+      name, 
+      bio, 
+      avatar_url, 
+      university, 
+      major, 
+      graduation_date,
+      phone,
+      date_of_birth,
+      gender,
+      age,
+      account_type,
+      institution,
+      timezone
+    } = req.body;
 
     const user = await authService.updateProfile(userId, {
       name,
@@ -206,6 +220,13 @@ export async function updateProfile(
       university,
       major,
       graduation_date,
+      phone,
+      date_of_birth,
+      gender,
+      age,
+      account_type,
+      institution,
+      timezone,
     });
 
     res.status(200).json({

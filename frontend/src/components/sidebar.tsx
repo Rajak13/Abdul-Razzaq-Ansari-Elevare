@@ -213,8 +213,16 @@ export function Sidebar({
           )}
           title={!isOpen ? t('navigation.profileSettings') : undefined}
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-            {avatarInitial}
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground overflow-hidden">
+            {user?.avatar ? (
+              <img 
+                src={user.avatar} 
+                alt={displayName} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>{avatarInitial}</span>
+            )}
           </div>
           {isOpen && (
             <div className="min-w-0 flex-1">
@@ -253,6 +261,7 @@ export default function SidebarWrapper() {
     ? {
         name: user.name || user.email || 'User',
         email: user.email,
+        avatar: user.avatar_url,
       }
     : null
 

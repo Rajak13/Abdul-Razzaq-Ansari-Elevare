@@ -439,3 +439,13 @@
 .search-input-with-icon::-ms-input-placeholder {
   padding-left: 2rem;
 }
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

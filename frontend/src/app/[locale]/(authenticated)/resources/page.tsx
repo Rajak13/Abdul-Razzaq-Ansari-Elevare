@@ -250,7 +250,7 @@ export default function ResourcesPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
           <p className="text-muted-foreground">
-            {t('noResourcesDescription')}
+            {t('description')}
           </p>
         </div>
         <Button onClick={() => setShowUploadModal(true)}>

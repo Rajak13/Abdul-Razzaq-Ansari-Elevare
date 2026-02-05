@@ -1,6 +1,8 @@
 {
   "required": "This field is required",
   "requiredField": "{field} is required",
+  "minLength": "Must be at least {min} characters long",
+  "maxLength": "Must not exceed {max} characters",
   "email": {
     "required": "Email is required",
     "invalid": "Please enter a valid email address",

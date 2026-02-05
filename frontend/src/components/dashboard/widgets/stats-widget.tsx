@@ -16,7 +16,7 @@ export function StatsWidget({ className }: StatsWidgetProps) {
   const { data: notesResponse, isLoading: notesLoading } = useNotes()
 
   const tasks = Array.isArray(tasksResponse?.data) ? tasksResponse.data : []
-  const notes = Array.isArray(notesResponse) ? notesResponse : []
+  const notes = notesResponse?.notes || []
 
   const completedTasks = tasks.filter(task => task.status === 'completed').length
   const pendingTasks = tasks.filter(task => task.status === 'pending').length

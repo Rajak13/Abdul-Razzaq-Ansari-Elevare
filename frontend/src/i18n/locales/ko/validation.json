@@ -1,6 +1,8 @@
 {
   "required": "이 필드는 필수입니다",
   "requiredField": "{field}은(는) 필수입니다",
+  "minLength": "최소 {min}자 이상이어야 합니다",
+  "maxLength": "{max}자를 초과할 수 없습니다",
   "email": {
     "required": "이메일은 필수입니다",
     "invalid": "유효한 이메일 주소를 입력해주세요",

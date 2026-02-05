@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useTheme } from '@/components/theme-provider';
 import { Link } from '@/navigation';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 // Theme Switcher Component for Landing Page
 function ThemeSwitcher() {
@@ -99,6 +101,7 @@ function ThemeSwitcher() {
 export default function Home() {
   const { theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const t = useTranslations('landing');
   usePageMetadata('home');
   
   // Prevent hydration mismatch by only rendering theme-dependent content after mount
@@ -128,20 +131,23 @@ export default function Home() {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
               </svg>
-              Features
+              {t('nav.features')}
             </Link>
             <Link href="#community" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
               </svg>
-              Community
+              {t('nav.community')}
             </Link>
             <Link href="#faq" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
               </svg>
-              FAQ
+              {t('nav.faq')}
             </Link>
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher />
             
             {/* Theme Switcher */}
             <ThemeSwitcher />
@@ -151,7 +157,7 @@ export default function Home() {
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                Log In
+                {t('nav.login')}
               </span>
               <div className="absolute inset-0 bg-slate-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
             </Link>
@@ -160,7 +166,7 @@ export default function Home() {
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                 </svg>
-                Sign Up
+                {t('nav.signUp')}
               </span>
               <div className="absolute inset-0 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
             </Link>
@@ -176,13 +182,13 @@ export default function Home() {
             <div className="space-y-8 animate-fadeIn">
               <div className="inline-block">
                 <span className="text-primary text-sm font-semibold tracking-wider uppercase">
-                  Academic Excellence Through Collaboration
+                  {t('hero.badge')}
                 </span>
               </div>
               
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
-                Elevate Your<br />
-                Academic Journey
+                {t('hero.title')}<br />
+                {t('hero.titleBreak')}
               </h1>
               
               {/* Feature List with Checkmarks */}
@@ -193,7 +199,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Task Manager</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.taskManager')}</span>
                 </div>
                 
                 <div className="flex items-center gap-3 group">
@@ -202,7 +208,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Note Taking</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.noteTaking')}</span>
                 </div>
                 
                 <div className="flex items-center gap-3 group">
@@ -211,7 +217,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Resource Sharing</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.resourceSharing')}</span>
                 </div>
                 
                 <div className="flex items-center gap-3 group">
@@ -220,7 +226,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Study Groups</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.studyGroups')}</span>
                 </div>
                 
                 <div className="flex items-center gap-3 group">
@@ -229,7 +235,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Collaborative Whiteboard</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.whiteboard')}</span>
                 </div>
                 
                 <div className="flex items-center gap-3 group">
@@ -238,7 +244,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">AI-Summarization</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.aiSummarization')}</span>
                 </div>
               </div>
               
@@ -246,7 +252,7 @@ export default function Home() {
               <div className="pt-4">
                 <Link href="/register">
                   <button className="group px-8 py-4 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg flex items-center gap-2">
-                    Get Started
+                    {t('hero.cta')}
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -285,24 +291,24 @@ export default function Home() {
             {/* Left Content */}
             <div className="text-white space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Trusted By Learners<br />
-                Worldwide
+                {t('trusted.title')}<br />
+                {t('trusted.titleBreak')}
               </h2>
               
               <div className="space-y-4">
                 <p className="text-lg text-white/90 leading-relaxed">
-                  Join students transforming their academic journey with <span className="font-semibold underline decoration-2">powerful collaboration tools</span>
+                  {t('trusted.description')} <span className="font-semibold underline decoration-2">{t('trusted.descriptionHighlight')}</span>
                 </p>
                 
                 <p className="text-white/80 leading-relaxed">
-                  Find everything you need to excel academically in one unified platform that assures you find the best resources provided by your peers to take the next step.
+                  {t('trusted.subDescription')}
                 </p>
               </div>
               
               <div className="pt-4">
                 <Link href="/register">
                   <button className="group px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all transform hover:scale-105 hover:shadow-xl flex items-center gap-2">
-                    Elevate Now
+                    {t('trusted.cta')}
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -338,17 +344,17 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
             <div className="text-white space-y-6">
-              <p className="text-primary text-sm font-medium">From personal organization to team collaboration, Elevare provides comprehensive tools for academic success</p>
+              <p className="text-primary text-sm font-medium">{t('features.subtitle')}</p>
               
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Everything You Need<br />
-                to Excel
+                {t('features.title')}<br />
+                {t('features.titleBreak')}
               </h2>
               
               <div className="pt-4">
                 <Link href="/register">
                   <button className="group px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 hover:shadow-xl flex items-center gap-2">
-                    Excel for Free
+                    {t('features.cta')}
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -371,8 +377,8 @@ export default function Home() {
                       <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Smart Task Management</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">Organize Assignments With Priorities, Deadlines, Categories, And Intelligent Notifications</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{t('features.cards.taskManagement.title')}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{t('features.cards.taskManagement.description')}</p>
                 </div>
               </div>
 
@@ -387,8 +393,8 @@ export default function Home() {
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Rich Note-Taking</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">Create Structured Notes With Rich Formatting, Folders, Tags, And Summarization For Quick Reviews</p>
+                  <h3 className="text-xl font-bold text-white mb-3">{t('features.cards.noteTaking.title')}</h3>
+                  <p className="text-sm text-white/90 leading-relaxed">{t('features.cards.noteTaking.description')}</p>
                 </div>
               </div>
 
@@ -403,8 +409,8 @@ export default function Home() {
                       <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Study Groups</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">Create Or Join Study Groups, Chat With Members, Share Resources, And Collaborate In Dedicated Spaces</p>
+                  <h3 className="text-xl font-bold text-white mb-3">{t('features.cards.studyGroups.title')}</h3>
+                  <p className="text-sm text-white/90 leading-relaxed">{t('features.cards.studyGroups.description')}</p>
                 </div>
               </div>
 
@@ -419,8 +425,8 @@ export default function Home() {
                       <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Video Conferencing</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">Connect Face-To-Face With Screen Sharing, Breakout Rooms, And High-Quality Audio</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{t('features.cards.videoConferencing.title')}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{t('features.cards.videoConferencing.description')}</p>
                 </div>
               </div>
             </div>
@@ -440,8 +446,8 @@ export default function Home() {
             {/* Left Content */}
             <div className="text-gray-900 space-y-8">
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Join The Elevare<br />
-                Community
+                {t('community.title')}<br />
+                {t('community.titleBreak')}
               </h2>
               
               {/* Feature Pills */}
@@ -450,44 +456,44 @@ export default function Home() {
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Collaborative Learning
+                  {t('community.pills.collaborative')}
                 </div>
                 <div className="group bg-white px-6 py-3 rounded-full font-medium hover:bg-black hover:text-white transition-all cursor-pointer flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Knowledge Sharing
+                  {t('community.pills.knowledge')}
                 </div>
                 <div className="group bg-white px-6 py-3 rounded-full font-medium hover:bg-black hover:text-white transition-all cursor-pointer flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Built for Students by a Student
+                  {t('community.pills.builtByStudent')}
                 </div>
                 <div className="group bg-white px-6 py-3 rounded-full font-medium hover:bg-black hover:text-white transition-all cursor-pointer flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Full Control
+                  {t('community.pills.fullControl')}
                 </div>
                 <div className="group bg-white px-6 py-3 rounded-full font-medium hover:bg-black hover:text-white transition-all cursor-pointer flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Boost Productivity
+                  {t('community.pills.productivity')}
                 </div>
                 <div className="group bg-white px-6 py-3 rounded-full font-medium hover:bg-black hover:text-white transition-all cursor-pointer flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Trusted by Learners Worldwide
+                  {t('community.pills.trusted')}
                 </div>
               </div>
               
               <div className="pt-4">
                 <Link href="/register">
                   <button className="group px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all transform hover:scale-105 hover:shadow-xl flex items-center gap-2">
-                    Sign-up Now
+                    {t('community.cta')}
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -521,78 +527,78 @@ export default function Home() {
       <section id="faq" className="bg-black py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
-            <p className="text-gray-400 text-lg">Everything you need to know about Elevare</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('faq.title')}</h2>
+            <p className="text-gray-400 text-lg">{t('faq.subtitle')}</p>
           </div>
 
           <div className="max-w-4xl mx-auto space-y-4">
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                What is Elevare?
+                {t('faq.questions.whatIs.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Elevare is a comprehensive collaborative learning platform designed for students. It combines task management, note-taking, study groups, whiteboard collaboration, resource sharing, and video conferencing in one unified platform to help you excel academically.
+                {t('faq.questions.whatIs.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                Is Elevare really free?
+                {t('faq.questions.free.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Yes! Elevare is 100% free to use with no hidden costs. You get full access to all features including task management, notes, study groups, whiteboard, resource sharing, and video calls. No credit card required, ever.
+                {t('faq.questions.free.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                How secure is my data?
+                {t('faq.questions.security.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Your data security is our top priority. All data is encrypted in transit and at rest. You have complete control over your information, and we never share your data with third parties.
+                {t('faq.questions.security.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                Can I collaborate with my classmates?
+                {t('faq.questions.collaborate.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Absolutely! Elevare is built for collaboration. Create or join study groups, share resources, work together on whiteboards in real-time, chat with group members, and host video calls.
+                {t('faq.questions.collaborate.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                How do I get started?
+                {t('faq.questions.getStarted.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Getting started is easy! Simply click the "Get Started" button, create your account with your email, and you'll be ready to go in seconds. No setup required – start organizing your studies immediately.
+                {t('faq.questions.getStarted.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                What if I need help?
+                {t('faq.questions.help.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                We're here to help! Access our comprehensive documentation, video tutorials, and community forums. You can also reach our support team directly through the help center.
+                {t('faq.questions.help.answer')}
               </p>
             </details>
 
             <details className="bg-white rounded-2xl p-6 group hover:shadow-xl transition-all">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer flex justify-between items-center">
-                Can I use Elevare for any subject?
+                {t('faq.questions.anySubject.question')}
                 <span className="text-primary text-2xl group-open:rotate-45 transition-transform">+</span>
               </summary>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Yes! Elevare is designed to work for any subject or field of study. Whether you're studying computer science, medicine, business, arts, or anything else, our flexible tools adapt to your needs.
+                {t('faq.questions.anySubject.answer')}
               </p>
             </details>
           </div>
@@ -617,38 +623,38 @@ export default function Home() {
                 <span className="text-2xl font-bold">Elevare</span>
               </div>
               <p className="text-gray-400 text-sm">
-                Elevate your learning journey with comprehensive collaboration tools.
+                {t('footer.tagline')}
               </p>
             </div>
 
             {/* Product Column */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Product</h3>
+              <h3 className="font-semibold text-lg mb-4">{t('footer.product.title')}</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">Get Started</Link></li>
-                <li><Link href="#faq" className="hover:text-primary transition-colors">FAQ</Link></li>
-                <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
+                <li><Link href="#features" className="hover:text-primary transition-colors">{t('footer.product.features')}</Link></li>
+                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.product.getStarted')}</Link></li>
+                <li><Link href="#faq" className="hover:text-primary transition-colors">{t('footer.product.faq')}</Link></li>
+                <li><Link href="/dashboard" className="hover:text-primary transition-colors">{t('footer.product.dashboard')}</Link></li>
               </ul>
             </div>
 
             {/* Company Column */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Company</h3>
+              <h3 className="font-semibold text-lg mb-4">{t('footer.company.title')}</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#community" className="hover:text-primary transition-colors">About</Link></li>
-                <li><Link href="#features" className="hover:text-primary transition-colors">Blog</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">Contact</Link></li>
+                <li><Link href="#community" className="hover:text-primary transition-colors">{t('footer.company.about')}</Link></li>
+                <li><Link href="#features" className="hover:text-primary transition-colors">{t('footer.company.blog')}</Link></li>
+                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.company.contact')}</Link></li>
               </ul>
             </div>
 
             {/* Legal Column */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Legal</h3>
+              <h3 className="font-semibold text-lg mb-4">{t('footer.legal.title')}</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/register" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">Terms and Conditions</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
+                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.privacy')}</Link></li>
+                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.terms')}</Link></li>
+                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.cookies')}</Link></li>
               </ul>
             </div>
           </div>
@@ -656,7 +662,7 @@ export default function Home() {
           {/* Bottom Bar */}
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">
-              Copyright © 2025 Elevare. Built for collaborative learning.
+              {t('footer.copyright')}
             </p>
             <div className="flex gap-4">
               <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">

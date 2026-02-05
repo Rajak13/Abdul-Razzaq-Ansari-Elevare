@@ -1,0 +1,125 @@
+{
+  "nav": {
+    "features": "기능",
+    "community": "커뮤니티",
+    "faq": "자주 묻는 질문",
+    "login": "로그인",
+    "signUp": "회원가입"
+  },
+  "hero": {
+    "badge": "협업을 통한 학업 우수성",
+    "title": "학업 여정을",
+    "titleBreak": "향상시키세요",
+    "features": {
+      "taskManager": "작업 관리자",
+      "noteTaking": "노트 작성",
+      "resourceSharing": "리소스 공유",
+      "studyGroups": "스터디 그룹",
+      "whiteboard": "협업 화이트보드",
+      "aiSummarization": "AI 요약"
+    },
+    "cta": "시작하기"
+  },
+  "trusted": {
+    "title": "전 세계",
+    "titleBreak": "학습자들의 신뢰",
+    "description": "다음과 함께 학업 여정을 변화시키는 학생들과 함께하세요",
+    "descriptionHighlight": "강력한 협업 도구",
+    "subDescription": "동료들이 제공하는 최고의 리소스를 찾아 다음 단계로 나아갈 수 있도록 보장하는 하나의 통합 플랫폼에서 학업적으로 뛰어나기 위해 필요한 모든 것을 찾으세요.",
+    "cta": "지금 향상하기"
+  },
+  "features": {
+    "subtitle": "개인 조직에서 팀 협업까지, Elevare는 학업 성공을 위한 포괄적인 도구를 제공합니다",
+    "title": "뛰어나기 위해",
+    "titleBreak": "필요한 모든 것",
+    "cta": "무료로 뛰어나기",
+    "cards": {
+      "taskManagement": {
+        "title": "스마트 작업 관리",
+        "description": "우선순위, 마감일, 카테고리 및 지능형 알림으로 과제를 정리하세요"
+      },
+      "noteTaking": {
+        "title": "풍부한 노트 작성",
+        "description": "풍부한 서식, 폴더, 태그 및 빠른 검토를 위한 요약으로 구조화된 노트를 만드세요"
+      },
+      "studyGroups": {
+        "title": "스터디 그룹",
+        "description": "스터디 그룹을 만들거나 참여하고, 회원들과 채팅하고, 리소스를 공유하고, 전용 공간에서 협업하세요"
+      },
+      "videoConferencing": {
+        "title": "화상 회의",
+        "description": "화면 공유, 소회의실 및 고품질 오디오로 대면 연결하세요"
+      }
+    }
+  },
+  "community": {
+    "title": "Elevare",
+    "titleBreak": "커뮤니티에 참여하세요",
+    "pills": {
+      "collaborative": "협업 학습",
+      "knowledge": "지식 공유",
+      "builtByStudent": "학생이 학생을 위해 만든",
+      "fullControl": "완전한 제어",
+      "productivity": "생산성 향상",
+      "trusted": "전 세계 학습자들의 신뢰"
+    },
+    "cta": "지금 가입하기"
+  },
+  "faq": {
+    "title": "자주 묻는 질문",
+    "subtitle": "Elevare에 대해 알아야 할 모든 것",
+    "questions": {
+      "whatIs": {
+        "question": "Elevare는 무엇인가요?",
+        "answer": "Elevare는 학생들을 위해 설계된 포괄적인 협업 학습 플랫폼입니다. 작업 관리, 노트 작성, 스터디 그룹, 화이트보드 협업, 리소스 공유 및 화상 회의를 하나의 통합 플랫폼에 결합하여 학업적으로 뛰어나도록 도와줍니다."
+      },
+      "free": {
+        "question": "Elevare는 정말 무료인가요?",
+        "answer": "네! Elevare는 숨겨진 비용 없이 100% 무료로 사용할 수 있습니다. 작업 관리, 노트, 스터디 그룹, 화이트보드, 리소스 공유 및 화상 통화를 포함한 모든 기능에 완전히 액세스할 수 있습니다. 신용카드는 절대 필요하지 않습니다."
+      },
+      "security": {
+        "question": "내 데이터는 얼마나 안전한가요?",
+        "answer": "데이터 보안은 우리의 최우선 과제입니다. 모든 데이터는 전송 중 및 저장 시 암호화됩니다. 귀하는 정보에 대한 완전한 제어권을 가지며, 우리는 귀하의 데이터를 제3자와 절대 공유하지 않습니다."
+      },
+      "collaborate": {
+        "question": "동급생들과 협업할 수 있나요?",
+        "answer": "물론입니다! Elevare는 협업을 위해 만들어졌습니다. 스터디 그룹을 만들거나 참여하고, 리소스를 공유하고, 실시간으로 화이트보드에서 함께 작업하고, 그룹 회원들과 채팅하고, 화상 통화를 주최하세요."
+      },
+      "getStarted": {
+        "question": "어떻게 시작하나요?",
+        "answer": "시작하기 쉽습니다! \"시작하기\" 버튼을 클릭하고 이메일로 계정을 만들면 몇 초 안에 준비가 완료됩니다. 설정이 필요 없습니다 – 즉시 학습 정리를 시작하세요."
+      },
+      "help": {
+        "question": "도움이 필요하면 어떻게 하나요?",
+        "answer": "우리가 도와드리겠습니다! 포괄적인 문서, 비디오 튜토리얼 및 커뮤니티 포럼에 액세스하세요. 도움말 센터를 통해 지원 팀에 직접 연락할 수도 있습니다."
+      },
+      "anySubject": {
+        "question": "모든 과목에 Elevare를 사용할 수 있나요?",
+        "answer": "네! Elevare는 모든 과목이나 학문 분야에서 작동하도록 설계되었습니다. 컴퓨터 과학, 의학, 비즈니스, 예술 또는 기타 분야를 공부하든 우리의 유연한 도구는 귀하의 필요에 맞게 조정됩니다."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "포괄적인 협업 도구로 학습 여정을 향상시키세요.",
+    "product": {
+      "title": "제품",
+      "features": "기능",
+      "getStarted": "시작하기",
+      "faq": "자주 묻는 질문",
+      "dashboard": "대시보드"
+    },
+    "company": {
+      "title": "회사",
+      "about": "소개",
+      "blog": "블로그",
+      "contact": "연락처"
+    },
+    "legal": {
+      "title": "법적 고지",
+      "privacy": "개인정보 보호정책",
+      "terms": "이용약관",
+      "cookies": "쿠키 정책"
+    },
+    "copyright": "저작권 © 2025 Elevare. 협업 학습을 위해 만들어졌습니다."
+  }
+}

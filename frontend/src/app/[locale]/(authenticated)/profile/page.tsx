@@ -1,17 +1,24 @@
 'use client'
 
 import { ProfileForm } from '@/components/profile/profile-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
 import { useTranslations } from 'next-intl'
-import { User } from 'lucide-react'
 import { usePageMetadata } from '@/hooks/use-page-metadata'
+import { useTheme } from '@/components/theme-provider'
 
 export default function ProfilePage() {
   const { user } = useAuth()
+  const { theme } = useTheme()
   const t = useTranslations('profile')
   const tCommon = useTranslations('common')
   usePageMetadata('profile');
+
+  // Determine avatar color based on theme
+  // Light theme: Forest Green (hsl(142 71% 45%))
+  // Light2 (Nepali) and Dark: Crimson Red (hsl(348 83% 47%))
+  const avatarColor = theme === 'light' 
+    ? 'bg-[hsl(142,71%,45%)]' 
+    : 'bg-[hsl(348,83%,47%)]'
 
   if (!user) {
     return (
@@ -25,28 +32,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-4xl">
+    <div className="container mx-auto py-6 px-4 max-w-5xl">
+      {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <User className="h-8 w-8" />
-          {t('title')}
-        </h1>
-        <p className="text-muted-foreground">
-          {t('form.personalInfo')}
+        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your profile settings and view your learning statistics
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('form.personalInfo')}</CardTitle>
-          <CardDescription>
-            {tCommon('updateInfo')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProfileForm />
-        </CardContent>
-      </Card>
+      {/* Single Column Layout - Edit Form Only */}
+      <div className="bg-card border border-border rounded-lg p-6">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-foreground">{t('editProfile')}</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Update your profile information and preferences
+          </p>
+        </div>
+        <ProfileForm avatarColor={avatarColor} />
+      </div>
     </div>
   )
 }

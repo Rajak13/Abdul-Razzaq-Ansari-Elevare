@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as taskController from '../controllers/taskController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import { validate } from '../middleware/validation';
 import {
   createTaskValidation,
@@ -14,6 +14,7 @@ const router = Router();
 
 // All task routes require authentication
 router.use(authenticate);
+router.use(checkSuspension);
 
 // Task routes
 router.post('/', createTaskValidation, validate, taskController.createTask);

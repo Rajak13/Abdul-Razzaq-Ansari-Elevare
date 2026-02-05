@@ -113,7 +113,9 @@ export async function login(
 
   // Find user with password hash
   const result = await query<UserWithPassword>(
-    `SELECT id, email, password_hash, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
+    `SELECT id, email, password_hash, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+            phone, date_of_birth, gender, age, account_type, institution, timezone,
+            university, major, graduation_date, account_status, last_login
      FROM users WHERE email = $1`,
     [email]
   );
@@ -139,6 +141,34 @@ export async function login(
     throw new Error('Email not verified. Please verify your email with the OTP sent to your email address.');
   }
 
+  // Check if user is suspended
+  const suspensionCheck = await query(
+    `SELECT us.id, us.reason, us.expires_at, us.suspension_type
+     FROM user_suspensions us
+     WHERE us.user_id = $1 
+       AND us.is_active = TRUE 
+       AND (us.expires_at IS NULL OR us.expires_at > CURRENT_TIMESTAMP)
+     LIMIT 1`,
+    [userWithPassword.id]
+  );
+
+  if (suspensionCheck.rows.length > 0) {
+    const suspension = suspensionCheck.rows[0];
+    const expiryMessage = suspension.expires_at 
+      ? ` until ${new Date(suspension.expires_at).toLocaleDateString()}`
+      : ' permanently';
+    throw new Error(`Your account has been suspended${expiryMessage}. Reason: ${suspension.reason}`);
+  }
+
+  // Check account status
+  if (userWithPassword.account_status === 'suspended') {
+    throw new Error('Your account has been suspended. Please contact support for more information.');
+  }
+
+  if (userWithPassword.account_status === 'deleted') {
+    throw new Error('This account has been deleted.');
+  }
+
   // Remove password hash from user object
   const { password_hash, ...user } = userWithPassword;
 
@@ -155,7 +185,9 @@ export async function login(
  */
 export async function findById(userId: string): Promise<User | null> {
   const result = await query<User>(
-    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
+    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+            phone, date_of_birth, gender, age, account_type, institution, timezone, 
+            university, major, graduation_date, account_status, last_login
      FROM users WHERE id = $1`,
     [userId]
   );
@@ -168,7 +200,9 @@ export async function findById(userId: string): Promise<User | null> {
  */
 export async function findByEmail(email: string): Promise<User | null> {
   const result = await query<User>(
-    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at
+    `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+            phone, date_of_birth, gender, age, account_type, institution, timezone,
+            university, major, graduation_date, account_status, last_login
      FROM users WHERE email = $1`,
     [email]
   );
@@ -222,6 +256,41 @@ export async function updateProfile(
     values.push(data.preferred_language);
   }
 
+  if (data.phone !== undefined) {
+    updates.push(`phone = $${paramCount++}`);
+    values.push(data.phone);
+  }
+
+  if (data.date_of_birth !== undefined) {
+    updates.push(`date_of_birth = $${paramCount++}`);
+    values.push(data.date_of_birth);
+  }
+
+  if (data.gender !== undefined) {
+    updates.push(`gender = $${paramCount++}`);
+    values.push(data.gender);
+  }
+
+  if (data.age !== undefined) {
+    updates.push(`age = $${paramCount++}`);
+    values.push(data.age);
+  }
+
+  if (data.account_type !== undefined) {
+    updates.push(`account_type = $${paramCount++}`);
+    values.push(data.account_type);
+  }
+
+  if (data.institution !== undefined) {
+    updates.push(`institution = $${paramCount++}`);
+    values.push(data.institution);
+  }
+
+  if (data.timezone !== undefined) {
+    updates.push(`timezone = $${paramCount++}`);
+    values.push(data.timezone);
+  }
+
   if (updates.length === 0) {
     throw new Error('No fields to update');
   }
@@ -233,7 +302,10 @@ export async function updateProfile(
   const result = await query<User>(
     `UPDATE users SET ${updates.join(', ')}
      WHERE id = $${paramCount}
-     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, preferred_language, email_verified, created_at, updated_at`,
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, 
+               preferred_language, email_verified, created_at, updated_at,
+               phone, date_of_birth, gender, age, account_type, institution, 
+               timezone, account_status, last_login`,
     values
   );
 

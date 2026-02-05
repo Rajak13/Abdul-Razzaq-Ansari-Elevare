@@ -4,10 +4,16 @@ import { Note, CreateNoteData, UpdateNoteData } from '@/types/note';
 import { useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
-export function useNotes(params?: { limit?: number; sort_by?: string; order?: string }) {
+export function useNotes(params?: { 
+  folder_id?: string;
+  page?: number; 
+  limit?: number; 
+  sort_by?: string; 
+  order?: string;
+}) {
   return useQuery({
     queryKey: ['notes', params],
-    queryFn: () => noteService.getNotes(),
+    queryFn: () => noteService.getNotes(params),
   });
 }
 

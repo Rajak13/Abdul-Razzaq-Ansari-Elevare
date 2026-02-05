@@ -25,6 +25,7 @@ export interface UserAccount {
 }
 
 export interface UserSearchFilters {
+  search?: string;
   email?: string;
   name?: string;
   email_verified?: boolean;
@@ -78,7 +79,7 @@ export class AdminUserManagementService {
   constructor(
     private db: Pool,
     private auditService: AdminAuditService
-  ) {}
+  ) { }
 
   /**
    * Search and list user accounts with privacy-safe metadata only
@@ -89,14 +90,19 @@ export class AdminUserManagementService {
     let paramCount = 0;
 
     // Build WHERE conditions
-    if (filters.email) {
-      conditions.push(`u.email ILIKE $${++paramCount}`);
-      values.push(`%${filters.email}%`);
-    }
+    if (filters.search) {
+      conditions.push(`(u.email ILIKE $${++paramCount} OR u.name ILIKE $${paramCount})`);
+      values.push(`%${filters.search}%`);
+    } else {
+      if (filters.email) {
+        conditions.push(`u.email ILIKE $${++paramCount}`);
+        values.push(`%${filters.email}%`);
+      }
 
-    if (filters.name) {
-      conditions.push(`u.name ILIKE $${++paramCount}`);
-      values.push(`%${filters.name}%`);
+      if (filters.name) {
+        conditions.push(`u.name ILIKE $${++paramCount}`);
+        values.push(`%${filters.name}%`);
+      }
     }
 
     if (filters.email_verified !== undefined) {
@@ -817,7 +823,7 @@ export class AdminUserManagementService {
 
     const contentTables = [
       'tasks',
-      'notes', 
+      'notes',
       'files',
       'resources',
       'whiteboard_sessions',
@@ -863,7 +869,7 @@ export class AdminUserManagementService {
       for (const userId of userIds) {
         try {
           // Use the moderation service to create suspension
-          const expiresAt = duration_hours ? 
+          const expiresAt = duration_hours ?
             new Date(Date.now() + duration_hours * 60 * 60 * 1000) : null;
 
           await client.query(`

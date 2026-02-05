@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import { uploadResource, handleUploadError } from '../middleware/uploadMiddleware';
 import {
   uploadResource as uploadResourceController,
@@ -17,19 +17,19 @@ import {
 const router = Router();
 
 // Resource CRUD operations
-router.post('/', authenticate, uploadResource, handleUploadError, uploadResourceController);
+router.post('/', authenticate, checkSuspension, uploadResource, handleUploadError, uploadResourceController);
 router.get('/', getResources);
 router.get('/search', searchResources);
 router.get('/:id', getResourceById);
-router.put('/:id', authenticate, updateResource);
-router.delete('/:id', authenticate, deleteResource);
+router.put('/:id', authenticate, checkSuspension, updateResource);
+router.delete('/:id', authenticate, checkSuspension, deleteResource);
 
 // Resource interactions
 router.get('/:id/download', downloadResource);
-router.post('/:id/rate', authenticate, rateResource);
+router.post('/:id/rate', authenticate, checkSuspension, rateResource);
 
 // Resource comments
 router.get('/:id/comments', getResourceComments);
-router.post('/:id/comments', authenticate, addResourceComment);
+router.post('/:id/comments', authenticate, checkSuspension, addResourceComment);
 
 export default router;

@@ -1,0 +1,125 @@
+{
+  "nav": {
+    "features": "Features",
+    "community": "Community",
+    "faq": "FAQ",
+    "login": "Log In",
+    "signUp": "Sign Up"
+  },
+  "hero": {
+    "badge": "Academic Excellence Through Collaboration",
+    "title": "Elevate Your",
+    "titleBreak": "Academic Journey",
+    "features": {
+      "taskManager": "Task Manager",
+      "noteTaking": "Note Taking",
+      "resourceSharing": "Resource Sharing",
+      "studyGroups": "Study Groups",
+      "whiteboard": "Collaborative Whiteboard",
+      "aiSummarization": "AI-Summarization"
+    },
+    "cta": "Get Started"
+  },
+  "trusted": {
+    "title": "Trusted By Learners",
+    "titleBreak": "Worldwide",
+    "description": "Join students transforming their academic journey with",
+    "descriptionHighlight": "powerful collaboration tools",
+    "subDescription": "Find everything you need to excel academically in one unified platform that assures you find the best resources provided by your peers to take the next step.",
+    "cta": "Elevate Now"
+  },
+  "features": {
+    "subtitle": "From personal organization to team collaboration, Elevare provides comprehensive tools for academic success",
+    "title": "Everything You Need",
+    "titleBreak": "to Excel",
+    "cta": "Excel for Free",
+    "cards": {
+      "taskManagement": {
+        "title": "Smart Task Management",
+        "description": "Organize Assignments With Priorities, Deadlines, Categories, And Intelligent Notifications"
+      },
+      "noteTaking": {
+        "title": "Rich Note-Taking",
+        "description": "Create Structured Notes With Rich Formatting, Folders, Tags, And Summarization For Quick Reviews"
+      },
+      "studyGroups": {
+        "title": "Study Groups",
+        "description": "Create Or Join Study Groups, Chat With Members, Share Resources, And Collaborate In Dedicated Spaces"
+      },
+      "videoConferencing": {
+        "title": "Video Conferencing",
+        "description": "Connect Face-To-Face With Screen Sharing, Breakout Rooms, And High-Quality Audio"
+      }
+    }
+  },
+  "community": {
+    "title": "Join The Elevare",
+    "titleBreak": "Community",
+    "pills": {
+      "collaborative": "Collaborative Learning",
+      "knowledge": "Knowledge Sharing",
+      "builtByStudent": "Built for Students by a Student",
+      "fullControl": "Full Control",
+      "productivity": "Boost Productivity",
+      "trusted": "Trusted by Learners Worldwide"
+    },
+    "cta": "Sign-up Now"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about Elevare",
+    "questions": {
+      "whatIs": {
+        "question": "What is Elevare?",
+        "answer": "Elevare is a comprehensive collaborative learning platform designed for students. It combines task management, note-taking, study groups, whiteboard collaboration, resource sharing, and video conferencing in one unified platform to help you excel academically."
+      },
+      "free": {
+        "question": "Is Elevare really free?",
+        "answer": "Yes! Elevare is 100% free to use with no hidden costs. You get full access to all features including task management, notes, study groups, whiteboard, resource sharing, and video calls. No credit card required, ever."
+      },
+      "security": {
+        "question": "How secure is my data?",
+        "answer": "Your data security is our top priority. All data is encrypted in transit and at rest. You have complete control over your information, and we never share your data with third parties."
+      },
+      "collaborate": {
+        "question": "Can I collaborate with my classmates?",
+        "answer": "Absolutely! Elevare is built for collaboration. Create or join study groups, share resources, work together on whiteboards in real-time, chat with group members, and host video calls."
+      },
+      "getStarted": {
+        "question": "How do I get started?",
+        "answer": "Getting started is easy! Simply click the \"Get Started\" button, create your account with your email, and you'll be ready to go in seconds. No setup required – start organizing your studies immediately."
+      },
+      "help": {
+        "question": "What if I need help?",
+        "answer": "We're here to help! Access our comprehensive documentation, video tutorials, and community forums. You can also reach our support team directly through the help center."
+      },
+      "anySubject": {
+        "question": "Can I use Elevare for any subject?",
+        "answer": "Yes! Elevare is designed to work for any subject or field of study. Whether you're studying computer science, medicine, business, arts, or anything else, our flexible tools adapt to your needs."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Elevate your learning journey with comprehensive collaboration tools.",
+    "product": {
+      "title": "Product",
+      "features": "Features",
+      "getStarted": "Get Started",
+      "faq": "FAQ",
+      "dashboard": "Dashboard"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "contact": "Contact"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms and Conditions",
+      "cookies": "Cookie Policy"
+    },
+    "copyright": "Copyright © 2025 Elevare. Built for collaborative learning."
+  }
+}

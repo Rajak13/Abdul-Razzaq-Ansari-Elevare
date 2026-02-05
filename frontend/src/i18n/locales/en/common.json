@@ -34,6 +34,7 @@
   "edit": "Edit",
   "create": "Create",
   "search": "Search",
+  "searchPlaceholder": "Search...",
   "filter": "Filter",
   "filters": "Filters",
   "loading": "Loading...",

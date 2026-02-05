@@ -11,6 +11,7 @@
   "downloadResource": "자료 다운로드",
   "noResources": "자료가 없습니다",
   "noResourcesDescription": "첫 번째 자료를 업로드하여 다른 사람들과 공유하세요.",
+  "description": "학습 커뮤니티와 교육 자료에 액세스하고 공유하세요",
   "upload": {
     "title": "자료 업로드",
     "dragDrop": "여기에 파일을 드래그 앤 드롭하거나 클릭하여 찾아보기",

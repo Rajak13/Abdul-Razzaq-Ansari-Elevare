@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import * as whiteboardController from '../controllers/whiteboardController';
 
 const router = Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticate);
+router.use(checkSuspension);
 
 // Whiteboard CRUD routes
 router.post('/', whiteboardController.createWhiteboard);

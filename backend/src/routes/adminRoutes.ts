@@ -7,11 +7,11 @@ import {
   adminOrOwner,
   allAdmins
 } from '../middleware/adminAuth';
-import { 
-  adminRateLimiter, 
-  authRateLimiter, 
+import {
+  adminRateLimiter,
+  authRateLimiter,
   progressiveLoginDelay,
-  throttleResourceIntensiveOps 
+  throttleResourceIntensiveOps
 } from '../middleware/advancedRateLimiter';
 import adminAuthService from '../services/adminAuthService';
 import adminAggregationService from '../services/adminAggregationService';
@@ -317,7 +317,7 @@ router.post('/users',
 
     } catch (error) {
       logger.error('Admin user creation error', { error });
-      
+
       if (error instanceof Error && error.message.includes('already exists')) {
         return res.status(409).json({
           error: {
@@ -533,6 +533,14 @@ router.get('/users',
         filters.is_suspended = true;
       }
 
+      if (req.query.status === 'suspended') {
+        filters.is_suspended = true;
+      }
+
+      if (req.query.search) {
+        filters.search = req.query.search as string;
+      }
+
       const result = await userManagementService.searchUsers(filters);
       client.release();
 
@@ -716,12 +724,17 @@ router.put('/users/:userId/unsuspend',
         message: 'User suspension lifted successfully'
       });
 
-    } catch (error) {
-      logger.error('User unsuspension error', { userId: req.params.userId, error });
+    } catch (error: any) {
+      logger.error('User unsuspension error', { 
+        userId: req.params.userId, 
+        error: error.message,
+        stack: error.stack 
+      });
       res.status(500).json({
         error: {
           code: 'USER_UNSUSPEND_ERROR',
-          message: 'Failed to unsuspend user'
+          message: error.message || 'Failed to unsuspend user',
+          details: error.toString()
         }
       });
     }
@@ -818,14 +831,10 @@ router.delete('/users/:userId',
         adminAuditService
       );
 
-      const result = await userManagementService.deleteUserAccount(
-        {
-          user_id: req.params.userId,
-          admin_id: req.admin!.id,
-          reason: req.body.reason,
-          gdpr_request: req.body.gdpr_request || false,
-          backup_data: req.body.backup_data || false
-        },
+      const result = await userManagementService.deleteUser(
+        req.params.userId,
+        req.admin!.id,
+        req.body.reason,
         req.ip || '0.0.0.0',
         req.get('User-Agent')
       );
@@ -835,16 +844,20 @@ router.delete('/users/:userId',
       res.json({
         success: true,
         message: 'User account deleted successfully',
-        backup_created: result.backup_created,
-        data_export: result.data_export
+        deleted_data: result.deletedData
       });
 
-    } catch (error) {
-      logger.error('User deletion error', { userId: req.params.userId, error });
+    } catch (error: any) {
+      logger.error('User deletion error', { 
+        userId: req.params.userId, 
+        error: error.message,
+        stack: error.stack 
+      });
       res.status(500).json({
         error: {
           code: 'USER_DELETE_ERROR',
-          message: 'Failed to delete user account'
+          message: error.message || 'Failed to delete user account',
+          details: error.toString()
         }
       });
     }
@@ -1921,13 +1934,13 @@ router.get('/compliance/gdpr',
         'SELECT COUNT(*) as total FROM gdpr_data_exports WHERE status = $1',
         ['completed']
       );
-      
+
       const status = {
         deletion_requests_completed: parseInt(deletionRequests.rows[0]?.total || '0'),
         export_requests_completed: parseInt(exportRequests.rows[0]?.total || '0'),
         compliance_status: 'compliant'
       };
-      
+
       client.release();
 
       res.json({
@@ -1981,7 +1994,7 @@ router.post('/compliance/data-export',
          RETURNING id`,
         [req.body.user_id, req.admin!.id]
       );
-      
+
       const exportData = {
         export_id: exportResult.rows[0].id,
         user_id: req.body.user_id,
@@ -2021,12 +2034,12 @@ router.get('/compliance/retention',
       const retentionPolicies = await client.query(
         'SELECT COUNT(*) as total FROM data_retention_policies WHERE active = true'
       );
-      
+
       const retentionStatus = {
         active_policies: parseInt(retentionPolicies.rows[0]?.total || '0'),
         status: 'active'
       };
-      
+
       client.release();
 
       res.json({
@@ -2253,15 +2266,15 @@ router.get('/security/failed-logins',
          LIMIT $1 OFFSET $2`,
         [limit, offset]
       );
-      
+
       const countResult = await client.query(
         `SELECT COUNT(*) as total FROM admin_security_events 
          WHERE event_type = 'failed_login' 
          AND created_at > NOW() - INTERVAL '${hours} hours'`
       );
-      
+
       client.release();
-      
+
       const result = {
         attempts: failedLogins.rows,
         total: parseInt(countResult.rows[0]?.total || '0')
@@ -2372,7 +2385,7 @@ router.delete('/security/block-ip/:ipAddress',
          WHERE ip_address = $3 AND unblocked_at IS NULL`,
         [req.admin!.id, req.body.reason, req.params.ipAddress]
       );
-      
+
       await adminAuditService.createAuditLog(
         req.admin!.id,
         'ip_unblock',
@@ -2382,7 +2395,7 @@ router.delete('/security/block-ip/:ipAddress',
         req.params.ipAddress,
         { reason: req.body.reason }
       );
-      
+
       client.release();
 
       res.json({
@@ -2436,13 +2449,13 @@ router.get('/security/blocked-ips',
          LIMIT $1 OFFSET $2`,
         [limit, offset]
       );
-      
+
       const countResult = await client.query(
         'SELECT COUNT(*) as total FROM ip_blocks WHERE unblocked_at IS NULL'
       );
-      
+
       client.release();
-      
+
       const result = {
         blocked_ips: blockedIps.rows,
         total: parseInt(countResult.rows[0]?.total || '0')
@@ -2506,9 +2519,9 @@ router.get('/security/stats',
          GROUP BY severity`,
         [startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), endDate || new Date()]
       );
-      
+
       client.release();
-      
+
       const stats = {
         total_events: eventsCount.rows.reduce((sum, row) => sum + parseInt(row.total), 0),
         by_severity: eventsCount.rows
@@ -2572,7 +2585,7 @@ router.post('/security/incidents',
           JSON.stringify(req.body.response_actions || [])
         ]
       );
-      
+
       await adminAuditService.createAuditLog(
         req.admin!.id,
         'security_incident_create',
@@ -2582,9 +2595,9 @@ router.post('/security/incidents',
         incidentResult.rows[0].id,
         { incident_type: req.body.incident_type, severity: req.body.severity }
       );
-      
+
       client.release();
-      
+
       const incident = incidentResult.rows[0];
 
       res.status(201).json({
@@ -2647,25 +2660,25 @@ router.get('/security/incidents',
 
       // Get security incidents
       const client = await getClient();
-      
+
       let whereClause = 'WHERE 1=1';
       const params: any[] = [];
       let paramCount = 1;
-      
+
       if (filters.severity) {
         whereClause += ` AND severity = $${paramCount}`;
         params.push(filters.severity);
         paramCount++;
       }
-      
+
       if (filters.status) {
         whereClause += ` AND status = $${paramCount}`;
         params.push(filters.status);
         paramCount++;
       }
-      
+
       params.push(filters.limit, filters.offset);
-      
+
       const incidents = await client.query(
         `SELECT * FROM security_incidents 
          ${whereClause}
@@ -2673,14 +2686,14 @@ router.get('/security/incidents',
          LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
         params
       );
-      
+
       const countResult = await client.query(
         `SELECT COUNT(*) as total FROM security_incidents ${whereClause}`,
         params.slice(0, -2)
       );
-      
+
       client.release();
-      
+
       const result = {
         incidents: incidents.rows,
         total: parseInt(countResult.rows[0]?.total || '0')
@@ -2705,6 +2718,192 @@ router.get('/security/incidents',
         error: {
           code: 'GET_INCIDENTS_ERROR',
           message: 'Failed to retrieve security incidents'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * Suspension Appeals Routes
+ */
+
+// Get all suspension appeals
+router.get('/appeals',
+  allAdmins,
+  auditAdminAction('view_appeals'),
+  [
+    query('status').optional().isIn(['pending', 'approved', 'rejected', 'under_review']),
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 100 })
+  ],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input data',
+            details: errors.array()
+          }
+        });
+      }
+
+      const suspensionAppealService = await import('../services/suspensionAppealService');
+      
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const offset = (page - 1) * limit;
+
+      const result = await suspensionAppealService.getAllAppeals({
+        status: req.query.status as string,
+        limit,
+        offset
+      });
+
+      res.json({
+        success: true,
+        data: {
+          appeals: result.appeals,
+          pagination: {
+            page,
+            limit,
+            total: result.total,
+            pages: Math.ceil(result.total / limit)
+          }
+        }
+      });
+
+    } catch (error: any) {
+      logger.error('Get appeals error', { error: error.message });
+      res.status(500).json({
+        error: {
+          code: 'GET_APPEALS_ERROR',
+          message: 'Failed to retrieve appeals'
+        }
+      });
+    }
+  }
+);
+
+// Get appeal statistics
+router.get('/appeals/statistics',
+  allAdmins,
+  async (_req: Request, res: Response): Promise<any> => {
+    try {
+      const suspensionAppealService = await import('../services/suspensionAppealService');
+      const stats = await suspensionAppealService.getAppealStatistics();
+
+      res.json({
+        success: true,
+        data: stats
+      });
+
+    } catch (error: any) {
+      logger.error('Get appeal statistics error', { error: error.message });
+      res.status(500).json({
+        error: {
+          code: 'GET_APPEAL_STATS_ERROR',
+          message: 'Failed to retrieve appeal statistics'
+        }
+      });
+    }
+  }
+);
+
+// Get appeal by ID
+router.get('/appeals/:appealId',
+  allAdmins,
+  [param('appealId').isUUID()],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid appeal ID'
+          }
+        });
+      }
+
+      const suspensionAppealService = await import('../services/suspensionAppealService');
+      const appeal = await suspensionAppealService.getAppealById(req.params.appealId);
+
+      if (!appeal) {
+        return res.status(404).json({
+          error: {
+            code: 'APPEAL_NOT_FOUND',
+            message: 'Appeal not found'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        data: appeal
+      });
+
+    } catch (error: any) {
+      logger.error('Get appeal error', { error: error.message });
+      res.status(500).json({
+        error: {
+          code: 'GET_APPEAL_ERROR',
+          message: 'Failed to retrieve appeal'
+        }
+      });
+    }
+  }
+);
+
+// Review an appeal
+router.put('/appeals/:appealId/review',
+  adminOrOwner,
+  allAdmins,
+  auditAdminAction('review_appeal'),
+  [
+    param('appealId').isUUID(),
+    body('status').isIn(['approved', 'rejected', 'under_review']),
+    body('admin_response').trim().isLength({ min: 10, max: 1000 })
+  ],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input data',
+            details: errors.array()
+          }
+        });
+      }
+
+      const suspensionAppealService = await import('../services/suspensionAppealService');
+      
+      const appeal = await suspensionAppealService.reviewAppeal({
+        appeal_id: req.params.appealId,
+        admin_id: req.admin!.id,
+        status: req.body.status,
+        admin_response: req.body.admin_response
+      });
+
+      res.json({
+        success: true,
+        message: 'Appeal reviewed successfully',
+        data: appeal
+      });
+
+    } catch (error: any) {
+      logger.error('Review appeal error', { 
+        appealId: req.params.appealId, 
+        error: error.message 
+      });
+      res.status(500).json({
+        error: {
+          code: 'REVIEW_APPEAL_ERROR',
+          message: error.message || 'Failed to review appeal'
         }
       });
     }

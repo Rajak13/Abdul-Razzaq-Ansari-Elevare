@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import { validate } from '../middleware/validation';
 import { body, param } from 'express-validator';
 import * as noteController from '../controllers/noteController';
 
 const router = Router();
 
-// Apply authentication middleware to all routes
+// Apply authentication and suspension check middleware to all routes
 router.use(authenticate);
+router.use(checkSuspension);
 
 // Note validation rules
 const createNoteValidation = [

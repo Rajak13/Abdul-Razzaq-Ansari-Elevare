@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import {
   getUserNotifications,
   getUnreadCount,
@@ -15,6 +15,7 @@ const router = Router();
 
 // All notification routes require authentication
 router.use(authenticate);
+router.use(checkSuspension);
 
 // Get user notifications
 router.get('/', getUserNotifications);

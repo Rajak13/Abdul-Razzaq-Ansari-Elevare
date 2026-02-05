@@ -18,7 +18,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
   const { data: notesResponse } = useNotes({ limit: 100 })
 
   const tasks = Array.isArray(tasksResponse?.data) ? tasksResponse.data : []
-  const notes = Array.isArray(notesResponse) ? notesResponse : []
+  const notes = notesResponse?.notes || []
 
   // Calculate weekly stats
   const now = new Date()

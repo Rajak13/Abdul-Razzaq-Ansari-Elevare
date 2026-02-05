@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import { uploadFile, handleUploadError } from '../middleware/uploadMiddleware';
 import {
   uploadFile as uploadFileController,
@@ -21,6 +21,7 @@ const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
+router.use(checkSuspension);
 
 // File folder management routes (must be before /:id routes)
 router.post('/folders', createFileFolder);

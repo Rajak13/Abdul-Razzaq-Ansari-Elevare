@@ -21,8 +21,11 @@ export default function AllNotesPage() {
   const [pageSize, setPageSize] = useState(20);
   
   const router = useRouter();
-  const { data: notes = [], isLoading } = useNotes();
+  const { data: notesResponse = [], isLoading } = useNotes();
   const deleteNote = useDeleteNote();
+
+  // Extract notes array from response
+  const notes = Array.isArray(notesResponse) ? notesResponse : notesResponse?.notes || [];
 
   // Paginate notes
   const paginatedNotes = useMemo(() => {

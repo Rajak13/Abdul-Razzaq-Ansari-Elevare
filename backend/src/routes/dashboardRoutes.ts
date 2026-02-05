@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, checkSuspension } from '../middleware/auth';
 import {
   getDashboard,
   getPreferences,
@@ -9,8 +9,9 @@ import {
 
 const router = Router();
 
-// All dashboard routes require authentication
+// All dashboard routes require authentication and suspension check
 router.use(authenticate);
+router.use(checkSuspension);
 
 // GET /api/dashboard - Get dashboard data
 router.get('/', getDashboard);

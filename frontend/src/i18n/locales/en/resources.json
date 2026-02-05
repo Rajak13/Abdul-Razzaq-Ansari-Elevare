@@ -11,6 +11,7 @@
   "downloadResource": "Download Resource",
   "noResources": "No resources yet",
   "noResourcesDescription": "Upload your first resource to share with others.",
+  "description": "Access and share educational resources with your learning community",
   "upload": {
     "title": "Upload Resource",
     "dragDrop": "Drag and drop files here, or click to browse",

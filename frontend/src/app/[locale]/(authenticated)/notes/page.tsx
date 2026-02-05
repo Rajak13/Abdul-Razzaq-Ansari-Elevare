@@ -7,6 +7,7 @@ import { TemplateSelector } from '@/components/notes/template-selector';
 import { getTemplateById } from '@/components/notes/note-templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Pagination } from '@/components/ui/pagination';
 import { useDeleteNoteFolder, useMoveNoteFolder, useNoteFolders } from '@/hooks/use-note-folders';
 import { useNotes, useDeleteNote } from '@/hooks/use-notes';
 import { NoteFolder, NoteTemplate } from '@/types/note';
@@ -27,31 +28,44 @@ export default function NotesPage() {
   const [editingFolder, setEditingFolder] = useState<NoteFolder | null>(null);
   const [parentFolderId, setParentFolderId] = useState<string | undefined>();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [sortBy, setSortBy] = useState('updated_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const router = useRouter();
-  const { data: notes = [], isLoading: notesLoading } = useNotes();
+  const { data: notesData, isLoading: notesLoading } = useNotes({
+    folder_id: selectedFolderId || undefined,
+    page: currentPage,
+    limit: pageSize,
+    sort_by: sortBy,
+    order: sortOrder,
+  });
   const { data: folders = [] } = useNoteFolders();
   const deleteFolder = useDeleteNoteFolder();
   const moveFolder = useMoveNoteFolder();
   const deleteNote = useDeleteNote();
 
-  // Filter notes based on selected folder
-  const filteredNotes = selectedFolderId
-    ? notes.filter((note) => note.folder_id === selectedFolderId)
-    : notes;
+  const notes = notesData?.notes || [];
+  const pagination = notesData ? {
+    total: notesData.total,
+    page: notesData.page,
+    limit: notesData.limit,
+    totalPages: notesData.totalPages,
+  } : null;
 
-  // Get recent notes (last 10) or all notes from selected folder
-  const displayNotes = selectedFolderId
-    ? filteredNotes.sort(
-        (a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      )
-    : notes
-        .sort(
-          (a, b) =>
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        )
-        .slice(0, 10);
+  // Debug logging
+  console.log('Notes Data:', {
+    notesCount: notes.length,
+    pagination,
+    rawData: notesData
+  });
+
+  // Filter notes based on selected folder - now handled by API
+  const displayNotes = notes.sort(
+    (a, b) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  );
 
   const handleTemplateSelect = (template: NoteTemplate) => {
     // Navigate to create page with template
@@ -93,6 +107,16 @@ export default function NotesPage() {
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId);
+    setCurrentPage(1); // Reset to first page when changing folders
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleNoteSelect = (note: any) => {
@@ -253,16 +277,20 @@ export default function NotesPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
 
-                    {notes.length > 10 && !selectedFolderId && (
-                      <div className="pt-4 text-center">
-                        <Link href="/notes/all">
-                          <Button variant="outline">
-                            {t('allNotes')} ({notes.length})
-                          </Button>
-                        </Link>
-                      </div>
-                    )}
+                {/* Pagination */}
+                {pagination && pagination.total > 0 && (
+                  <div className="mt-6 pt-4 border-t">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={pagination.totalPages}
+                      totalItems={pagination.total}
+                      pageSize={pageSize}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                    />
                   </div>
                 )}
               </CardContent>

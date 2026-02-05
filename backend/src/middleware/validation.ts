@@ -73,8 +73,19 @@ export const profileUpdateValidation: ValidationChain[] = [
     .withMessage('Bio must not exceed 1000 characters'),
   body('avatar_url')
     .optional()
-    .isURL()
-    .withMessage('Avatar URL must be a valid URL'),
+    .trim()
+    .custom((value) => {
+      // Allow empty strings, relative paths, or full URLs
+      if (!value || value === '') return true;
+      if (value.startsWith('/')) return true;
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    })
+    .withMessage('Avatar URL must be a valid URL or path'),
   body('university')
     .optional()
     .trim()
@@ -87,8 +98,58 @@ export const profileUpdateValidation: ValidationChain[] = [
     .withMessage('Major must be between 2 and 255 characters'),
   body('graduation_date')
     .optional()
-    .isISO8601()
+    .custom((value) => {
+      // Allow empty strings or valid ISO dates
+      if (!value || value === '') return true;
+      const date = new Date(value);
+      return !isNaN(date.getTime());
+    })
     .withMessage('Graduation date must be a valid date'),
+  body('phone')
+    .optional()
+    .trim()
+    .custom((value) => {
+      // Allow empty strings or valid phone numbers
+      if (!value || value === '') return true;
+      return value.length <= 20;
+    })
+    .withMessage('Phone must not exceed 20 characters'),
+  body('date_of_birth')
+    .optional()
+    .custom((value) => {
+      // Allow empty strings or valid ISO dates
+      if (!value || value === '') return true;
+      const date = new Date(value);
+      return !isNaN(date.getTime());
+    })
+    .withMessage('Date of birth must be a valid date'),
+  body('gender')
+    .optional()
+    .isIn(['male', 'female', 'other', 'prefer_not_to_say'])
+    .withMessage('Gender must be one of: male, female, other, prefer_not_to_say'),
+  body('age')
+    .optional()
+    .custom((value) => {
+      // Allow null, undefined, or valid age numbers
+      if (value === null || value === undefined || value === '') return true;
+      const age = parseInt(value);
+      return !isNaN(age) && age >= 13 && age <= 120;
+    })
+    .withMessage('Age must be between 13 and 120'),
+  body('account_type')
+    .optional()
+    .isIn(['student', 'educator', 'professional', 'researcher', 'other'])
+    .withMessage('Account type must be one of: student, educator, professional, researcher, other'),
+  body('institution')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 255 })
+    .withMessage('Institution must be between 2 and 255 characters'),
+  body('timezone')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Timezone must not exceed 100 characters'),
 ];
 
 /**

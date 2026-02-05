@@ -1,7 +1,17 @@
 import { useAuth as useAuthContext } from '@/contexts/auth-context'
 
 export function useAuth() {
-  const { user, isLoading, login, logout, register, isAuthenticated } = useAuthContext()
+  const {
+    user,
+    isLoading,
+    login,
+    logout,
+    register,
+    isAuthenticated,
+    updateProfile,
+    uploadAvatar,
+    refreshUser,
+  } = useAuthContext()
 
   return {
     // State
@@ -14,6 +24,9 @@ export function useAuth() {
     signIn: login,
     signUp: register,
     signOut: logout,
+    updateProfile,
+    uploadAvatar,
+    refreshUser,
   }
 }
 

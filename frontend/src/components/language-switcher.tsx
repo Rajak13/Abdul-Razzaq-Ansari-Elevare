@@ -53,14 +53,16 @@ export function LanguageSwitcher() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error('[LanguageSwitcher] Failed to update language preference:', errorData);
+          console.warn('[LanguageSwitcher] Could not update language preference (user may not be authenticated):', errorData);
         } else {
           console.log('[LanguageSwitcher] Language preference updated successfully');
         }
       } catch (error) {
-        console.error('[LanguageSwitcher] Failed to update language preference:', error);
-        // Continue with locale change even if API call fails
+        // Silently fail if user is not authenticated or API is not available
+        console.debug('[LanguageSwitcher] Language preference not saved (user not authenticated)');
       }
+    } else {
+      console.debug('[LanguageSwitcher] No token found, skipping language preference save');
     }
 
     // Use next-intl's router for proper locale switching

@@ -15,6 +15,14 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -187,23 +195,23 @@ export function AdminSidebar({ isCollapsed, onToggleCollapse }: {
 // Mobile Bottom Navigation Component
 export function AdminBottomNav() {
   const pathname = usePathname();
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  const allNavItems = [
+    { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/moderation', label: 'Moderation', icon: AlertTriangle },
+    { href: '/admin/security', label: 'Security', icon: Shield },
+    { href: '/admin/audit', label: 'Audit', icon: FileText },
+    { href: '/admin/configuration', label: 'Settings', icon: Settings },
+  ];
 
   return (
-    <>
-      {/* More Menu Overlay */}
-      {showMoreMenu && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setShowMoreMenu(false)}
-        />
-      )}
-
-      {/* More Menu */}
-      {showMoreMenu && (
-        <div className="fixed bottom-20 left-0 right-0 mx-4 bg-white rounded-2xl shadow-2xl z-50 lg:hidden overflow-hidden">
-          <div className="p-2">
-            {moreNavItems.map((item) => {
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200">
+      <div className="safe-area-inset-bottom">
+        {/* Centered container with max width */}
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-around px-2 h-16">
+            {allNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               
@@ -211,60 +219,37 @@ export function AdminBottomNav() {
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={() => setShowMoreMenu(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1 px-2 py-2 transition-colors duration-200 relative flex-1 max-w-[80px]',
                     isActive
-                      ? 'bg-[hsl(142,71%,45%)] text-white'
-                      : 'text-[#717171] hover:bg-gray-50'
-                  }`}
+                      ? 'text-[hsl(142,71%,45%)]'
+                      : 'text-[#717171]'
+                  )}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium text-sm">{item.label}</span>
+                  {/* Active indicator bar on top */}
+                  {isActive && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[hsl(142,71%,45%)] rounded-full" />
+                  )}
+                  
+                  <Icon 
+                    className={cn(
+                      'h-5 w-5 stroke-[1.5]',
+                      isActive ? 'text-[hsl(142,71%,45%)]' : 'text-[#717171]'
+                    )} 
+                  />
+                  <span className={cn(
+                    'text-[10px] font-medium leading-tight text-center',
+                    isActive ? 'text-[hsl(142,71%,45%)]' : 'text-[#717171]'
+                  )}>
+                    {item.label}
+                  </span>
                 </a>
               );
             })}
           </div>
         </div>
-      )}
-
-      {/* Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-2">
-          {bottomNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[60px] ${
-                  isActive
-                    ? 'text-[hsl(142,71%,45%)]'
-                    : 'text-[#717171]'
-                }`}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </a>
-            );
-          })}
-          
-          {/* More Button */}
-          <button
-            onClick={() => setShowMoreMenu(!showMoreMenu)}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[60px] ${
-              moreNavItems.some(item => pathname === item.href)
-                ? 'text-[hsl(142,71%,45%)]'
-                : 'text-[#717171]'
-            }`}
-          >
-            <MoreHorizontal className="w-5 h-5 flex-shrink-0" />
-            <span className="text-[10px] font-medium">More</span>
-          </button>
-        </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }
 

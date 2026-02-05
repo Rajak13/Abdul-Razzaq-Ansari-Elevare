@@ -141,38 +141,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (data: ProfileUpdateData) => {
+    console.log('🔧 updateProfile function called')
+    console.log('📝 Update data:', data)
+    
     try {
-      const response = await apiClient.put<{ user: User }>('/auth/profile', data);
+      // Filter out empty strings and null values
+      const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as any);
+      
+      console.log('🧹 Cleaned data:', cleanedData)
+      console.log('🌐 Making API request to /auth/profile')
+      console.log('🔑 Token:', localStorage.getItem('auth_token') ? 'Present' : 'Missing')
+      
+      const response = await apiClient.put<{ user: User }>('/auth/profile', cleanedData);
+      console.log('✅ API response received:', response.data)
       
       // Update user in state
       setState((prev) => ({
         ...prev,
         user: response.data.user,
       }));
-    } catch (error) {
+      console.log('✅ User state updated')
+    } catch (error: any) {
+      console.error('❌ updateProfile error:', error)
+      console.error('Error response:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      console.error('Error headers:', error.response?.headers)
       throw error;
     }
   };
 
   const uploadAvatar = async (file: File) => {
+    console.log('🔧 uploadAvatar function called')
+    console.log('📁 File to upload:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    })
+    
     try {
       const formData = new FormData();
       formData.append('avatar', file);
+      console.log('📦 FormData created')
+      console.log('📦 FormData contents:', Array.from(formData.entries()))
 
+      console.log('🌐 Making API request to /auth/avatar')
+      console.log('🔑 Token:', localStorage.getItem('auth_token') ? 'Present' : 'Missing')
+      
       const response = await apiClient.post<{ user: User; avatar_url: string }>('/auth/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log('✅ API response received:', response.data)
       
       // Update user in state
       setState((prev) => ({
         ...prev,
         user: response.data.user,
       }));
+      console.log('✅ User state updated')
 
       return response.data.avatar_url;
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ uploadAvatar error:', error)
+      console.error('Error response:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      console.error('Error headers:', error.response?.headers)
       throw error;
     }
   };
