@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "installCommand": "npm install --prefix frontend",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend"
+}
