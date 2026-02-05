@@ -45,7 +45,8 @@
     "otplib": "^13.2.1",
     "pg": "^8.11.3",
     "socket.io": "^4.8.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.2.0",
@@ -77,7 +78,6 @@
     "supertest": "^6.3.3",
     "ts-jest": "^30.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3",
     "uuid": "^13.0.0"
   }
 }
