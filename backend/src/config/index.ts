@@ -10,28 +10,12 @@ const getCorsOrigin = (): string | boolean | string[] | ((origin: string | undef
     const origins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
     return origins.length === 1 ? origins[0] : origins;
   }
-  
+
   if (process.env.NODE_ENV === 'development') {
-    // In development, allow any localhost port
-    return (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Allow any localhost origin
-      if (origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
-        return callback(null, true);
-      }
-      
-      // Allow any 127.0.0.1 origin
-      if (origin.match(/^https?:\/\/127\.0\.0\.1(:\d+)?$/)) {
-        return callback(null, true);
-      }
-      
-      // Reject other origins in development
-      return callback(new Error('Not allowed by CORS'), false);
-    };
+    // In development, allow all origins to prevent CORS issues
+    return true;
   }
-  
+
   // In production, default to specific origin
   return 'https://your-production-domain.com';
 };

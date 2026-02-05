@@ -1,5 +1,6 @@
 import { query } from '../db/connection';
 import logger from '../utils/logger';
+import { sendUnsuspensionEmail } from './emailService';
 
 export interface SuspensionAppeal {
   id: string;
@@ -185,6 +186,39 @@ export async function reviewAppeal(data: ReviewAppealRequest): Promise<Suspensio
        WHERE id = $2`,
       [data.admin_id, appeal.suspension_id]
     );
+
+    // Send unsuspension email to user
+    try {
+      const userResult = await query(
+        'SELECT email, name, preferred_language FROM users WHERE id = $1',
+        [appeal.user_id]
+      );
+
+      if (userResult.rows.length > 0) {
+        const user = userResult.rows[0];
+        const locale = user.preferred_language || 'en';
+
+        await sendUnsuspensionEmail(
+          user.email,
+          user.name,
+          `Your suspension appeal has been approved. ${data.admin_response}`,
+          locale
+        );
+
+        logger.info('Unsuspension email sent after appeal approval', {
+          appealId: data.appeal_id,
+          userId: appeal.user_id,
+          email: user.email
+        });
+      }
+    } catch (emailError) {
+      // Log error but don't fail the appeal approval
+      logger.error('Failed to send unsuspension email after appeal approval', {
+        appealId: data.appeal_id,
+        userId: appeal.user_id,
+        error: emailError
+      });
+    }
 
     logger.info('Suspension lifted due to approved appeal', {
       appealId: data.appeal_id,

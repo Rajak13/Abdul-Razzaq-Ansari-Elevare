@@ -9,6 +9,7 @@ import { Link } from '@/navigation';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
+import { SuspensionAppealForm } from '@/components/auth/suspension-appeal-form';
 
 function LoginForm() {
   usePageMetadata('login');
@@ -25,6 +26,12 @@ function LoginForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [registeredMessage, setRegisteredMessage] = useState('');
+  const [suspensionInfo, setSuspensionInfo] = useState<{
+    userId: string;
+    suspensionId: string;
+    suspensionReason: string;
+    expiresAt?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (searchParams.get('registered') === 'true') {
@@ -65,9 +72,21 @@ function LoginForm() {
       });
       toast.success(t('success'));
     } catch (error) {
-      const axiosError = error as AxiosError<{ error: { message: string; code: string } }>;
+      const axiosError = error as AxiosError<{ error: { message: string; code: string; suspension_data?: any } }>;
       const errorCode = axiosError.response?.data?.error?.code;
       const errorMessage = axiosError.response?.data?.error?.message;
+      const suspensionData = axiosError.response?.data?.error?.suspension_data;
+
+      // If account is suspended, show appeal form
+      if (errorCode === 'ACCOUNT_SUSPENDED' && suspensionData) {
+        setSuspensionInfo({
+          userId: suspensionData.user_id,
+          suspensionId: suspensionData.suspension_id,
+          suspensionReason: suspensionData.reason,
+          expiresAt: suspensionData.expires_at
+        });
+        return;
+      }
 
       // If email not verified, redirect to OTP verification
       if (errorCode === 'EMAIL_NOT_VERIFIED') {
@@ -96,9 +115,21 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white dark:bg-[hsl(0,0%,7%)]">
-        <div className="max-w-md w-full space-y-8">
+      {/* Show suspension appeal form if user is suspended */}
+      {suspensionInfo ? (
+        <div className="w-full flex items-center justify-center px-6 py-12 bg-[#FCFBF7]">
+          <SuspensionAppealForm
+            userId={suspensionInfo.userId}
+            suspensionId={suspensionInfo.suspensionId}
+            suspensionReason={suspensionInfo.suspensionReason}
+            expiresAt={suspensionInfo.expiresAt}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Left Side - Form */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white dark:bg-[hsl(0,0%,7%)]">
+            <div className="max-w-md w-full space-y-8">
             {/* Heading */}
             <div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{t('heading')}</h1>
@@ -251,6 +282,8 @@ function LoginForm() {
           />
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

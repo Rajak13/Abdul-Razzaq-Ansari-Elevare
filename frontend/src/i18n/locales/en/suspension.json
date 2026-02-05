@@ -1,0 +1,28 @@
+{
+  "title": "Account Suspended",
+  "temporarySuspension": "Suspended until {date}",
+  "permanentSuspension": "Permanent suspension",
+  "reasonLabel": "Reason for suspension:",
+  "canAppeal": "You can appeal this suspension",
+  "appealDescription": "If you believe this suspension was made in error or you'd like to explain your situation, you can submit an appeal below. Our team will review your case and respond within 24-48 hours.",
+  "yourAppeal": "Your Appeal",
+  "appealPlaceholder": "Explain why you believe this suspension should be lifted. Be clear, honest, and respectful in your explanation...",
+  "charactersCount": "{count}/2000 characters",
+  "minimumLengthMet": "Minimum length met",
+  "submitAppeal": "Submit Appeal",
+  "submittingAppeal": "Submitting Appeal...",
+  "goBack": "Go Back to Home",
+  "appealSubmitted": "Appeal Submitted",
+  "appealSubmittedDescription": "Your appeal has been submitted successfully. An administrator will review it shortly.",
+  "whatHappensNext": "What happens next?",
+  "reviewProcess": [
+    "Your appeal will be reviewed by an administrator",
+    "You'll receive an email notification with the decision",
+    "Appeals are typically reviewed within 24-48 hours"
+  ],
+  "footerNote": "By submitting an appeal, you acknowledge that you have read and understand our community guidelines.",
+  "errors": {
+    "minimumLength": "Appeal message must be at least 10 characters",
+    "submitFailed": "Failed to submit appeal"
+  }
+}

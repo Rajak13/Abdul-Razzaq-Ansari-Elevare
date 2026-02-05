@@ -27,6 +27,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       errors: (await import('./locales/ko/errors.json')).default,
       files: (await import('./locales/ko/files.json')).default,
       landing: (await import('./locales/ko/landing.json')).default,
+      suspension: (await import('./locales/ko/suspension.json')).default,
     };
   } else if (locale === 'ne') {
     messages = {
@@ -43,6 +44,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       errors: (await import('./locales/ne/errors.json')).default,
       files: (await import('./locales/ne/files.json')).default,
       landing: (await import('./locales/ne/landing.json')).default,
+      suspension: (await import('./locales/ne/suspension.json')).default,
     };
   } else {
     // Default to English
@@ -60,6 +62,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       errors: (await import('./locales/en/errors.json')).default,
       files: (await import('./locales/en/files.json')).default,
       landing: (await import('./locales/en/landing.json')).default,
+      suspension: (await import('./locales/en/suspension.json')).default,
     };
   }
 

@@ -157,7 +157,18 @@ export async function login(
     const expiryMessage = suspension.expires_at 
       ? ` until ${new Date(suspension.expires_at).toLocaleDateString()}`
       : ' permanently';
-    throw new Error(`Your account has been suspended${expiryMessage}. Reason: ${suspension.reason}`);
+    
+    // Create a custom error with suspension data
+    const error: any = new Error(`Your account has been suspended${expiryMessage}. Reason: ${suspension.reason}`);
+    error.code = 'ACCOUNT_SUSPENDED';
+    error.suspension_data = {
+      user_id: userWithPassword.id,
+      suspension_id: suspension.id,
+      reason: suspension.reason,
+      expires_at: suspension.expires_at,
+      suspension_type: suspension.suspension_type
+    };
+    throw error;
   }
 
   // Check account status

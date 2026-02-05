@@ -22,7 +22,7 @@ import adminAuditService from '../services/adminAuditService';
 import adminConfigService from '../services/adminConfigService';
 import { AdminComplianceService } from '../services/adminComplianceService';
 import adminSecurityService from '../services/adminSecurityService';
-import { getClient } from '../db/connection';
+import pool, { getClient } from '../db/connection';
 import logger from '../utils/logger';
 
 const router = express.Router();
@@ -510,9 +510,8 @@ router.get('/users',
       const offset = (page - 1) * limit;
 
       // Get database client
-      const client = await getClient();
       const userManagementService = new AdminUserManagementService(
-        client as any,
+        pool,
         adminAuditService
       );
 
@@ -542,7 +541,6 @@ router.get('/users',
       }
 
       const result = await userManagementService.searchUsers(filters);
-      client.release();
 
       res.json({
         success: true,
@@ -589,14 +587,12 @@ router.get('/users/:userId',
         });
       }
 
-      const client = await getClient();
       const userManagementService = new AdminUserManagementService(
-        client as any,
+        pool,
         adminAuditService
       );
 
       const user = await userManagementService.getUserById(req.params.userId);
-      client.release();
 
       if (!user) {
         return res.status(404).json({
@@ -706,8 +702,7 @@ router.put('/users/:userId/unsuspend',
         });
       }
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       await moderationService.liftUserSuspension(
         req.params.userId,
@@ -716,8 +711,6 @@ router.put('/users/:userId/unsuspend',
         req.ip || '0.0.0.0',
         req.get('User-Agent')
       );
-
-      client.release();
 
       res.json({
         success: true,
@@ -764,9 +757,8 @@ router.post('/users/:userId/reset-password',
         });
       }
 
-      const client = await getClient();
       const userManagementService = new AdminUserManagementService(
-        client as any,
+        pool,
         adminAuditService
       );
 
@@ -780,8 +772,6 @@ router.post('/users/:userId/reset-password',
         req.ip || '0.0.0.0',
         req.get('User-Agent')
       );
-
-      client.release();
 
       res.json({
         success: true,
@@ -825,9 +815,8 @@ router.delete('/users/:userId',
         });
       }
 
-      const client = await getClient();
       const userManagementService = new AdminUserManagementService(
-        client as any,
+        pool,
         adminAuditService
       );
 
@@ -838,8 +827,6 @@ router.delete('/users/:userId',
         req.ip || '0.0.0.0',
         req.get('User-Agent')
       );
-
-      client.release();
 
       res.json({
         success: true,
@@ -870,14 +857,12 @@ router.get('/users/stats/overview',
   allAdmins,
   async (_req: Request, res: Response): Promise<any> => {
     try {
-      const client = await getClient();
       const userManagementService = new AdminUserManagementService(
-        client as any,
+        pool,
         adminAuditService
       );
 
       const stats = await userManagementService.getUserStatistics();
-      client.release();
 
       res.json({
         success: true,
@@ -928,8 +913,7 @@ router.get('/moderation/reports',
       const limit = parseInt(req.query.limit as string) || 20;
       const offset = (page - 1) * limit;
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       const filters: any = {
         limit,
@@ -949,7 +933,6 @@ router.get('/moderation/reports',
       }
 
       const result = await moderationService.getAbuseReports(filters);
-      client.release();
 
       res.json({
         success: true,
@@ -996,11 +979,9 @@ router.get('/moderation/reports/:reportId',
         });
       }
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       const report = await moderationService.getAbuseReportById(req.params.reportId);
-      client.release();
 
       if (!report) {
         return res.status(404).json({
@@ -1053,8 +1034,7 @@ router.put('/moderation/reports/:reportId',
         });
       }
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       const updatedReport = await moderationService.takeModerationAction(
         req.params.reportId,
@@ -1068,8 +1048,6 @@ router.put('/moderation/reports/:reportId',
         req.ip || '0.0.0.0',
         req.get('User-Agent')
       );
-
-      client.release();
 
       res.json({
         success: true,
@@ -1109,11 +1087,9 @@ router.get('/moderation/violations/:userId',
         });
       }
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       const violations = await moderationService.getUserViolationHistory(req.params.userId);
-      client.release();
 
       res.json({
         success: true,
@@ -1153,14 +1129,12 @@ router.get('/moderation/stats',
         });
       }
 
-      const client = await getClient();
-      const moderationService = new AdminModerationService(client as any, adminAuditService);
+      const moderationService = new AdminModerationService(pool, adminAuditService);
 
       const dateFrom = req.query.date_from ? new Date(req.query.date_from as string) : undefined;
       const dateTo = req.query.date_to ? new Date(req.query.date_to as string) : undefined;
 
       const stats = await moderationService.getModerationStats(dateFrom, dateTo);
-      client.release();
 
       res.json({
         success: true,

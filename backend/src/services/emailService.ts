@@ -201,6 +201,237 @@ export async function sendPasswordResetEmail(
 }
 
 /**
+ * Send account suspension notification email
+ */
+export async function sendSuspensionEmail(
+  email: string,
+  name: string,
+  reason: string,
+  suspensionType: 'temporary' | 'permanent',
+  expiresAt?: Date,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Your Elevare Account Has Been Suspended',
+      title: 'Account Suspended',
+      greeting: 'Hello',
+      message: 'Your Elevare account has been suspended due to the following reason:',
+      suspensionType: suspensionType === 'temporary' ? 'Temporary Suspension' : 'Permanent Suspension',
+      expiresLabel: 'Suspension expires on:',
+      appealInfo: 'If you believe this suspension was made in error, you can submit an appeal:',
+      appealButton: 'Submit Appeal',
+      permanentNote: 'This is a permanent suspension. However, you may still submit an appeal for review.',
+      contactSupport: 'If you have any questions, please contact our support team.',
+      footer: 'This is an automated message from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'तपाईंको Elevare खाता निलम्बित गरिएको छ',
+      title: 'खाता निलम्बित',
+      greeting: 'नमस्ते',
+      message: 'तपाईंको Elevare खाता निम्न कारणले निलम्बित गरिएको छ:',
+      suspensionType: suspensionType === 'temporary' ? 'अस्थायी निलम्बन' : 'स्थायी निलम्बन',
+      expiresLabel: 'निलम्बन समाप्त हुने मिति:',
+      appealInfo: 'यदि तपाईंलाई लाग्छ कि यो निलम्बन गलत थियो भने, तपाईं अपील पेश गर्न सक्नुहुन्छ:',
+      appealButton: 'अपील पेश गर्नुहोस्',
+      permanentNote: 'यो स्थायी निलम्बन हो। तथापि, तपाईं अझै पनि समीक्षाको लागि अपील पेश गर्न सक्नुहुन्छ।',
+      contactSupport: 'यदि तपाईंसँग कुनै प्रश्नहरू छन् भने, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।',
+      footer: 'यो Elevare बाट स्वचालित सन्देश हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: 'Elevare 계정이 정지되었습니다',
+      title: '계정 정지',
+      greeting: '안녕하세요',
+      message: '다음 이유로 Elevare 계정이 정지되었습니다:',
+      suspensionType: suspensionType === 'temporary' ? '임시 정지' : '영구 정지',
+      expiresLabel: '정지 해제 날짜:',
+      appealInfo: '이 정지가 잘못되었다고 생각하시면 이의 신청을 제출할 수 있습니다:',
+      appealButton: '이의 신청 제출',
+      permanentNote: '이것은 영구 정지입니다. 그러나 검토를 위해 이의 신청을 제출할 수 있습니다.',
+      contactSupport: '질문이 있으시면 지원팀에 문의하세요.',
+      footer: '이것은 Elevare의 자동 메시지입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const appealUrl = `${config.corsOrigin}/suspension-appeal`;
+
+  const expiresHtml = expiresAt && suspensionType === 'temporary' ? `
+    <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+      <strong>${t.expiresLabel}</strong> ${expiresAt.toLocaleString(locale === 'ne' ? 'ne-NP' : locale === 'ko' ? 'ko-KR' : 'en-US', { 
+        dateStyle: 'full', 
+        timeStyle: 'short' 
+      })}
+    </div>
+  ` : `
+    <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
+      <strong>${t.permanentNote}</strong>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: t.subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #dc3545; margin: 0;">${t.title}</h1>
+          </div>
+          
+          <p style="font-size: 16px;">${t.greeting} ${name},</p>
+          
+          <p style="font-size: 16px;">${t.message}</p>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
+            <strong style="color: #dc3545;">${t.suspensionType}</strong>
+            <p style="margin: 10px 0 0 0; color: #333;">${reason}</p>
+          </div>
+          
+          ${expiresHtml}
+          
+          <div style="margin: 30px 0;">
+            <p style="font-size: 16px;">${t.appealInfo}</p>
+            <div style="text-align: center; margin: 20px 0;">
+              <a href="${appealUrl}" 
+                 style="background-color: #2d6a4f; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                ${t.appealButton}
+              </a>
+            </div>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+          
+          <p style="color: #666; font-size: 14px;">${t.contactSupport}</p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
+            ${t.footer}
+          </p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Suspension email sent', { email, suspensionType, locale });
+  } catch (error) {
+    logger.error('Failed to send suspension email', { email, suspensionType, locale, error });
+    throw new Error('Failed to send suspension email');
+  }
+}
+
+/**
+ * Send account unsuspension notification email
+ */
+export async function sendUnsuspensionEmail(
+  email: string,
+  name: string,
+  reason: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Your Elevare Account Has Been Reinstated',
+      title: 'Account Reinstated',
+      greeting: 'Hello',
+      message: 'Good news! Your Elevare account suspension has been lifted.',
+      reasonLabel: 'Reason for reinstatement:',
+      accessInfo: 'You now have full access to your account and can continue using all Elevare features.',
+      loginButton: 'Login to Elevare',
+      guidelinesReminder: 'Please remember to follow our community guidelines to maintain a positive environment for all users.',
+      contactSupport: 'If you have any questions, please contact our support team.',
+      footer: 'This is an automated message from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'तपाईंको Elevare खाता पुनर्स्थापित गरिएको छ',
+      title: 'खाता पुनर्स्थापित',
+      greeting: 'नमस्ते',
+      message: 'शुभ समाचार! तपाईंको Elevare खाता निलम्बन हटाइएको छ।',
+      reasonLabel: 'पुनर्स्थापनाको कारण:',
+      accessInfo: 'तपाईंसँग अब आफ्नो खातामा पूर्ण पहुँच छ र सबै Elevare सुविधाहरू प्रयोग गर्न जारी राख्न सक्नुहुन्छ।',
+      loginButton: 'Elevare मा लगइन गर्नुहोस्',
+      guidelinesReminder: 'कृपया सबै प्रयोगकर्ताहरूको लागि सकारात्मक वातावरण कायम राख्न हाम्रो समुदाय दिशानिर्देशहरू पालना गर्न सम्झनुहोस्।',
+      contactSupport: 'यदि तपाईंसँग कुनै प्रश्नहरू छन् भने, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।',
+      footer: 'यो Elevare बाट स्वचालित सन्देश हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: 'Elevare 계정이 복원되었습니다',
+      title: '계정 복원',
+      greeting: '안녕하세요',
+      message: '좋은 소식입니다! Elevare 계정 정지가 해제되었습니다.',
+      reasonLabel: '복원 사유:',
+      accessInfo: '이제 계정에 대한 전체 액세스 권한이 있으며 모든 Elevare 기능을 계속 사용할 수 있습니다.',
+      loginButton: 'Elevare 로그인',
+      guidelinesReminder: '모든 사용자를 위한 긍정적인 환경을 유지하기 위해 커뮤니티 가이드라인을 준수해 주세요.',
+      contactSupport: '질문이 있으시면 지원팀에 문의하세요.',
+      footer: '이것은 Elevare의 자동 메시지입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const loginUrl = `${config.corsOrigin}/login`;
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: t.subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2d6a4f; margin: 0;">✓ ${t.title}</h1>
+          </div>
+          
+          <p style="font-size: 16px;">${t.greeting} ${name},</p>
+          
+          <p style="font-size: 16px; color: #2d6a4f; font-weight: bold;">${t.message}</p>
+          
+          <div style="background-color: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <strong style="color: #155724;">${t.reasonLabel}</strong>
+            <p style="margin: 10px 0 0 0; color: #155724;">${reason}</p>
+          </div>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #333;">${t.accessInfo}</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${loginUrl}" 
+               style="background-color: #2d6a4f; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+              ${t.loginButton}
+            </a>
+          </div>
+          
+          <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+              <strong>⚠️ ${t.guidelinesReminder}</strong>
+            </p>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+          
+          <p style="color: #666; font-size: 14px;">${t.contactSupport}</p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
+            ${t.footer}
+          </p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Unsuspension email sent', { email, locale });
+  } catch (error) {
+    logger.error('Failed to send unsuspension email', { email, locale, error });
+    throw new Error('Failed to send unsuspension email');
+  }
+}
+
+/**
  * Send notification email
  */
 export async function sendNotificationEmail(options: {
@@ -238,6 +469,26 @@ export class EmailService {
 
   async sendPasswordResetEmail(email: string, name: string, resetToken: string, locale: string = 'en'): Promise<void> {
     return sendPasswordResetEmail(email, name, resetToken, locale);
+  }
+
+  async sendSuspensionEmail(
+    email: string,
+    name: string,
+    reason: string,
+    suspensionType: 'temporary' | 'permanent',
+    expiresAt?: Date,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendSuspensionEmail(email, name, reason, suspensionType, expiresAt, locale);
+  }
+
+  async sendUnsuspensionEmail(
+    email: string,
+    name: string,
+    reason: string,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendUnsuspensionEmail(email, name, reason, locale);
   }
 
   async sendNotificationEmail(options: {

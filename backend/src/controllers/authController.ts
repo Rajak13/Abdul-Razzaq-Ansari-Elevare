@@ -125,6 +125,18 @@ export async function login(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    if (error.code === 'ACCOUNT_SUSPENDED') {
+      res.status(403).json({
+        error: {
+          code: 'ACCOUNT_SUSPENDED',
+          message: error.message,
+          suspension_data: error.suspension_data,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
     res.status(500).json({
       error: {
         code: 'LOGIN_FAILED',

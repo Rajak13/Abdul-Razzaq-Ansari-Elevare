@@ -36,6 +36,10 @@ export default function AdminUsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [actionType, setActionType] = useState<'suspend' | 'unsuspend' | 'delete' | null>(null);
+  const [suspendReason, setSuspendReason] = useState('');
+  const [deleteReason, setDeleteReason] = useState('');
+  const [suspendDuration, setSuspendDuration] = useState<number | null>(null);
+  const [suspendDurationType, setSuspendDurationType] = useState<'hours' | 'days' | 'permanent'>('permanent');
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -52,8 +56,8 @@ export default function AdminUsersPage() {
   });
 
   const suspendUserMutation = useMutation({
-    mutationFn: ({ userId, reason }: { userId: string; reason: string }) =>
-      adminApiClient.suspendUser(userId, reason),
+    mutationFn: ({ userId, reason, duration }: { userId: string; reason: string; duration?: number }) =>
+      adminApiClient.suspendUser(userId, reason, duration),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
@@ -132,18 +136,44 @@ export default function AdminUsersPage() {
 
     switch (actionType) {
       case 'suspend':
+        if (!suspendReason.trim()) {
+          toast({
+            title: 'Error',
+            description: 'Please provide a reason for suspension',
+            variant: 'destructive',
+          });
+          return;
+        }
+        
+        // Calculate duration in hours
+        let durationHours: number | undefined;
+        if (suspendDurationType !== 'permanent' && suspendDuration) {
+          durationHours = suspendDurationType === 'days' 
+            ? suspendDuration * 24 
+            : suspendDuration;
+        }
+        
         suspendUserMutation.mutate({
           userId: selectedUser.id,
-          reason: 'Administrative action',
+          reason: suspendReason,
+          duration: durationHours,
         });
         break;
       case 'unsuspend':
         unsuspendUserMutation.mutate(selectedUser.id);
         break;
       case 'delete':
+        if (!deleteReason.trim()) {
+          toast({
+            title: 'Error',
+            description: 'Please provide a reason for deletion',
+            variant: 'destructive',
+          });
+          return;
+        }
         deleteUserMutation.mutate({
           userId: selectedUser.id,
-          reason: 'Administrative deletion',
+          reason: deleteReason,
         });
         break;
     }
@@ -552,8 +582,12 @@ export default function AdminUsersPage() {
         <AlertDialog open={!!actionType} onOpenChange={() => {
           setActionType(null);
           setSelectedUser(null);
+          setSuspendReason('');
+          setDeleteReason('');
+          setSuspendDuration(null);
+          setSuspendDurationType('permanent');
         }}>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-md">
             <AlertDialogHeader>
               <AlertDialogTitle>
                 {actionType === 'suspend' && 'Suspend User'}
@@ -562,25 +596,129 @@ export default function AdminUsersPage() {
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {actionType === 'suspend' && 
-                  `Are you sure you want to suspend ${selectedUser?.email}? This will prevent them from accessing the platform.`
+                  `You are about to suspend ${selectedUser?.email}. This will prevent them from accessing the platform.`
                 }
                 {actionType === 'unsuspend' && 
                   `Are you sure you want to lift the suspension for ${selectedUser?.email}? They will regain access to the platform.`
                 }
                 {actionType === 'delete' && 
-                  `Are you sure you want to permanently delete the account for ${selectedUser?.email}? This action cannot be undone.`
+                  `You are about to permanently delete the account for ${selectedUser?.email}. This action cannot be undone.`
                 }
               </AlertDialogDescription>
             </AlertDialogHeader>
+            
+            {/* Suspend Form */}
+            {actionType === 'suspend' && (
+              <div className="space-y-4">
+                {/* Duration Type */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1A1A1A]">
+                    Suspension Duration <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSuspendDurationType('hours')}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        suspendDurationType === 'hours'
+                          ? 'bg-[hsl(142,71%,45%)] text-white'
+                          : 'bg-[#FCFBF7] text-[#717171] hover:bg-gray-100'
+                      }`}
+                    >
+                      Hours
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSuspendDurationType('days')}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        suspendDurationType === 'days'
+                          ? 'bg-[hsl(142,71%,45%)] text-white'
+                          : 'bg-[#FCFBF7] text-[#717171] hover:bg-gray-100'
+                      }`}
+                    >
+                      Days
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSuspendDurationType('permanent');
+                        setSuspendDuration(null);
+                      }}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        suspendDurationType === 'permanent'
+                          ? 'bg-[hsl(142,71%,45%)] text-white'
+                          : 'bg-[#FCFBF7] text-[#717171] hover:bg-gray-100'
+                      }`}
+                    >
+                      Permanent
+                    </button>
+                  </div>
+                </div>
+
+                {/* Duration Input */}
+                {suspendDurationType !== 'permanent' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#1A1A1A]">
+                      Number of {suspendDurationType}
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={suspendDuration || ''}
+                      onChange={(e) => setSuspendDuration(parseInt(e.target.value) || null)}
+                      placeholder={`Enter number of ${suspendDurationType}`}
+                      className="w-full px-3 py-2 bg-[#FCFBF7] border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(142,71%,45%)] focus:border-transparent"
+                    />
+                  </div>
+                )}
+                
+                {/* Reason Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1A1A1A]">
+                    Reason for Suspension <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={suspendReason}
+                    onChange={(e) => setSuspendReason(e.target.value)}
+                    placeholder="Explain why this user is being suspended..."
+                    rows={3}
+                    className="w-full px-3 py-2 bg-[#FCFBF7] border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(142,71%,45%)] focus:border-transparent resize-none"
+                  />
+                  <p className="text-xs text-[#717171]">
+                    This reason will be shown to the user when they try to log in.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* Reason Input for Delete */}
+            {actionType === 'delete' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[#1A1A1A]">
+                  Reason for Deletion <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={deleteReason}
+                  onChange={(e) => setDeleteReason(e.target.value)}
+                  placeholder="Explain why this account is being deleted..."
+                  rows={4}
+                  className="w-full px-3 py-2 bg-[#FCFBF7] border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(142,71%,45%)] focus:border-transparent resize-none"
+                />
+                <p className="text-xs text-[#717171]">
+                  This will be logged for audit purposes.
+                </p>
+              </div>
+            )}
+            
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirmAction}
                 className={actionType === 'delete' ? 'bg-destructive hover:bg-destructive/90' : ''}
               >
-                {actionType === 'suspend' && 'Suspend'}
-                {actionType === 'unsuspend' && 'Unsuspend'}
-                {actionType === 'delete' && 'Delete'}
+                {actionType === 'suspend' && 'Suspend User'}
+                {actionType === 'unsuspend' && 'Unsuspend User'}
+                {actionType === 'delete' && 'Delete Account'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

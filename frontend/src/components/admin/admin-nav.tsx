@@ -12,7 +12,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal
+  MoreHorizontal,
+  MessageSquare
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ import {
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/appeals', label: 'Appeals', icon: MessageSquare },
   { href: '/admin/moderation', label: 'Moderation', icon: AlertTriangle },
   { href: '/admin/security', label: 'Security', icon: Shield },
   { href: '/admin/audit', label: 'Audit', icon: FileText },
@@ -199,6 +201,7 @@ export function AdminBottomNav() {
   const allNavItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/appeals', label: 'Appeals', icon: MessageSquare },
     { href: '/admin/moderation', label: 'Moderation', icon: AlertTriangle },
     { href: '/admin/security', label: 'Security', icon: Shield },
     { href: '/admin/audit', label: 'Audit', icon: FileText },

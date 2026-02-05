@@ -405,6 +405,27 @@ class AdminApiClient {
     });
     return response.data;
   }
+
+  // Suspension Appeals endpoints
+  async getAppeals(params?: { status?: string; page?: number; limit?: number }) {
+    const response = await this.client.get('/appeals', { params });
+    return response.data;
+  }
+
+  async getAppealStatistics() {
+    const response = await this.client.get('/appeals/statistics');
+    return response.data;
+  }
+
+  async getAppealById(appealId: string) {
+    const response = await this.client.get(`/appeals/${appealId}`);
+    return response.data;
+  }
+
+  async reviewAppeal(appealId: string, data: { status: string; admin_response: string }) {
+    const response = await this.client.put(`/appeals/${appealId}/review`, data);
+    return response.data;
+  }
 }
 
 export const adminApiClient = new AdminApiClient();

@@ -1,5 +1,7 @@
 import { Pool } from 'pg';
 import { AdminAuditService } from './adminAuditService';
+import { sendSuspensionEmail, sendUnsuspensionEmail } from './emailService';
+import logger from '../utils/logger';
 
 export interface AbuseReport {
   id: string;
@@ -807,6 +809,38 @@ export class AdminModerationService {
         { reason }
       );
 
+      // Get user details for email notification
+      try {
+        const userResult = await client.query(
+          'SELECT email, name, preferred_language FROM users WHERE id = $1',
+          [userId]
+        );
+
+        if (userResult.rows.length > 0) {
+          const user = userResult.rows[0];
+          const locale = user.preferred_language || 'en';
+
+          // Send unsuspension email notification
+          await sendUnsuspensionEmail(
+            user.email,
+            user.name,
+            reason,
+            locale
+          );
+
+          logger.info('Unsuspension email sent to user', {
+            userId,
+            email: user.email
+          });
+        }
+      } catch (emailError) {
+        // Log error but don't fail the unsuspension
+        logger.error('Failed to send unsuspension email', {
+          userId,
+          error: emailError
+        });
+      }
+
       await client.query('COMMIT');
 
     } catch (error) {
@@ -949,6 +983,41 @@ export class AdminModerationService {
       data.suspension_type,
       expiresAt
     ]);
+
+    // Get user details for email notification
+    try {
+      const userResult = await client.query(
+        'SELECT email, name, preferred_language FROM users WHERE id = $1',
+        [data.user_id]
+      );
+
+      if (userResult.rows.length > 0) {
+        const user = userResult.rows[0];
+        const locale = user.preferred_language || 'en';
+
+        // Send suspension email notification
+        await sendSuspensionEmail(
+          user.email,
+          user.name,
+          data.reason,
+          data.suspension_type,
+          expiresAt || undefined,
+          locale
+        );
+
+        logger.info('Suspension email sent to user', {
+          userId: data.user_id,
+          email: user.email,
+          suspensionType: data.suspension_type
+        });
+      }
+    } catch (emailError) {
+      // Log error but don't fail the suspension
+      logger.error('Failed to send suspension email', {
+        userId: data.user_id,
+        error: emailError
+      });
+    }
   }
 
   private getSeverityFromAction(action: string): 'warning' | 'minor' | 'major' | 'severe' {
