@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useTranslations } from 'next-intl'
 import { usePageMetadata } from '@/hooks/use-page-metadata'
 import { useTheme } from '@/components/theme-provider'
+import { User } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -35,8 +36,13 @@ export default function ProfilePage() {
     <div className="container mx-auto py-6 px-4 max-w-5xl">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
+            <User className="h-6 w-6" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+        </div>
+        <p className="text-sm text-muted-foreground ml-14">
           Manage your profile settings and view your learning statistics
         </p>
       </div>

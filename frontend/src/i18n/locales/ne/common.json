@@ -201,6 +201,10 @@
       "title": "दर्ता - Elevare",
       "description": "आफ्नो Elevare खाता सिर्जना गर्नुहोस् र आफ्नो सहयोगी शिक्षा यात्रा सुरु गर्नुहोस्"
     },
+    "forgotPassword": {
+      "title": "पासवर्ड रिसेट - Elevare",
+      "description": "आफ्नो Elevare खाता पासवर्ड रिसेट गर्नुहोस्"
+    },
     "search": {
       "title": "खोज - Elevare",
       "description": "कार्यहरू, नोटहरू, समूहहरू, र स्रोतहरूमा खोज गर्नुहोस्"

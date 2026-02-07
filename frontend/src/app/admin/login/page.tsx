@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import Image from 'next/image';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -232,16 +233,13 @@ export default function AdminLoginPage() {
       {/* Illustration Section */}
       <div className="admin-auth-illustration">
         <div className="admin-auth-illustration-container">
-          <div className="text-center">
-            <Shield className="w-24 h-24 mx-auto mb-4 text-white/50" />
-            <p className="text-white/70">
-              Space for custom Canva illustration
-              <br />
-              (400x300px)
-              <br />
-              Theme: Security & Administration
-            </p>
-          </div>
+          <Image
+            src="/images/Admin-page(login).png"
+            alt="Admin Login Illustration"
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
       </div>
     </div>

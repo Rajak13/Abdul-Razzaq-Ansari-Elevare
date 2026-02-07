@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
+import { useTheme } from '@/components/theme-provider';
+import { usePageMetadata } from '@/hooks/use-page-metadata';
 import apiClient from '@/lib/api-client';
 import { AxiosError } from 'axios';
 
 export default function ForgotPasswordPage() {
+  usePageMetadata('forgotPassword');
   const t = useTranslations('auth.forgotPassword');
   const tValidation = useTranslations('auth.validation');
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -41,33 +45,14 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#E8F5E9] items-center justify-center p-12">
-        <div className="max-w-md w-full animate-float">
-          <img
-            src="/images/DrawKit Vector Illustration-2.png"
-            alt="Reset password illustration"
-            className="w-full h-auto drop-shadow-2xl"
-          />
-        </div>
-      </div>
-
-      {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white">
+    <div className="min-h-screen flex">
+      {/* Left Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white dark:bg-[hsl(0,0%,7%)]">
         <div className="max-w-md w-full space-y-8">
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <img src="/logo.svg" alt="Elevare Logo" className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">Elevare</span>
-          </div>
-
           {/* Heading */}
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">{t('heading')}</h1>
-            <p className="text-base text-muted-foreground">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{t('heading')}</h1>
+            <p className="text-base text-gray-600 dark:text-gray-400">
               {t('description')}
             </p>
           </div>
@@ -88,9 +73,6 @@ export default function ForgotPasswordPage() {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                {t('email')}
-              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,7 +86,7 @@ export default function ForgotPasswordPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 text-foreground placeholder-gray-400 transition-all"
+                  className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
                   placeholder={t('emailPlaceholder')}
                 />
               </div>
@@ -114,28 +96,36 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {t('submitting')}
-                </span>
-              ) : (
-                t('submit')
-              )}
+              {isLoading ? t('submitting') : t('submit')}
             </button>
 
             {/* Back to Sign In Link */}
             <div className="text-center">
-              <Link href="/login" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+              <Link href="/login" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                 {t('backToSignIn')}
               </Link>
             </div>
           </form>
+        </div>
+      </div>
+
+      {/* Right Side - Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 items-center justify-center p-12 relative">
+        {/* Decorative circles */}
+        <div className="absolute top-20 left-20 w-24 h-24 bg-primary/20 rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-32 w-16 h-16 bg-primary/30 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-32 w-20 h-20 bg-primary/10 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-20 w-12 h-12 bg-yellow-400/30 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
+        <div className="absolute top-1/2 left-1/4 w-8 h-8 bg-primary/40 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+        
+        <div className="relative z-10 max-w-lg w-full">
+          <img
+            src={theme === 'light' ? "/images/DrawKit Vector Illustration-2.png" : "/images/DrawKit Vector Illustration-2-2.png"}
+            alt="Reset password illustration"
+            className="w-full h-auto drop-shadow-2xl animate-float"
+          />
         </div>
       </div>
     </div>

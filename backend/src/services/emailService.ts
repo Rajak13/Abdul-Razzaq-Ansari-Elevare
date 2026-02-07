@@ -213,43 +213,52 @@ export async function sendSuspensionEmail(
 ): Promise<void> {
   const translations: Record<string, any> = {
     en: {
-      subject: 'Your Elevare Account Has Been Suspended',
+      subject: 'Important: Your Elevare Account Status',
       title: 'Account Suspended',
       greeting: 'Hello',
-      message: 'Your Elevare account has been suspended due to the following reason:',
+      message: 'We regret to inform you that your Elevare account has been temporarily suspended.',
       suspensionType: suspensionType === 'temporary' ? 'Temporary Suspension' : 'Permanent Suspension',
-      expiresLabel: 'Suspension expires on:',
-      appealInfo: 'If you believe this suspension was made in error, you can submit an appeal:',
-      appealButton: 'Submit Appeal',
-      permanentNote: 'This is a permanent suspension. However, you may still submit an appeal for review.',
-      contactSupport: 'If you have any questions, please contact our support team.',
-      footer: 'This is an automated message from Elevare. Please do not reply to this email.'
+      reasonLabel: 'Reason',
+      expiresLabel: 'Suspension Period',
+      expiresUntil: 'Your account will be automatically reinstated on',
+      appealInfo: 'If you believe this action was taken in error, you may submit an appeal for review.',
+      appealButton: 'Submit an Appeal',
+      permanentNote: 'This is a permanent suspension. You may submit an appeal for administrative review.',
+      guidelinesNote: 'Please review our Community Guidelines to understand our policies.',
+      contactSupport: 'Questions? Contact our support team at support@elevare.com',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
     },
     ne: {
-      subject: 'तपाईंको Elevare खाता निलम्बित गरिएको छ',
+      subject: 'महत्वपूर्ण: तपाईंको Elevare खाता स्थिति',
       title: 'खाता निलम्बित',
       greeting: 'नमस्ते',
-      message: 'तपाईंको Elevare खाता निम्न कारणले निलम्बित गरिएको छ:',
+      message: 'हामी तपाईंलाई सूचित गर्न खेद व्यक्त गर्दछौं कि तपाईंको Elevare खाता अस्थायी रूपमा निलम्बित गरिएको छ।',
       suspensionType: suspensionType === 'temporary' ? 'अस्थायी निलम्बन' : 'स्थायी निलम्बन',
-      expiresLabel: 'निलम्बन समाप्त हुने मिति:',
-      appealInfo: 'यदि तपाईंलाई लाग्छ कि यो निलम्बन गलत थियो भने, तपाईं अपील पेश गर्न सक्नुहुन्छ:',
+      reasonLabel: 'कारण',
+      expiresLabel: 'निलम्बन अवधि',
+      expiresUntil: 'तपाईंको खाता स्वचालित रूपमा पुनर्स्थापित हुनेछ',
+      appealInfo: 'यदि तपाईंलाई लाग्छ कि यो कार्य गलत थियो भने, तपाईं समीक्षाको लागि अपील पेश गर्न सक्नुहुन्छ।',
       appealButton: 'अपील पेश गर्नुहोस्',
-      permanentNote: 'यो स्थायी निलम्बन हो। तथापि, तपाईं अझै पनि समीक्षाको लागि अपील पेश गर्न सक्नुहुन्छ।',
-      contactSupport: 'यदि तपाईंसँग कुनै प्रश्नहरू छन् भने, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।',
-      footer: 'यो Elevare बाट स्वचालित सन्देश हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+      permanentNote: 'यो स्थायी निलम्बन हो। तपाईं प्रशासनिक समीक्षाको लागि अपील पेश गर्न सक्नुहुन्छ।',
+      guidelinesNote: 'कृपया हाम्रो नीतिहरू बुझ्न हाम्रो समुदाय दिशानिर्देशहरू समीक्षा गर्नुहोस्।',
+      contactSupport: 'प्रश्नहरू? support@elevare.com मा हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
     },
     ko: {
-      subject: 'Elevare 계정이 정지되었습니다',
+      subject: '중요: Elevare 계정 상태',
       title: '계정 정지',
       greeting: '안녕하세요',
-      message: '다음 이유로 Elevare 계정이 정지되었습니다:',
+      message: 'Elevare 계정이 일시적으로 정지되었음을 알려드립니다.',
       suspensionType: suspensionType === 'temporary' ? '임시 정지' : '영구 정지',
-      expiresLabel: '정지 해제 날짜:',
-      appealInfo: '이 정지가 잘못되었다고 생각하시면 이의 신청을 제출할 수 있습니다:',
+      reasonLabel: '사유',
+      expiresLabel: '정지 기간',
+      expiresUntil: '계정이 자동으로 복원됩니다',
+      appealInfo: '이 조치가 잘못되었다고 생각하시면 검토를 위해 이의 신청을 제출할 수 있습니다.',
       appealButton: '이의 신청 제출',
-      permanentNote: '이것은 영구 정지입니다. 그러나 검토를 위해 이의 신청을 제출할 수 있습니다.',
-      contactSupport: '질문이 있으시면 지원팀에 문의하세요.',
-      footer: '이것은 Elevare의 자동 메시지입니다. 이 이메일에 회신하지 마세요.'
+      permanentNote: '이것은 영구 정지입니다. 관리자 검토를 위해 이의 신청을 제출할 수 있습니다.',
+      guidelinesNote: '정책을 이해하려면 커뮤니티 가이드라인을 검토하세요.',
+      contactSupport: '질문이 있으신가요? support@elevare.com으로 지원팀에 문의하세요',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
     }
   };
 
@@ -257,16 +266,40 @@ export async function sendSuspensionEmail(
   const appealUrl = `${config.corsOrigin}/suspension-appeal`;
 
   const expiresHtml = expiresAt && suspensionType === 'temporary' ? `
-    <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
-      <strong>${t.expiresLabel}</strong> ${expiresAt.toLocaleString(locale === 'ne' ? 'ne-NP' : locale === 'ko' ? 'ko-KR' : 'en-US', { 
-        dateStyle: 'full', 
-        timeStyle: 'short' 
-      })}
-    </div>
+    <tr>
+      <td style="padding: 30px 40px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border-radius: 12px; border-left: 4px solid #FFA726;">
+          <tr>
+            <td style="padding: 20px;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #E65100;">
+                ${t.expiresLabel}
+              </p>
+              <p style="margin: 0; font-size: 16px; color: #E65100; font-weight: 500;">
+                ${t.expiresUntil}:<br>
+                <strong style="font-size: 18px;">${expiresAt.toLocaleString(locale === 'ne' ? 'ne-NP' : locale === 'ko' ? 'ko-KR' : 'en-US', { 
+                  dateStyle: 'full', 
+                  timeStyle: 'short' 
+                })}</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
   ` : `
-    <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
-      <strong>${t.permanentNote}</strong>
-    </div>
+    <tr>
+      <td style="padding: 30px 40px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 12px; border-left: 4px solid #E53935;">
+          <tr>
+            <td style="padding: 20px;">
+              <p style="margin: 0; font-size: 15px; color: #C62828; font-weight: 500;">
+                ⚠️ ${t.permanentNote}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
   `;
 
   const mailOptions = {
@@ -274,42 +307,136 @@ export async function sendSuspensionEmail(
     to: email,
     subject: t.subject,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
-        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #dc3545; margin: 0;">${t.title}</h1>
-          </div>
-          
-          <p style="font-size: 16px;">${t.greeting} ${name},</p>
-          
-          <p style="font-size: 16px;">${t.message}</p>
-          
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
-            <strong style="color: #dc3545;">${t.suspensionType}</strong>
-            <p style="margin: 10px 0 0 0; color: #333;">${reason}</p>
-          </div>
-          
-          ${expiresHtml}
-          
-          <div style="margin: 30px 0;">
-            <p style="font-size: 16px;">${t.appealInfo}</p>
-            <div style="text-align: center; margin: 20px 0;">
-              <a href="${appealUrl}" 
-                 style="background-color: #2d6a4f; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-                ${t.appealButton}
-              </a>
-            </div>
-          </div>
-          
-          <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
-          
-          <p style="color: #666; font-size: 14px;">${t.contactSupport}</p>
-          
-          <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
-            ${t.footer}
-          </p>
-        </div>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${t.subject}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header with gradient -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                      Elevare
+                    </h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 500;">
+                      Educational Platform
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Alert Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); padding: 20px 40px; border-bottom: 3px solid #E53935;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #E53935; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold;">
+                            !
+                          </div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #C62828; font-size: 20px; font-weight: 700;">
+                            ${t.title}
+                          </h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">
+                      ${t.greeting} <strong>${name}</strong>,
+                    </p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">
+                      ${t.message}
+                    </p>
+
+                    <!-- Reason Box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border-radius: 12px; border-left: 4px solid #2D6A4F; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #1B5E20; text-transform: uppercase; letter-spacing: 0.5px;">
+                            ${t.reasonLabel}
+                          </p>
+                          <p style="margin: 0; font-size: 16px; color: #2C3E50; line-height: 1.6; font-weight: 500;">
+                            ${reason}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                ${expiresHtml}
+
+                <!-- Appeal Section -->
+                <tr>
+                  <td style="padding: 0 40px 40px 40px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px; padding: 24px;">
+                      <tr>
+                        <td>
+                          <p style="margin: 0 0 20px 0; font-size: 15px; color: #1B5E20; line-height: 1.6;">
+                            ${t.appealInfo}
+                          </p>
+                          <table cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="border-radius: 8px; background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);">
+                                <a href="${appealUrl}" style="display: inline-block; padding: 14px 32px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: 0.3px;">
+                                  ${t.appealButton} →
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Guidelines Note -->
+                <tr>
+                  <td style="padding: 0 40px 40px 40px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F8F9FA; border-radius: 8px; border: 1px solid #E0E0E0;">
+                      <tr>
+                        <td style="padding: 16px;">
+                          <p style="margin: 0; font-size: 14px; color: #5F6368; line-height: 1.5;">
+                            💡 ${t.guidelinesNote}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #5F6368; line-height: 1.5;">
+                      ${t.contactSupport}
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">
+                      ${t.footer}
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `,
   };
 
@@ -333,40 +460,43 @@ export async function sendUnsuspensionEmail(
 ): Promise<void> {
   const translations: Record<string, any> = {
     en: {
-      subject: 'Your Elevare Account Has Been Reinstated',
+      subject: 'Great News: Your Elevare Account is Active',
       title: 'Account Reinstated',
       greeting: 'Hello',
-      message: 'Good news! Your Elevare account suspension has been lifted.',
-      reasonLabel: 'Reason for reinstatement:',
-      accessInfo: 'You now have full access to your account and can continue using all Elevare features.',
-      loginButton: 'Login to Elevare',
-      guidelinesReminder: 'Please remember to follow our community guidelines to maintain a positive environment for all users.',
-      contactSupport: 'If you have any questions, please contact our support team.',
-      footer: 'This is an automated message from Elevare. Please do not reply to this email.'
+      message: 'We\'re pleased to inform you that your Elevare account has been reinstated!',
+      reasonLabel: 'Reinstatement Details',
+      accessInfo: 'You now have full access to all Elevare features and can continue your learning journey.',
+      loginButton: 'Access Your Account',
+      guidelinesReminder: 'Please continue to follow our Community Guidelines to maintain a positive learning environment.',
+      welcomeBack: 'Welcome back to Elevare!',
+      contactSupport: 'Questions? Contact our support team at support@elevare.com',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
     },
     ne: {
-      subject: 'तपाईंको Elevare खाता पुनर्स्थापित गरिएको छ',
+      subject: 'शुभ समाचार: तपाईंको Elevare खाता सक्रिय छ',
       title: 'खाता पुनर्स्थापित',
       greeting: 'नमस्ते',
-      message: 'शुभ समाचार! तपाईंको Elevare खाता निलम्बन हटाइएको छ।',
-      reasonLabel: 'पुनर्स्थापनाको कारण:',
-      accessInfo: 'तपाईंसँग अब आफ्नो खातामा पूर्ण पहुँच छ र सबै Elevare सुविधाहरू प्रयोग गर्न जारी राख्न सक्नुहुन्छ।',
-      loginButton: 'Elevare मा लगइन गर्नुहोस्',
-      guidelinesReminder: 'कृपया सबै प्रयोगकर्ताहरूको लागि सकारात्मक वातावरण कायम राख्न हाम्रो समुदाय दिशानिर्देशहरू पालना गर्न सम्झनुहोस्।',
-      contactSupport: 'यदि तपाईंसँग कुनै प्रश्नहरू छन् भने, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।',
-      footer: 'यो Elevare बाट स्वचालित सन्देश हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+      message: 'हामी तपाईंलाई सूचित गर्न पाउँदा खुसी छौं कि तपाईंको Elevare खाता पुनर्स्थापित गरिएको छ!',
+      reasonLabel: 'पुनर्स्थापना विवरण',
+      accessInfo: 'तपाईंसँग अब सबै Elevare सुविधाहरूमा पूर्ण पहुँच छ र आफ्नो सिकाइ यात्रा जारी राख्न सक्नुहुन्छ।',
+      loginButton: 'आफ्नो खाता पहुँच गर्नुहोस्',
+      guidelinesReminder: 'कृपया सकारात्मक सिकाइ वातावरण कायम राख्न हाम्रो समुदाय दिशानिर्देशहरू पालना गर्न जारी राख्नुहोस्।',
+      welcomeBack: 'Elevare मा फिर्ता स्वागत छ!',
+      contactSupport: 'प्रश्नहरू? support@elevare.com मा हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
     },
     ko: {
-      subject: 'Elevare 계정이 복원되었습니다',
+      subject: '좋은 소식: Elevare 계정이 활성화되었습니다',
       title: '계정 복원',
       greeting: '안녕하세요',
-      message: '좋은 소식입니다! Elevare 계정 정지가 해제되었습니다.',
-      reasonLabel: '복원 사유:',
-      accessInfo: '이제 계정에 대한 전체 액세스 권한이 있으며 모든 Elevare 기능을 계속 사용할 수 있습니다.',
-      loginButton: 'Elevare 로그인',
-      guidelinesReminder: '모든 사용자를 위한 긍정적인 환경을 유지하기 위해 커뮤니티 가이드라인을 준수해 주세요.',
-      contactSupport: '질문이 있으시면 지원팀에 문의하세요.',
-      footer: '이것은 Elevare의 자동 메시지입니다. 이 이메일에 회신하지 마세요.'
+      message: 'Elevare 계정이 복원되었음을 알려드리게 되어 기쁩니다!',
+      reasonLabel: '복원 세부정보',
+      accessInfo: '이제 모든 Elevare 기능에 대한 전체 액세스 권한이 있으며 학습 여정을 계속할 수 있습니다.',
+      loginButton: '계정 액세스',
+      guidelinesReminder: '긍정적인 학습 환경을 유지하기 위해 커뮤니티 가이드라인을 계속 준수해 주세요.',
+      welcomeBack: 'Elevare에 다시 오신 것을 환영합니다!',
+      contactSupport: '질문이 있으신가요? support@elevare.com으로 지원팀에 문의하세요',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
     }
   };
 
@@ -378,47 +508,147 @@ export async function sendUnsuspensionEmail(
     to: email,
     subject: t.subject,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
-        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2d6a4f; margin: 0;">✓ ${t.title}</h1>
-          </div>
-          
-          <p style="font-size: 16px;">${t.greeting} ${name},</p>
-          
-          <p style="font-size: 16px; color: #2d6a4f; font-weight: bold;">${t.message}</p>
-          
-          <div style="background-color: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
-            <strong style="color: #155724;">${t.reasonLabel}</strong>
-            <p style="margin: 10px 0 0 0; color: #155724;">${reason}</p>
-          </div>
-          
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <p style="margin: 0; color: #333;">${t.accessInfo}</p>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}" 
-               style="background-color: #2d6a4f; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-              ${t.loginButton}
-            </a>
-          </div>
-          
-          <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
-            <p style="margin: 0; color: #856404; font-size: 14px;">
-              <strong>⚠️ ${t.guidelinesReminder}</strong>
-            </p>
-          </div>
-          
-          <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
-          
-          <p style="color: #666; font-size: 14px;">${t.contactSupport}</p>
-          
-          <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
-            ${t.footer}
-          </p>
-        </div>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${t.subject}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header with gradient -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                      Elevare
+                    </h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 500;">
+                      Educational Platform
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Success Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); padding: 20px 40px; border-bottom: 3px solid #2D6A4F;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #2D6A4F; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold;">
+                            ✓
+                          </div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #1B5E20; font-size: 20px; font-weight: 700;">
+                            ${t.title}
+                          </h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">
+                      ${t.greeting} <strong>${name}</strong>,
+                    </p>
+                    <p style="margin: 0 0 30px 0; font-size: 18px; color: #2D6A4F; line-height: 1.6; font-weight: 600;">
+                      🎉 ${t.message}
+                    </p>
+
+                    <!-- Reason Box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px; border-left: 4px solid #2D6A4F; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #1B5E20; text-transform: uppercase; letter-spacing: 0.5px;">
+                            ${t.reasonLabel}
+                          </p>
+                          <p style="margin: 0; font-size: 16px; color: #2C3E50; line-height: 1.6; font-weight: 500;">
+                            ${reason}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Access Info -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border-radius: 12px; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0; font-size: 15px; color: #E65100; line-height: 1.6; font-weight: 500;">
+                            ✨ ${t.accessInfo}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Login Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding: 20px 0;">
+                          <table cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="border-radius: 8px; background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);">
+                                <a href="${loginUrl}" style="display: inline-block; padding: 16px 40px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
+                                  ${t.loginButton} →
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Guidelines Reminder -->
+                <tr>
+                  <td style="padding: 0 40px 40px 40px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFF8E1; border-radius: 8px; border: 1px solid #FFE082;">
+                      <tr>
+                        <td style="padding: 16px;">
+                          <p style="margin: 0; font-size: 14px; color: #E65100; line-height: 1.5;">
+                            💡 ${t.guidelinesReminder}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Welcome Back Message -->
+                <tr>
+                  <td style="padding: 0 40px 40px 40px; text-align: center;">
+                    <p style="margin: 0; font-size: 20px; color: #2D6A4F; font-weight: 700;">
+                      ${t.welcomeBack}
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #5F6368; line-height: 1.5;">
+                      ${t.contactSupport}
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">
+                      ${t.footer}
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `,
   };
 

@@ -240,11 +240,16 @@ export default function SearchPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground">Search & Discovery</h1>
-        <p className="text-muted-foreground">
-          Discover resources, study groups, and content shared by the community
-        </p>
+      <div className="flex items-center gap-3 mb-2">
+        <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
+          <Search className="h-6 w-6" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Search & Discovery</h1>
+          <p className="text-sm text-muted-foreground">
+            Discover resources, study groups, and content shared by the community
+          </p>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

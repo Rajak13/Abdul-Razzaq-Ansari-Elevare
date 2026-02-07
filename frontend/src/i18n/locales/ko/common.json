@@ -201,6 +201,10 @@
       "title": "회원가입 - Elevare",
       "description": "Elevare 계정을 만들고 협업 학습 여정을 시작하세요"
     },
+    "forgotPassword": {
+      "title": "비밀번호 재설정 - Elevare",
+      "description": "Elevare 계정 비밀번호를 재설정하세요"
+    },
     "search": {
       "title": "검색 - Elevare",
       "description": "작업, 노트, 그룹 및 리소스 전체에서 검색하세요"

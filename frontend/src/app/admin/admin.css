@@ -221,7 +221,7 @@
 }
 
 .admin-auth-illustration {
-  background: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(348 83% 47%) 100%);
+  background: hsl(142 71% 45%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,17 +235,23 @@
 }
 
 .admin-auth-illustration-container {
-  width: 400px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 400px;
   border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.875rem;
-  text-align: center;
-  padding: 1rem;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 /* Layout */

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { adminApiClient } from '@/lib/admin-api-client';
+import { AdminRouteGuard } from '@/components/admin/admin-route-guard';
+import { AdminLayout } from '@/components/admin/admin-nav';
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -153,7 +155,9 @@ export default function AppealsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminRouteGuard requiredRole="moderator">
+      <AdminLayout>
+        <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-1.5 h-8 bg-[hsl(142,71%,45%)] rounded-full"></div>
@@ -366,5 +370,7 @@ export default function AppealsPage() {
         )}
       </div>
     </div>
+      </AdminLayout>
+    </AdminRouteGuard>
   );
 }

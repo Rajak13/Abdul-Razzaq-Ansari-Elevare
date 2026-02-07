@@ -206,7 +206,7 @@ export default function FilesPage() {
         {/* Header */}
         <div className="mb-6">
           <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-2 text-white shadow-lg">
+            <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
               <File className="h-6 w-6" />
             </div>
             <div>

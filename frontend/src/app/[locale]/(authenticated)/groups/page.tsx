@@ -98,11 +98,16 @@ export default function GroupsPage() {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-            <p className="text-sm text-muted-foreground">
-              {t('noGroupsDescription')}
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
+              <Users className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+              <p className="text-sm text-muted-foreground">
+                {t('noGroupsDescription')}
+              </p>
+            </div>
           </div>
           
           <ClientOnly fallback={<Button disabled><Plus className="h-4 w-4 mr-2" />{t('newGroup')}</Button>}>

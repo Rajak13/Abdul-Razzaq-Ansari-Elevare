@@ -201,6 +201,10 @@
       "title": "Register - Elevare",
       "description": "Create your Elevare account and start your collaborative learning journey"
     },
+    "forgotPassword": {
+      "title": "Reset Password - Elevare",
+      "description": "Reset your Elevare account password"
+    },
     "search": {
       "title": "Search - Elevare",
       "description": "Search across tasks, notes, groups, and resources"
