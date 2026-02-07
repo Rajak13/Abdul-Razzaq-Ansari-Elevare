@@ -3,6 +3,30 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+// Parse DATABASE_URL if provided (Render/Heroku style)
+function parseDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl) {
+    try {
+      const url = new URL(databaseUrl);
+      return {
+        host: url.hostname,
+        port: parseInt(url.port || '5432', 10),
+        name: url.pathname.slice(1), // Remove leading slash
+        user: url.username,
+        password: url.password,
+        ssl: true, // Always use SSL for remote databases
+      };
+    } catch (error) {
+      console.error('Failed to parse DATABASE_URL:', error);
+      return null;
+    }
+  }
+  return null;
+}
+
+const parsedDbUrl = parseDatabaseUrl();
+
 // Function to determine CORS origin based on environment
 const getCorsOrigin = (): string | boolean | string[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void) => {
   if (process.env.CORS_ORIGIN) {
@@ -69,12 +93,12 @@ const config: Config = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_change_in_production',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    name: process.env.DB_NAME || 'elevare_dev',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    ssl: process.env.DB_SSL === 'true',
+    host: parsedDbUrl?.host || process.env.DB_HOST || 'localhost',
+    port: parsedDbUrl?.port || parseInt(process.env.DB_PORT || '5432', 10),
+    name: parsedDbUrl?.name || process.env.DB_NAME || 'elevare_dev',
+    user: parsedDbUrl?.user || process.env.DB_USER || 'postgres',
+    password: parsedDbUrl?.password || process.env.DB_PASSWORD || '',
+    ssl: parsedDbUrl?.ssl || process.env.DB_SSL === 'true',
   },
   email: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
