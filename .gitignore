@@ -178,7 +178,6 @@ fixes/
 scripts/
 test-config/
 test-data/
-migrations/
 
 # IDE and development tools
 .kiro/
