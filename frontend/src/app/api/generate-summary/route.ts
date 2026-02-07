@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          console.log('✅ API: Summary generated successfully:', {
+          console.log('[API] Summary generated successfully:', {
             summaryLength: result.data.summary.length,
             processingTime,
             model: result.data.model
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
               
               if (saveResponse.ok) {
                 const saveResult = await saveResponse.json();
-                console.log('✅ API: Summary saved to backend successfully:', saveResult);
+                console.log('[API] Summary saved to backend successfully:', saveResult);
               } else {
                 const saveError = await saveResponse.text();
                 console.error('❌ API: Backend save failed:', saveError);

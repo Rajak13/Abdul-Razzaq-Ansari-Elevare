@@ -1,5 +1,9 @@
 'use client';
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth-context';

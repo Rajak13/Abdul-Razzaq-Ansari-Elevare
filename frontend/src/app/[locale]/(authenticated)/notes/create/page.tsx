@@ -1,5 +1,9 @@
 'use client'
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
+
 import { NoteEditor } from '@/components/notes/note-editor';
 import { getTemplateById, getDefaultTemplate } from '@/components/notes/note-templates';
 import { Button } from '@/components/ui/button';

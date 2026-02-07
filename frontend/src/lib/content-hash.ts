@@ -105,7 +105,7 @@ export function isSummaryOutdated(note: Note): boolean {
   const currentHash = generateContentHashSync(note.content);
   const isOutdated = currentHash !== note.content_hash;
   
-  console.log('🔍 Content Hash: Staleness check', {
+  console.log('[ContentHash] Staleness check', {
     noteId: note.id,
     currentHash: currentHash.substring(0, 8) + '...',
     storedHash: note.content_hash?.substring(0, 8) + '...',

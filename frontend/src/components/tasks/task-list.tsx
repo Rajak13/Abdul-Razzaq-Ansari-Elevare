@@ -572,7 +572,7 @@ export function TaskList({
       {!isDragEnabled && (
         <div className="absolute top-0 left-0 right-0 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4 z-10">
           <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
-            <span>💡</span>
+            <span>[Tip]</span>
             {t('filters.customOrderHint')}
           </p>
         </div>

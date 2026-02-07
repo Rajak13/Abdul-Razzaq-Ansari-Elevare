@@ -22,7 +22,7 @@ export function useUpdateNoteSummary() {
       content: string;
       model?: string;
     }) => {
-      console.log('📝 useUpdateNoteSummary: mutationFn called with noteId:', noteId, 'summaryLength:', summary.length);
+      console.log('[useUpdateNoteSummary] mutationFn called with noteId:', noteId, 'summaryLength:', summary.length);
       const contentHash = generateContentHashSync(content);
       return noteService.updateNoteSummary(noteId, {
         summary,
@@ -31,15 +31,15 @@ export function useUpdateNoteSummary() {
       });
     },
     onSuccess: (updatedNote) => {
-      console.log('✅ useUpdateNoteSummary: onSuccess called with note:', updatedNote.id);
+      console.log('[useUpdateNoteSummary] onSuccess called with note:', updatedNote.id);
       // Update the note in cache
       queryClient.setQueryData(['notes', updatedNote.id], updatedNote);
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       // Remove duplicate toast - let the SummaryGenerator handle the success message
-      console.log('🔇 useUpdateNoteSummary: Skipping toast to prevent duplicates');
+      console.log('[useUpdateNoteSummary] Skipping toast to prevent duplicates');
     },
     onError: (error) => {
-      console.error('❌ useUpdateNoteSummary: onError called:', error);
+      console.error('[useUpdateNoteSummary] onError called:', error);
       toast.error('Failed to save summary. Please try again.');
     },
   });

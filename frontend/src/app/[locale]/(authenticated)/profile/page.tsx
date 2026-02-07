@@ -7,6 +7,9 @@ import { usePageMetadata } from '@/hooks/use-page-metadata'
 import { useTheme } from '@/components/theme-provider'
 import { User } from 'lucide-react'
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function ProfilePage() {
   const { user } = useAuth()
   const { theme } = useTheme()

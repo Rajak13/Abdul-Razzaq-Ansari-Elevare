@@ -177,10 +177,10 @@ class AdminApiClient {
         reason,
         duration,
       });
-      console.log('✅ Admin: User suspended successfully', response.data);
+      console.log('[Admin] User suspended successfully', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Admin: Failed to suspend user', {
+      console.error('[Admin] Failed to suspend user', {
         userId,
         error: error.message,
         response: error.response?.data,
@@ -191,13 +191,13 @@ class AdminApiClient {
   }
 
   async unsuspendUser(userId: string, reason: string = 'Administrative action') {
-    console.log('✅ Admin: Unsuspending user', { userId, reason });
+    console.log('[Admin] Unsuspending user', { userId, reason });
     try {
       const response = await this.client.put(`/users/${userId}/unsuspend`, { reason });
-      console.log('✅ Admin: User unsuspended successfully', response.data);
+      console.log('[Admin] User unsuspended successfully', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Admin: Failed to unsuspend user', {
+      console.error('[Admin] Failed to unsuspend user', {
         userId,
         error: error.message,
         response: error.response?.data,
@@ -211,10 +211,10 @@ class AdminApiClient {
     console.log('🔑 Admin: Resetting user password', { userId });
     try {
       const response = await this.client.post(`/users/${userId}/reset-password`);
-      console.log('✅ Admin: Password reset successfully', response.data);
+      console.log('[Admin] Password reset successfully', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Admin: Failed to reset password', {
+      console.error('[Admin] Failed to reset password', {
         userId,
         error: error.message,
         response: error.response?.data,
@@ -225,15 +225,15 @@ class AdminApiClient {
   }
 
   async deleteUser(userId: string, reason: string) {
-    console.log('🗑️ Admin: Deleting user', { userId, reason });
+    console.log('[Admin] Deleting user', { userId, reason });
     try {
       const response = await this.client.delete(`/users/${userId}`, {
         data: { reason },
       });
-      console.log('✅ Admin: User deleted successfully', response.data);
+      console.log('[Admin] User deleted successfully', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Admin: Failed to delete user', {
+      console.error('[Admin] Failed to delete user', {
         userId,
         error: error.message,
         response: error.response?.data,

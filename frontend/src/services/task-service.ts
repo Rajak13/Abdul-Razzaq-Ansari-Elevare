@@ -72,7 +72,7 @@ export class TaskService {
   }
 
   static async reorderTasks(taskIds: string[]): Promise<void> {
-    console.log('🌐 TaskService.reorderTasks - Making API call:', {
+    console.log('[TaskService] reorderTasks - Making API call:', {
       endpoint: '/tasks/reorder',
       taskIds,
       taskIdsCount: taskIds.length
@@ -80,10 +80,10 @@ export class TaskService {
     
     try {
       const response = await apiClient.put('/tasks/reorder', { taskIds })
-      console.log('✅ TaskService.reorderTasks - API response:', response.data)
+      console.log('[TaskService] reorderTasks - API response:', response.data)
       return response.data
     } catch (error) {
-      console.error('❌ TaskService.reorderTasks - API error:', error)
+      console.error('[TaskService] reorderTasks - API error:', error)
       throw error
     }
   }

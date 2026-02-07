@@ -26,6 +26,9 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function FilesPage() {
   const t = useTranslations('files');
   usePageMetadata('files');

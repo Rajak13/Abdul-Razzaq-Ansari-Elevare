@@ -26,11 +26,11 @@ class SocketService {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('✅ Connected to server');
+      console.log('[Socket] Connected to server');
     });
 
     this.socket.on('disconnect', () => {
-      console.log('❌ Disconnected from server');
+      console.log('[Socket] Disconnected from server');
     });
 
     this.socket.on('error', (error: any) => {

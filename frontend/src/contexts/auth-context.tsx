@@ -141,8 +141,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (data: ProfileUpdateData) => {
-    console.log('🔧 updateProfile function called')
-    console.log('📝 Update data:', data)
+    console.log('[Auth] updateProfile function called')
+    console.log('[Auth] Update data:', data)
     
     try {
       // Filter out empty strings and null values
@@ -153,21 +153,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return acc;
       }, {} as any);
       
-      console.log('🧹 Cleaned data:', cleanedData)
-      console.log('🌐 Making API request to /auth/profile')
-      console.log('🔑 Token:', localStorage.getItem('auth_token') ? 'Present' : 'Missing')
+      console.log('[Auth] Cleaned data:', cleanedData)
+      console.log('[Auth] Making API request to /auth/profile')
+      console.log('[Auth] Token:', localStorage.getItem('auth_token') ? 'Present' : 'Missing')
       
       const response = await apiClient.put<{ user: User }>('/auth/profile', cleanedData);
-      console.log('✅ API response received:', response.data)
+      console.log('[Auth] API response received:', response.data)
       
       // Update user in state
       setState((prev) => ({
         ...prev,
         user: response.data.user,
       }));
-      console.log('✅ User state updated')
+      console.log('[Auth] User state updated')
     } catch (error: any) {
-      console.error('❌ updateProfile error:', error)
+      console.error('[Auth] updateProfile error:', error)
       console.error('Error response:', error.response?.data)
       console.error('Error status:', error.response?.status)
       console.error('Error headers:', error.response?.headers)

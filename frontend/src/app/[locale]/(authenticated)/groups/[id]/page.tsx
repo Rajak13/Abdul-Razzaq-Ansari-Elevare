@@ -1,5 +1,9 @@
 'use client';
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
+
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/navigation';

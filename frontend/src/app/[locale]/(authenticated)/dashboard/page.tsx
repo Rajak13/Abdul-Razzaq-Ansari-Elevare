@@ -6,6 +6,9 @@ import { DashboardLayout } from '@/components/layout'
 import { useAuth } from '@/hooks/use-auth'
 import { usePageMetadata } from '@/hooks/use-page-metadata'
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 function DashboardContent() {
   usePageMetadata('dashboard');
   

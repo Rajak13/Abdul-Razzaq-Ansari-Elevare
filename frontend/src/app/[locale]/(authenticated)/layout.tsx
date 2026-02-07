@@ -9,6 +9,9 @@ import { MobileNav } from '@/components/navigation/mobile-nav'
 import { usePathname } from '@/navigation'
 import { Toaster } from 'sonner'
 
+// Disable static generation for authenticated routes
+export const dynamic = 'force-dynamic'
+
 interface AppLayoutProps {
   children: React.ReactNode
   showSidebar?: boolean

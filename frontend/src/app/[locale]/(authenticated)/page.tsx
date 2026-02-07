@@ -3,6 +3,9 @@
 import { useEffect } from 'react'
 import { useRouter } from '@/navigation'
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function AuthenticatedHomePage() {
   const router = useRouter()
 

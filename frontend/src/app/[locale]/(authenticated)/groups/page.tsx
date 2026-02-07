@@ -18,6 +18,9 @@ import { AuthGuard } from '@/components/ui/auth-guard';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
 
+// Disable static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function GroupsPage() {
   const t = useTranslations('groups');
   usePageMetadata('groups');

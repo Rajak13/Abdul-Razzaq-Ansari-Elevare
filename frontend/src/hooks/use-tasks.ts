@@ -108,7 +108,7 @@ export function useReorderTasks() {
   return useMutation({
     mutationFn: (taskIds: string[]) => TaskService.reorderTasks(taskIds),
     onSuccess: () => {
-      console.log('🔄 useReorderTasks - Invalidating tasks cache')
+      console.log('[useReorderTasks] Invalidating tasks cache')
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },
   })
