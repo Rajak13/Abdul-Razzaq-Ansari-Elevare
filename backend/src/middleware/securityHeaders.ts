@@ -75,9 +75,9 @@ export const crossOriginOpenerPolicy = helmet.crossOriginOpenerPolicy({
   policy: 'same-origin',
 });
 
-// Cross-Origin-Resource-Policy
+// Cross-Origin-Resource-Policy - Allow cross-origin for API access
 export const crossOriginResourcePolicy = helmet.crossOriginResourcePolicy({
-  policy: 'same-origin',
+  policy: 'cross-origin',
 });
 
 // Combined security headers middleware
@@ -125,5 +125,5 @@ export const adminSecurityHeaders = [
   dnsPrefetchControl,
   helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }),
   helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }),
-  helmet.crossOriginResourcePolicy({ policy: 'same-origin' }),
+  helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
 ];
