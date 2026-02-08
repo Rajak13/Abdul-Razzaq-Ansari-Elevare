@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc && npm run copy-migrations",
-    "copy-migrations": "mkdir -p dist/db/migrations && cp ../migrations/*.sql dist/db/migrations/ 2>/dev/null || true",
+    "copy-migrations": "mkdir -p dist/db/migrations && mkdir -p dist/scripts && cp ../migrations/*.sql dist/db/migrations/ 2>/dev/null || true",
     "start": "node dist/server.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
@@ -16,7 +16,8 @@
     "seed": "ts-node scripts/seed-database.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "migrate": "npm run build && node dist/db/migrate.js",
-    "migrate:run": "ts-node scripts/run-migrations.ts",
+    "migrate:run": "node dist/scripts/run-migrations.js",
+    "migrate:dev": "ts-node scripts/run-migrations.ts",
     "admin:create": "ts-node scripts/create-admin.ts",
     "admin:setup": "npm run migrate:run && npm run admin:create"
   },
