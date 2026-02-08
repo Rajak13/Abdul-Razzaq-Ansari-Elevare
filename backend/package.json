@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc && npm run copy-migrations",
-    "copy-migrations": "mkdir -p dist/db/migrations && cp -r ../migrations/*.sql dist/db/migrations/ 2>/dev/null || echo 'No migrations to copy'",
+    "copy-migrations": "mkdir -p dist/db/migrations && cp ../migrations/*.sql dist/db/migrations/ 2>/dev/null || true",
     "start": "node dist/server.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",

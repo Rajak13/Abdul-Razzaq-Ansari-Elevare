@@ -47,7 +47,11 @@ export async function register(req: Request, res: Response): Promise<void> {
       requiresVerification: true,
     });
   } catch (error: any) {
-    logger.error('Registration error', { error: error.message });
+    logger.error('Registration error', { 
+      error: error.message, 
+      stack: error.stack,
+      code: error.code 
+    });
 
     if (error.message === 'User with this email already exists') {
       res.status(409).json({
@@ -60,11 +64,14 @@ export async function register(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    // Include more details in development mode
+    const isDevelopment = process.env.NODE_ENV === 'development';
     res.status(500).json({
       error: {
         code: 'REGISTRATION_FAILED',
         message: 'Failed to register user',
         timestamp: new Date().toISOString(),
+        ...(isDevelopment && { details: error.message }),
       },
     });
   }
