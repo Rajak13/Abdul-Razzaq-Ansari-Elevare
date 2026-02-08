@@ -16,7 +16,7 @@
     "seed": "ts-node scripts/seed-database.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "migrate": "npm run build && node dist/db/migrate.js",
-    "migrate:run": "node dist/scripts/run-migrations.js",
+    "migrate:run": "node run-migrations.js",
     "migrate:dev": "ts-node scripts/run-migrations.ts",
     "admin:create": "ts-node scripts/create-admin.ts",
     "admin:setup": "npm run migrate:run && npm run admin:create"
