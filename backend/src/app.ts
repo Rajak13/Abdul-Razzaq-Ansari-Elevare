@@ -13,6 +13,9 @@ import { enforceHttps, tlsSecurityHeaders } from './middleware/encryption';
 
 const app: Application = express();
 
+// Trust proxy - required for Render, Heroku, and other platforms behind reverse proxies
+app.set('trust proxy', 1);
+
 // CORS configuration (must be before other middleware)
 app.use(
   cors({
