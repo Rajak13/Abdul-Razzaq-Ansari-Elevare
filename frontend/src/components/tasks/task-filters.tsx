@@ -40,15 +40,15 @@ const statusOptions: { value: string; label: string; emoji: string }[] = [
 ]
 
 const sortOptions = [
-  { value: 'sort_order|asc', label: 'Custom Order', icon: '🔄' },
-  { value: 'created_at|desc', label: 'Newest First', icon: '📅' },
-  { value: 'created_at|asc', label: 'Oldest First', icon: '📅' },
-  { value: 'due_date|asc', label: 'Due Date (Soon)', icon: '⏰' },
-  { value: 'due_date|desc', label: 'Due Date (Later)', icon: '⏰' },
-  { value: 'priority|desc', label: 'Priority (High)', icon: '🔴' },
-  { value: 'priority|asc', label: 'Priority (Low)', icon: '🟢' },
-  { value: 'title|asc', label: 'Title (A-Z)', icon: '🔤' },
-  { value: 'title|desc', label: 'Title (Z-A)', icon: '🔤' },
+  { value: 'sort_order|asc', label: 'Custom Order' },
+  { value: 'created_at|desc', label: 'Newest First' },
+  { value: 'created_at|asc', label: 'Oldest First' },
+  { value: 'due_date|asc', label: 'Due Date (Soon)' },
+  { value: 'due_date|desc', label: 'Due Date (Later)' },
+  { value: 'priority|desc', label: 'Priority (High)' },
+  { value: 'priority|asc', label: 'Priority (Low)' },
+  { value: 'title|asc', label: 'Title (A-Z)' },
+  { value: 'title|desc', label: 'Title (Z-A)' },
 ]
 
 export function TaskFilters({ filters, onFiltersChange, className }: TaskFiltersProps) {
@@ -177,10 +177,7 @@ export function TaskFilters({ filters, onFiltersChange, className }: TaskFilters
                 <SelectContent>
                   {sortOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <span>{option.icon}</span>
-                        {option.label}
-                      </div>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

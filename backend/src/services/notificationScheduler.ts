@@ -118,13 +118,20 @@ export class NotificationScheduler {
    */
   async sendTestNotification(userId: string): Promise<void> {
     try {
+      // Get user's preferred language for locale-aware link
+      const userResult = await query<{ preferred_language: string }>(
+        'SELECT preferred_language FROM users WHERE id = $1',
+        [userId]
+      );
+      const locale = userResult.rows[0]?.preferred_language || 'en';
+      
       await this.getNotificationService().sendNotification({
         notification: {
           user_id: userId,
           type: 'system_update' as any,
           title: 'Test Notification',
           content: 'This is a test notification from the scheduler.',
-          link: '/dashboard'
+          link: `/${locale}/dashboard`
         },
         delivery_channels: {
           websocket: true,

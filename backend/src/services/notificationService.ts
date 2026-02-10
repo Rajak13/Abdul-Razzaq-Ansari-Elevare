@@ -363,13 +363,20 @@ export class NotificationService {
 
     // Send notification if due within 24 hours
     if (hoursUntilDue <= 24 && hoursUntilDue > 0) {
+      // Get user's preferred language for locale-aware link
+      const userResult = await query<{ preferred_language: string }>(
+        'SELECT preferred_language FROM users WHERE id = $1',
+        [userId]
+      );
+      const locale = userResult.rows[0]?.preferred_language || 'en';
+      
       const notificationData: NotificationScheduleData = {
         notification: {
           user_id: userId,
           type: NotificationType.TASK_DEADLINE,
           title: 'Task Deadline Approaching',
           content: `Your task "${taskTitle}" is due ${hoursUntilDue < 1 ? 'in less than an hour' : `in ${Math.round(hoursUntilDue)} hours`}.`,
-          link: `/tasks/${taskId}`
+          link: `/${locale}/tasks/${taskId}`
         },
         delivery_channels: {
           websocket: true,
@@ -407,13 +414,20 @@ export class NotificationService {
 
       // Send notification to each member
       for (const member of membersResult.rows) {
+        // Get member's preferred language for locale-aware link
+        const userResult = await query<{ preferred_language: string }>(
+          'SELECT preferred_language FROM users WHERE id = $1',
+          [member.user_id]
+        );
+        const locale = userResult.rows[0]?.preferred_language || 'en';
+        
         const notificationData: NotificationScheduleData = {
           notification: {
             user_id: member.user_id,
             type: NotificationType.GROUP_MESSAGE,
             title: `New message in ${groupName}`,
             content: `${senderName}: ${message.length > 100 ? message.substring(0, 100) + '...' : message}`,
-            link: `/groups/${groupId}`
+            link: `/${locale}/groups/${groupId}`
           },
           delivery_channels: {
             websocket: true,
@@ -433,13 +447,20 @@ export class NotificationService {
    * Send join request approval notification
    */
   async sendJoinRequestApprovalNotification(userId: string, groupId: string, groupName: string): Promise<void> {
+    // Get user's preferred language for locale-aware link
+    const userResult = await query<{ preferred_language: string }>(
+      'SELECT preferred_language FROM users WHERE id = $1',
+      [userId]
+    );
+    const locale = userResult.rows[0]?.preferred_language || 'en';
+    
     const notificationData: NotificationScheduleData = {
       notification: {
         user_id: userId,
         type: NotificationType.JOIN_REQUEST_APPROVED,
         title: 'Join Request Approved',
         content: `Your request to join "${groupName}" has been approved. Welcome to the group!`,
-        link: `/groups/${groupId}`
+        link: `/${locale}/groups/${groupId}`
       },
       delivery_channels: {
         websocket: true,
@@ -454,13 +475,20 @@ export class NotificationService {
    * Send join request received notification to group owner
    */
   async sendJoinRequestReceivedNotification(ownerId: string, groupId: string, groupName: string, requesterName: string): Promise<void> {
+    // Get owner's preferred language for locale-aware link
+    const userResult = await query<{ preferred_language: string }>(
+      'SELECT preferred_language FROM users WHERE id = $1',
+      [ownerId]
+    );
+    const locale = userResult.rows[0]?.preferred_language || 'en';
+    
     const notificationData: NotificationScheduleData = {
       notification: {
         user_id: ownerId,
         type: NotificationType.JOIN_REQUEST_RECEIVED,
         title: 'New Join Request',
         content: `${requesterName} has requested to join "${groupName}".`,
-        link: `/groups/${groupId}`
+        link: `/${locale}/groups/${groupId}`
       },
       delivery_channels: {
         websocket: true,
@@ -475,13 +503,20 @@ export class NotificationService {
    * Send resource comment notification
    */
   async sendResourceCommentNotification(resourceId: string, resourceTitle: string, commenterName: string, comment: string, resourceOwnerId: string): Promise<void> {
+    // Get owner's preferred language for locale-aware link
+    const userResult = await query<{ preferred_language: string }>(
+      'SELECT preferred_language FROM users WHERE id = $1',
+      [resourceOwnerId]
+    );
+    const locale = userResult.rows[0]?.preferred_language || 'en';
+    
     const notificationData: NotificationScheduleData = {
       notification: {
         user_id: resourceOwnerId,
         type: NotificationType.RESOURCE_COMMENT,
         title: 'New comment on your resource',
         content: `${commenterName} commented on "${resourceTitle}": ${comment.length > 100 ? comment.substring(0, 100) + '...' : comment}`,
-        link: `/resources/${resourceId}`
+        link: `/${locale}/resources/${resourceId}`
       },
       delivery_channels: {
         websocket: true,

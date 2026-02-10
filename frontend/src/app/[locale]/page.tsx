@@ -119,14 +119,16 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-[hsl(0,0%,7%)]">
       {/* Navigation */}
       <header className="fixed top-0 z-50 w-full bg-white dark:bg-[hsl(0,0%,7%)] border-b border-gray-100 dark:border-gray-800">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
+        <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-              <img src="/logo.svg" alt="Elevare Logo" className="h-6 w-6" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded flex items-center justify-center">
+              <img src="/logo.svg" alt="Elevare Logo" className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">Elevare</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Elevare</span>
           </Link>
-          <nav className="hidden items-center gap-6 md:flex">
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
             <Link href="#features" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
@@ -152,7 +154,7 @@ export default function Home() {
             {/* Theme Switcher */}
             <ThemeSwitcher />
             
-            <Link href="/login" className="group relative px-6 py-2 bg-slate-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <Link href="/login" className="group relative px-4 xl:px-6 py-2 bg-slate-600 text-white text-sm font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg">
               <span className="relative z-10 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -161,7 +163,7 @@ export default function Home() {
               </span>
               <div className="absolute inset-0 bg-slate-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
             </Link>
-            <Link href="/register" className="group relative px-6 py-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <Link href="/register" className="group relative px-4 xl:px-6 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg">
               <span className="relative z-10 flex items-center gap-2 text-white">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
@@ -171,89 +173,119 @@ export default function Home() {
               <div className="absolute inset-0 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
             </Link>
           </nav>
+          
+          {/* Mobile Menu Buttons */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+            <LanguageSwitcher />
+            <ThemeSwitcher />
+            
+            {/* Login Button - Icon only on mobile */}
+            <Link 
+              href="/login" 
+              className="p-2 sm:px-3 sm:py-1.5 bg-slate-600 text-white rounded-full hover:bg-slate-700 transition-colors flex items-center justify-center"
+              title="Login"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden sm:inline ml-1 text-xs font-semibold">In</span>
+            </Link>
+            
+            {/* Sign Up Button - Icon only on mobile */}
+            <Link 
+              href="/register" 
+              className="p-2 sm:px-3 sm:py-1.5 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors flex items-center justify-center"
+              title="Sign Up"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+              </svg>
+              <span className="hidden sm:inline ml-1 text-xs font-semibold">Up</span>
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-0 bg-white dark:bg-[hsl(0,0%,7%)] relative overflow-hidden min-h-screen flex items-center">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section className="pt-20 sm:pt-24 pb-0 bg-white dark:bg-[hsl(0,0%,7%)] relative overflow-hidden min-h-screen flex items-center">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left Content */}
-            <div className="space-y-8 animate-fadeIn">
+            <div className="space-y-6 sm:space-y-8 animate-fadeIn text-center lg:text-left">
               <div className="inline-block">
-                <span className="text-primary text-sm font-semibold tracking-wider uppercase">
+                <span className="text-primary text-xs sm:text-sm font-semibold tracking-wider uppercase">
                   {t('hero.badge')}
                 </span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
                 {t('hero.title')}<br />
                 {t('hero.titleBreak')}
               </h1>
               
               {/* Feature List with Checkmarks */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto lg:mx-0">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.taskManager')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.taskManager')}</span>
                 </div>
                 
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.noteTaking')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.noteTaking')}</span>
                 </div>
                 
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.resourceSharing')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.resourceSharing')}</span>
                 </div>
                 
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.studyGroups')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.studyGroups')}</span>
                 </div>
                 
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.whiteboard')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.whiteboard')}</span>
                 </div>
                 
-                <div className="flex items-center gap-3 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 sm:gap-3 group">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.aiSummarization')}</span>
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">{t('hero.features.aiSummarization')}</span>
                 </div>
               </div>
               
               {/* CTA Button */}
-              <div className="pt-4">
+              <div className="pt-4 flex justify-center lg:justify-start">
                 <Link href="/register">
-                  <button className="group px-8 py-4 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg flex items-center gap-2">
+                  <button className="group px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white text-sm sm:text-base font-semibold rounded-full hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg flex items-center gap-2">
                     {t('hero.cta')}
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </button>
@@ -262,8 +294,8 @@ export default function Home() {
             </div>
             
             {/* Right Illustration */}
-            <div className="relative">
-              <div className="relative animate-float">
+            <div className="relative mt-8 lg:mt-0 order-first lg:order-last">
+              <div className="relative animate-float max-w-md mx-auto lg:max-w-none">
                 <Image
                   src={getImage("/images/DrawKit Vector Illustration-1.png", "/images/DrawKit Vector Illustration-1-2.png")}
                   alt="Student learning"
@@ -285,31 +317,31 @@ export default function Home() {
       </div>
 
       {/* Trusted Section */}
-      <section id="features" className="bg-primary py-20 relative">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section id="features" className="bg-primary py-12 sm:py-16 lg:py-20 relative">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left Content */}
-            <div className="text-white space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+            <div className="text-white space-y-4 sm:space-y-6 text-center lg:text-left">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
                 {t('trusted.title')}<br />
                 {t('trusted.titleBreak')}
               </h2>
               
-              <div className="space-y-4">
-                <p className="text-lg text-white/90 leading-relaxed">
+              <div className="space-y-3 sm:space-y-4">
+                <p className="text-base sm:text-lg text-white/90 leading-relaxed">
                   {t('trusted.description')} <span className="font-semibold underline decoration-2">{t('trusted.descriptionHighlight')}</span>
                 </p>
                 
-                <p className="text-white/80 leading-relaxed">
+                <p className="text-sm sm:text-base text-white/80 leading-relaxed">
                   {t('trusted.subDescription')}
                 </p>
               </div>
               
-              <div className="pt-4">
+              <div className="pt-4 flex justify-center lg:justify-start">
                 <Link href="/register">
-                  <button className="group px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all transform hover:scale-105 hover:shadow-xl flex items-center gap-2">
+                  <button className="group px-6 sm:px-8 py-3 sm:py-4 bg-black text-white text-sm sm:text-base font-semibold rounded-full hover:bg-gray-800 transition-all transform hover:scale-105 hover:shadow-xl flex items-center gap-2">
                     {t('trusted.cta')}
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </button>
@@ -318,8 +350,8 @@ export default function Home() {
             </div>
             
             {/* Right Illustration */}
-            <div className="relative">
-              <div className="relative animate-float" style={{animationDelay: '0.5s'}}>
+            <div className="relative order-first lg:order-last">
+              <div className="relative animate-float max-w-md mx-auto lg:max-w-none" style={{animationDelay: '0.5s'}}>
                 <Image
                   src={getImage("/images/DrawKit Vector Illustration-2.png", "/images/DrawKit Vector Illustration-2-2.png")}
                   alt="Learners worldwide"

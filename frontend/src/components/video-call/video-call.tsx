@@ -47,12 +47,28 @@ export function VideoCall({ callId, groupId, onLeave }: VideoCallProps) {
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const screenPeerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
 
-  // Modern WebRTC configuration - completely clean, no SDP manipulation
+  // Modern WebRTC configuration with TURN server for NAT traversal
   const rtcConfig: RTCConfiguration = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' }
+      { urls: 'stun:stun2.l.google.com:19302' },
+      // Free public TURN server for testing (replace with your own in production)
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
     ],
     iceCandidatePoolSize: 10,
     bundlePolicy: 'balanced', // Most compatible across browsers
@@ -391,29 +407,34 @@ export function VideoCall({ callId, groupId, onLeave }: VideoCallProps) {
       }
       
       // Create screen share peer connections with the actual stream
-      participants.forEach(participant => {
-        const pc = createPeerConnection(participant.userId, true, stream);
-        
-        pc.createOffer({
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: true
-        }).then(offer => {
-          // NO SDP MUNGING - use offer directly
-          return pc.setLocalDescription(offer);
-        }).then(() => {
-          if (socket) {
-            socket.emit('screen_share_offer', {
-              callId,
-              targetUserId: participant.userId,
-              offer: pc.localDescription
-            });
-          }
-        }).catch(err => {
-          console.error(`❌ Error creating screen share offer for ${participant.userId}:`, err);
-          pc.close();
-          screenPeerConnections.current.delete(participant.userId);
+      // Only create connections if there are participants
+      if (participants.length > 0) {
+        participants.forEach(participant => {
+          const pc = createPeerConnection(participant.userId, true, stream);
+          
+          pc.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true
+          }).then(offer => {
+            // NO SDP MUNGING - use offer directly
+            return pc.setLocalDescription(offer);
+          }).then(() => {
+            if (socket) {
+              socket.emit('screen_share_offer', {
+                callId,
+                targetUserId: participant.userId,
+                offer: pc.localDescription
+              });
+            }
+          }).catch(err => {
+            console.error(`❌ Error creating screen share offer for ${participant.userId}:`, err);
+            pc.close();
+            screenPeerConnections.current.delete(participant.userId);
+          });
         });
-      });
+      } else {
+        console.log('⚠️ No participants to share screen with yet');
+      }
       
       stream.getVideoTracks()[0].onended = () => {
         console.log('🛑 Screen share ended by user');
@@ -422,7 +443,17 @@ export function VideoCall({ callId, groupId, onLeave }: VideoCallProps) {
       
     } catch (err) {
       console.error('❌ Error starting screen share:', err);
-      setError('Failed to start screen sharing. Please check permissions.');
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError') {
+          setError('Screen sharing permission denied.');
+        } else if (err.name === 'NotFoundError') {
+          setError('No screen available to share.');
+        } else {
+          setError('Failed to start screen sharing. Please try again.');
+        }
+      } else {
+        setError('Failed to start screen sharing. Please check permissions.');
+      }
       setIsScreenSharing(false);
     }
   }, [participants, createPeerConnection, callId, user]);

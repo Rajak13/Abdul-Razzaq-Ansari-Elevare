@@ -19,6 +19,12 @@ const LANGUAGE_NAMES = {
   ko: '한국어'
 } as const;
 
+const LANGUAGE_NAMES_SHORT = {
+  en: 'En',
+  ne: 'ने',
+  ko: '한'
+} as const;
+
 export function LanguageSwitcher() {
   const t = useTranslations('common');
   const locale = useLocale();
@@ -87,13 +93,18 @@ export function LanguageSwitcher() {
 
       <Select value={locale} onValueChange={handleLocaleChange} disabled={isPending}>
         <SelectTrigger
-          className="w-[140px] h-9"
+          className="w-[100px] sm:w-[140px] h-9"
           aria-label={t('languageSwitcher.label')}
           aria-describedby="language-switcher-description"
         >
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4" aria-hidden="true" />
-            <SelectValue />
+            <span className="hidden sm:inline">
+              <SelectValue />
+            </span>
+            <span className="sm:hidden font-medium">
+              {LANGUAGE_NAMES_SHORT[locale as keyof typeof LANGUAGE_NAMES_SHORT]}
+            </span>
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -104,7 +115,11 @@ export function LanguageSwitcher() {
               aria-current={loc === locale ? 'true' : 'false'}
               aria-label={`${LANGUAGE_NAMES[loc]}${loc === locale ? ' (current)' : ''}`}
             >
-              {LANGUAGE_NAMES[loc]}
+              <span className="flex items-center gap-2">
+                <span className="font-medium">{LANGUAGE_NAMES_SHORT[loc]}</span>
+                <span className="text-muted-foreground">-</span>
+                <span>{LANGUAGE_NAMES[loc]}</span>
+              </span>
             </SelectItem>
           ))}
         </SelectContent>

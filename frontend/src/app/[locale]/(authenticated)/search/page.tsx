@@ -153,16 +153,16 @@ export default function SearchPage() {
     // Navigate to the appropriate page based on result type
     switch (result.type) {
       case 'task':
-        router.push(`/tasks?id=${result.id}` as any);
+        router.push(`/tasks?id=${result.id}`);
         break;
       case 'note':
-        router.push(`/notes/${result.id}` as any);
+        router.push(`/notes/${result.id}`);
         break;
       case 'resource':
-        router.push(`/resources/${result.id}` as any);
+        router.push(`/resources/${result.id}`);
         break;
       case 'group':
-        router.push(`/groups/${result.id}` as any);
+        router.push(`/groups/${result.id}`);
         break;
     }
   }, [router]);

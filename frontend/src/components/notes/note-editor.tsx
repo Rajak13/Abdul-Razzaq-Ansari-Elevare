@@ -17,7 +17,7 @@ import { SummaryDisplay } from './summary-display';
 import { Note, CreateNoteData } from '@/types/note';
 import { Eye, EyeOff, Folder, Hash, Maximize, Minimize, Plus, Save, X } from 'lucide-react';
 import { useRouter } from '@/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -40,7 +40,9 @@ export function NoteEditor({
 }: NoteEditorProps) {
   const t = useTranslations('notes');
   const tCommon = useTranslations('common');
-  const noteTemplates = useNoteTemplates();
+  const noteTemplatesRaw = useNoteTemplates();
+  // Memoize templates to prevent unnecessary re-renders
+  const noteTemplates = useMemo(() => noteTemplatesRaw, [JSON.stringify(noteTemplatesRaw)]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [title, setTitle] = useState(note?.title || '');
@@ -63,11 +65,39 @@ export function NoteEditor({
   // Content change detection for summary staleness
   const { isOutdated, shouldRegenerate, stalnessMessage } = useContentChangeDetection(note || null, content);
 
-  // Initialize content
+  // Initialize content - only run once when component mounts or when switching to a different note
+  // Use a ref to track if we've initialized to prevent double initialization
+  const hasInitialized = useRef(false);
+  const lastNoteId = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    // Reset initialization flag when note ID changes
+    if (note?.id !== lastNoteId.current) {
+      console.log('🔄 NoteEditor: Note ID changed, resetting initialization flag');
+      hasInitialized.current = false;
+      lastNoteId.current = note?.id;
+    }
+
+    // Skip if already initialized for this note
+    if (hasInitialized.current) {
+      console.log('⏭️ NoteEditor: Content already initialized for this note, skipping');
+      return;
+    }
+
+    // Wait for templates to load before initializing
+    if (noteTemplates.length === 0) {
+      console.log('⏳ NoteEditor: Waiting for templates to load...');
+      return;
+    }
+
+    console.log('🔄 NoteEditor: Content initialization useEffect triggered');
+    console.log('📝 NoteEditor: note?.content exists:', !!note?.content);
+    console.log('📝 NoteEditor: template:', template);
+    
     let initialContent = '';
 
     if (note?.content) {
+      console.log('✅ NoteEditor: Using existing note content');
       // If content is already a string (markdown), use it directly
       if (typeof note.content === 'string') {
         initialContent = note.content;
@@ -76,6 +106,7 @@ export function NoteEditor({
         initialContent = extractTextFromContent(note.content);
       }
     } else if (template) {
+      console.log('✅ NoteEditor: Using template content');
       // Use the selected template content
       const selectedTemplate = noteTemplates.find(t => t.id === template);
       if (selectedTemplate) {
@@ -86,6 +117,7 @@ export function NoteEditor({
     }
 
     if (!initialContent) {
+      console.log('✅ NoteEditor: Using default template');
       // Fallback to default template
       const defaultTemplate = noteTemplates[0];
       if (defaultTemplate) {
@@ -95,8 +127,10 @@ export function NoteEditor({
       }
     }
 
+    console.log('📝 NoteEditor: Setting initial content, length:', initialContent.length);
     setContent(initialContent);
-  }, [note, template, noteTemplates]);
+    hasInitialized.current = true;
+  }, [note?.id, note?.content, template, noteTemplates.length]); // Dependencies that should trigger re-initialization
 
   // Initialize summary from note
   useEffect(() => {

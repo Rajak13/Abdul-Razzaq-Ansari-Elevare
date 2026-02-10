@@ -181,7 +181,7 @@ export function BreakoutRooms({ callId, participants, socket }: BreakoutRoomsPro
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-foreground font-medium">Main Room</h3>
             <span className="text-muted-foreground text-sm">
-              {unassignedParticipants.length + 1} participant{unassignedParticipants.length + 1 !== 1 ? 's' : ''}
+              {unassignedParticipants.length} participant{unassignedParticipants.length !== 1 ? 's' : ''}
             </span>
           </div>
           <div className="space-y-1">

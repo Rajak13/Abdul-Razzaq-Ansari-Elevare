@@ -1269,13 +1269,15 @@ async def summarize_text(request: SummarizationRequest):
                 if chunk_tokens > model_wrapper.max_tokens:
                     logger.warning(f"Chunk {i+1} exceeds token limit ({chunk_tokens} > {model_wrapper.max_tokens}), truncating")
                 
-                # Tokenize chunk
-                inputs = model_wrapper.tokenizer.encode(
+                # Tokenize chunk with proper truncation BEFORE creating tensor
+                # This prevents the "index out of range" error
+                inputs = model_wrapper.tokenizer(
                     chunk,
                     return_tensors="pt",
                     max_length=model_wrapper.max_tokens,
-                    truncation=True
-                ).to(model_wrapper.device)
+                    truncation=True,
+                    padding=False
+                ).input_ids.to(model_wrapper.device)
                 
                 # Generate summary for this chunk using safe inference
                 summary_ids = model_wrapper._safe_model_inference(

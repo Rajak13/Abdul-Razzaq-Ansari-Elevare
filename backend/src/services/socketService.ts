@@ -389,7 +389,14 @@ export class SocketService {
             const groupName = groupResult.rows[0]?.name || 'Study Group';
 
             for (const member of groupMembers.rows) {
-              // Create notification in database
+              // Get member's preferred language for locale-aware link
+              const memberLocale = await query(
+                'SELECT preferred_language FROM users WHERE id = $1',
+                [member.user_id]
+              );
+              const locale = memberLocale.rows[0]?.preferred_language || 'en';
+              
+              // Create notification in database with locale-aware link
               await query(
                 `INSERT INTO notifications (user_id, type, title, content, link, created_at) 
                  VALUES ($1, $2, $3, $4, $5, NOW())`,
@@ -398,7 +405,7 @@ export class SocketService {
                   'video_call_started',
                   'Video Call Started',
                   `${socket.user?.name} started a video call in ${groupName}`,
-                  `/groups/${groupId}/video-call`
+                  `/${locale}/groups/${groupId}/video-call`
                 ]
               );
 
