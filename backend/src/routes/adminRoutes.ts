@@ -718,10 +718,10 @@ router.put('/users/:userId/unsuspend',
       });
 
     } catch (error: any) {
-      logger.error('User unsuspension error', { 
-        userId: req.params.userId, 
+      logger.error('User unsuspension error', {
+        userId: req.params.userId,
         error: error.message,
-        stack: error.stack 
+        stack: error.stack
       });
       res.status(500).json({
         error: {
@@ -835,10 +835,10 @@ router.delete('/users/:userId',
       });
 
     } catch (error: any) {
-      logger.error('User deletion error', { 
-        userId: req.params.userId, 
+      logger.error('User deletion error', {
+        userId: req.params.userId,
         error: error.message,
-        stack: error.stack 
+        stack: error.stack
       });
       res.status(500).json({
         error: {
@@ -942,7 +942,7 @@ router.get('/moderation/reports',
             page,
             limit,
             total: result.total,
-            pages: Math.ceil(result.total / limit)
+            totalPages: Math.ceil(result.total / limit)
           }
         }
       });
@@ -1012,7 +1012,6 @@ router.get('/moderation/reports/:reportId',
 // Take moderation action on abuse report
 router.put('/moderation/reports/:reportId',
   allAdmins,
-  allAdmins,
   auditAdminAction('moderation_action'),
   [
     param('reportId').isUUID(),
@@ -1022,9 +1021,21 @@ router.put('/moderation/reports/:reportId',
     body('duration_hours').optional().isInt({ min: 1 })
   ],
   async (req: Request, res: Response): Promise<any> => {
+    logger.info('[Admin Route] Moderation action request received', {
+      reportId: req.params.reportId,
+      adminId: req.admin?.id,
+      action: req.body.action,
+      durationHours: req.body.duration_hours,
+      ipAddress: req.ip
+    });
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        logger.warn('[Admin Route] Validation failed', {
+          reportId: req.params.reportId,
+          errors: errors.array()
+        });
         return res.status(400).json({
           error: {
             code: 'VALIDATION_ERROR',
@@ -1034,7 +1045,13 @@ router.put('/moderation/reports/:reportId',
         });
       }
 
+      logger.info('[Admin Route] Creating moderation service');
       const moderationService = new AdminModerationService(pool, adminAuditService);
+
+      logger.info('[Admin Route] Calling takeModerationAction', {
+        reportId: req.params.reportId,
+        action: req.body.action
+      });
 
       const updatedReport = await moderationService.takeModerationAction(
         req.params.reportId,
@@ -1049,6 +1066,12 @@ router.put('/moderation/reports/:reportId',
         req.get('User-Agent')
       );
 
+      logger.info('[Admin Route] Moderation action completed successfully', {
+        reportId: req.params.reportId,
+        action: req.body.action,
+        newStatus: updatedReport.status
+      });
+
       res.json({
         success: true,
         message: 'Moderation action taken successfully',
@@ -1056,11 +1079,144 @@ router.put('/moderation/reports/:reportId',
       });
 
     } catch (error) {
-      logger.error('Moderation action error', { reportId: req.params.reportId, error });
+      logger.error('[Admin Route] Moderation action error', {
+        reportId: req.params.reportId,
+        action: req.body.action,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       res.status(500).json({
         error: {
           code: 'MODERATION_ACTION_ERROR',
           message: 'Failed to take moderation action'
+        }
+      });
+    }
+  }
+);
+
+// Get reported content for review (privacy-preserving)
+router.get('/moderation/content/:contentType/:contentId',
+  allAdmins,
+  allAdmins,
+  [
+    param('contentType').isIn(['resource', 'study_group', 'message', 'comment', 'note', 'file', 'whiteboard', 'profile']),
+    param('contentId').isUUID()
+  ],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid parameters',
+            details: errors.array()
+          }
+        });
+      }
+
+      const { contentType, contentId } = req.params;
+      let content = null;
+
+      // Fetch content based on type (only metadata and safe content, no private data)
+      switch (contentType) {
+        case 'resource':
+          const resourceResult = await pool.query(
+            'SELECT id, title, description, file_type as type, file_url, created_at, user_id FROM resources WHERE id = $1',
+            [contentId]
+          );
+          content = resourceResult.rows[0];
+          break;
+
+        case 'study_group':
+          const groupResult = await pool.query(
+            'SELECT id, name, description, created_at, owner_id FROM study_groups WHERE id = $1',
+            [contentId]
+          );
+          content = groupResult.rows[0];
+          break;
+
+        case 'message':
+          const messageResult = await pool.query(
+            'SELECT id, content, created_at, user_id, group_id FROM group_messages WHERE id = $1',
+            [contentId]
+          );
+          content = messageResult.rows[0];
+          break;
+
+        case 'comment':
+          const commentResult = await pool.query(
+            'SELECT id, content, created_at, user_id, resource_id FROM resource_comments WHERE id = $1',
+            [contentId]
+          );
+          content = commentResult.rows[0];
+          break;
+
+        case 'note':
+          const noteResult = await pool.query(
+            'SELECT id, title, content, created_at, user_id FROM notes WHERE id = $1',
+            [contentId]
+          );
+          content = noteResult.rows[0];
+          break;
+
+        case 'file':
+          const fileResult = await pool.query(
+            'SELECT id, filename, file_type, file_size, created_at, user_id FROM files WHERE id = $1',
+            [contentId]
+          );
+          content = fileResult.rows[0];
+          break;
+
+        case 'whiteboard':
+          const whiteboardResult = await pool.query(
+            'SELECT id, title, created_at, user_id FROM whiteboards WHERE id = $1',
+            [contentId]
+          );
+          content = whiteboardResult.rows[0];
+          break;
+
+        case 'profile':
+          const profileResult = await pool.query(
+            'SELECT id, name, email, bio, created_at FROM users WHERE id = $1',
+            [contentId]
+          );
+          content = profileResult.rows[0];
+          break;
+
+        default:
+          return res.status(400).json({
+            error: {
+              code: 'INVALID_CONTENT_TYPE',
+              message: 'Unsupported content type'
+            }
+          });
+      }
+
+      if (!content) {
+        return res.status(404).json({
+          error: {
+            code: 'CONTENT_NOT_FOUND',
+            message: 'Reported content not found or has been deleted'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          contentType,
+          content
+        }
+      });
+
+    } catch (error) {
+      logger.error('Get reported content error', { error });
+      res.status(500).json({
+        error: {
+          code: 'FETCH_CONTENT_ERROR',
+          message: 'Failed to fetch reported content'
         }
       });
     }
@@ -2725,7 +2881,7 @@ router.get('/appeals',
       }
 
       const suspensionAppealService = await import('../services/suspensionAppealService');
-      
+
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
       const offset = (page - 1) * limit;
@@ -2855,7 +3011,7 @@ router.put('/appeals/:appealId/review',
       }
 
       const suspensionAppealService = await import('../services/suspensionAppealService');
-      
+
       const appeal = await suspensionAppealService.reviewAppeal({
         appeal_id: req.params.appealId,
         admin_id: req.admin!.id,
@@ -2870,9 +3026,9 @@ router.put('/appeals/:appealId/review',
       });
 
     } catch (error: any) {
-      logger.error('Review appeal error', { 
-        appealId: req.params.appealId, 
-        error: error.message 
+      logger.error('Review appeal error', {
+        appealId: req.params.appealId,
+        error: error.message
       });
       res.status(500).json({
         error: {

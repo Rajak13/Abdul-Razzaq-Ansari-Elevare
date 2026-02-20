@@ -14,6 +14,7 @@ import socketService from '@/services/socket-service';
 import { MessageCircle, Send, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { ReportButton } from '@/components/reports/report-button';
 
 interface GroupChatProps {
   groupId: string;
@@ -255,6 +256,14 @@ export function GroupChat({ groupId }: GroupChatProps) {
                       <span className="flex-shrink-0">
                         {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                       </span>
+                      {!isOwnMessage(msg.user_id) && !msg.id.startsWith('temp-') && (
+                        <ReportButton
+                          contentType="message"
+                          contentId={msg.id}
+                          variant="icon"
+                          className="h-6 w-6"
+                        />
+                      )}
                     </div>
                     <div
                       className={cn(

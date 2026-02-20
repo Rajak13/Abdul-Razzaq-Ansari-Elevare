@@ -687,6 +687,334 @@ export async function sendNotificationEmail(options: {
   }
 }
 
+/**
+ * Send report submitted confirmation email
+ */
+export async function sendReportSubmittedEmail(
+  email: string,
+  name: string,
+  contentType: string,
+  reportId: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Report Received - We\'re on it!',
+      title: 'Report Received',
+      greeting: 'Hello',
+      thankYou: 'Thank you for reporting content on Elevare. We take community safety seriously.',
+      reportDetails: 'Report Details',
+      contentTypeLabel: 'Content Type',
+      reportIdLabel: 'Report ID',
+      statusLabel: 'Status',
+      statusValue: 'Pending Review',
+      reviewTime: 'Our moderation team will review this report within 24-48 hours. You\'ll receive an email when there\'s an update.',
+      helpingCommunity: 'Thank you for helping keep Elevare a safe learning environment!',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'रिपोर्ट प्राप्त भयो - हामी यसमा काम गर्दैछौं!',
+      title: 'रिपोर्ट प्राप्त भयो',
+      greeting: 'नमस्ते',
+      thankYou: 'Elevare मा सामग्री रिपोर्ट गर्नुभएकोमा धन्यवाद। हामी समुदाय सुरक्षालाई गम्भीरतापूर्वक लिन्छौं।',
+      reportDetails: 'रिपोर्ट विवरण',
+      contentTypeLabel: 'सामग्री प्रकार',
+      reportIdLabel: 'रिपोर्ट ID',
+      statusLabel: 'स्थिति',
+      statusValue: 'समीक्षा पर्खिरहेको',
+      reviewTime: 'हाम्रो मोडरेशन टोलीले 24-48 घण्टा भित्र यो रिपोर्ट समीक्षा गर्नेछ। अपडेट हुँदा तपाईंले इमेल प्राप्त गर्नुहुनेछ।',
+      helpingCommunity: 'Elevare लाई सुरक्षित सिकाइ वातावरण राख्न मद्दत गर्नुभएकोमा धन्यवाद!',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: '신고 접수 완료 - 검토 중입니다!',
+      title: '신고 접수됨',
+      greeting: '안녕하세요',
+      thankYou: 'Elevare에서 콘텐츠를 신고해 주셔서 감사합니다. 커뮤니티 안전을 매우 중요하게 생각합니다.',
+      reportDetails: '신고 세부정보',
+      contentTypeLabel: '콘텐츠 유형',
+      reportIdLabel: '신고 ID',
+      statusLabel: '상태',
+      statusValue: '검토 대기 중',
+      reviewTime: '중재 팀이 24-48시간 내에 이 신고를 검토할 것입니다. 업데이트가 있으면 이메일을 받으실 것입니다.',
+      helpingCommunity: 'Elevare를 안전한 학습 환경으로 유지하는 데 도움을 주셔서 감사합니다!',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const contentTypeNames: Record<string, Record<string, string>> = {
+    en: { resource: 'Resource', group: 'Study Group', message: 'Message', comment: 'Comment' },
+    ne: { resource: 'स्रोत', group: 'अध्ययन समूह', message: 'सन्देश', comment: 'टिप्पणी' },
+    ko: { resource: '리소스', group: '스터디 그룹', message: '메시지', comment: '댓글' }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const contentTypeName = contentTypeNames[locale]?.[contentType] || contentTypeNames['en'][contentType];
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: `${t.subject} (#${reportId.substring(0, 8)})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700;">Elevare</h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Educational Platform</p>
+                  </td>
+                </tr>
+
+                <!-- Success Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); padding: 20px 40px; border-bottom: 3px solid #2D6A4F;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #2D6A4F; border-radius: 50%; text-align: center; line-height: 32px; color: white; font-size: 20px; font-weight: bold;">✓</div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #1B5E20; font-size: 20px; font-weight: 700;">${t.title}</h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50;">${t.greeting} <strong>${name}</strong>,</p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">${t.thankYou}</p>
+
+                    <!-- Report Details Box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border-radius: 12px; border-left: 4px solid #2D6A4F; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #1B5E20; text-transform: uppercase;">${t.reportDetails}</p>
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.contentTypeLabel}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${contentTypeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.reportIdLabel}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">#${reportId.substring(0, 8)}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.statusLabel}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #E65100; font-weight: 600;">${t.statusValue}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.reviewTime}</p>
+                    <p style="margin: 0; font-size: 16px; color: #2D6A4F; font-weight: 600;">🛡️ ${t.helpingCommunity}</p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">${t.footer}</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Report submitted email sent', { email, contentType, reportId, locale });
+  } catch (error) {
+    logger.error('Failed to send report submitted email', { email, contentType, reportId, locale, error });
+    throw new Error('Failed to send report submitted email');
+  }
+}
+
+/**
+ * Send report under review notification email
+ */
+export async function sendReportUnderReviewEmail(
+  email: string,
+  name: string,
+  contentType: string,
+  reportId: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Your Report is Being Reviewed',
+      title: 'Report Under Review',
+      greeting: 'Hello',
+      message: 'Your report is now being actively reviewed by our moderation team.',
+      reportId: 'Report ID',
+      contentType: 'Content Type',
+      status: 'Status',
+      statusValue: 'Under Review',
+      investigating: 'Our team is carefully investigating the reported content to determine if it violates our Community Guidelines.',
+      updates: 'You\'ll receive another email once the review is complete and action has been taken.',
+      thankYou: 'Thank you for your patience and for helping maintain a safe community.',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'तपाईंको रिपोर्ट समीक्षा भइरहेको छ',
+      title: 'रिपोर्ट समीक्षाधीन',
+      greeting: 'नमस्ते',
+      message: 'तपाईंको रिपोर्ट अहिले हाम्रो मोडरेशन टोलीद्वारा सक्रिय रूपमा समीक्षा भइरहेको छ।',
+      reportId: 'रिपोर्ट ID',
+      contentType: 'सामग्री प्रकार',
+      status: 'स्थिति',
+      statusValue: 'समीक्षाधीन',
+      investigating: 'हाम्रो टोलीले रिपोर्ट गरिएको सामग्रीले हाम्रो समुदाय दिशानिर्देश उल्लङ्घन गर्छ कि गर्दैन भनेर निर्धारण गर्न सावधानीपूर्वक अनुसन्धान गरिरहेको छ।',
+      updates: 'समीक्षा पूरा भएपछि र कारबाही गरिसकेपछि तपाईंले अर्को इमेल प्राप्त गर्नुहुनेछ।',
+      thankYou: 'तपाईंको धैर्यताको लागि र सुरक्षित समुदाय कायम राख्न मद्दत गर्नुभएकोमा धन्यवाद।',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: '신고가 검토 중입니다',
+      title: '신고 검토 중',
+      greeting: '안녕하세요',
+      message: '귀하의 신고가 현재 중재 팀에서 적극적으로 검토되고 있습니다.',
+      reportId: '신고 ID',
+      contentType: '콘텐츠 유형',
+      status: '상태',
+      statusValue: '검토 중',
+      investigating: '우리 팀은 신고된 콘텐츠가 커뮤니티 가이드라인을 위반하는지 확인하기 위해 신중하게 조사하고 있습니다.',
+      updates: '검토가 완료되고 조치가 취해지면 다시 이메일을 받으실 것입니다.',
+      thankYou: '인내심을 가져주시고 안전한 커뮤니티를 유지하는 데 도움을 주셔서 감사합니다.',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const contentTypeNames: Record<string, Record<string, string>> = {
+    en: { resource: 'Resource', group: 'Study Group', message: 'Message', comment: 'Comment' },
+    ne: { resource: 'स्रोत', group: 'अध्ययन समूह', message: 'सन्देश', comment: 'टिप्पणी' },
+    ko: { resource: '리소스', group: '스터디 그룹', message: '메시지', comment: '댓글' }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const contentTypeName = contentTypeNames[locale]?.[contentType] || contentTypeNames['en'][contentType];
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: `${t.subject} (#${reportId.substring(0, 8)})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700;">Elevare</h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Educational Platform</p>
+                  </td>
+                </tr>
+
+                <!-- Status Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); padding: 20px 40px; border-bottom: 3px solid #FFA726;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #FFA726; border-radius: 50%; text-align: center; line-height: 32px; color: white; font-size: 20px;">⏳</div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #E65100; font-size: 20px; font-weight: 700;">${t.title}</h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50;">${t.greeting} <strong>${name}</strong>,</p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">${t.message}</p>
+
+                    <!-- Report Info -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #F8F9FA; border-radius: 8px; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.reportId}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">#${reportId.substring(0, 8)}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.contentType}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${contentTypeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.status}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #FFA726; font-weight: 600;">${t.statusValue}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.investigating}</p>
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.updates}</p>
+                    <p style="margin: 0; font-size: 16px; color: #2D6A4F; font-weight: 600;">${t.thankYou}</p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">${t.footer}</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Report under review email sent', { email, contentType, reportId, locale });
+  } catch (error) {
+    logger.error('Failed to send report under review email', { email, contentType, reportId, locale, error });
+    throw new Error('Failed to send report under review email');
+  }
+}
+
 // Create EmailService class for dependency injection
 export class EmailService {
   async sendOTPEmail(email: string, name: string, otpCode: string, locale: string = 'en'): Promise<void> {
@@ -728,5 +1056,578 @@ export class EmailService {
     html: string;
   }): Promise<void> {
     return sendNotificationEmail(options);
+  }
+
+  async sendReportSubmittedEmail(
+    email: string,
+    name: string,
+    contentType: string,
+    reportId: string,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendReportSubmittedEmail(email, name, contentType, reportId, locale);
+  }
+
+  async sendReportUnderReviewEmail(
+    email: string,
+    name: string,
+    contentType: string,
+    reportId: string,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendReportUnderReviewEmail(email, name, contentType, reportId, locale);
+  }
+
+  async sendReportResolvedEmail(
+    email: string,
+    name: string,
+    contentType: string,
+    reportId: string,
+    actionTaken: string,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendReportResolvedEmail(email, name, contentType, reportId, actionTaken, locale);
+  }
+
+  async sendReportDismissedEmail(
+    email: string,
+    name: string,
+    contentType: string,
+    reportId: string,
+    reason: string,
+    locale: string = 'en'
+  ): Promise<void> {
+    return sendReportDismissedEmail(email, name, contentType, reportId, reason, locale);
+  }
+}
+
+/**
+ * Send report resolved notification email
+ */
+export async function sendReportResolvedEmail(
+  email: string,
+  name: string,
+  contentType: string,
+  reportId: string,
+  actionTaken: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Your Report Has Been Resolved',
+      title: 'Report Resolved',
+      greeting: 'Hello',
+      message: 'Your report has been reviewed and resolved by our moderation team.',
+      reportId: 'Report ID',
+      contentType: 'Content Type',
+      status: 'Status',
+      statusValue: 'Resolved',
+      actionTaken: 'Action Taken',
+      thankYou: 'Thank you for your vigilance in keeping Elevare safe. Your contribution helps maintain a positive learning environment for everyone.',
+      helpingCommunity: 'Together, we build a better community!',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'तपाईंको रिपोर्ट समाधान भयो',
+      title: 'रिपोर्ट समाधान भयो',
+      greeting: 'नमस्ते',
+      message: 'तपाईंको रिपोर्ट हाम्रो मोडरेशन टोलीद्वारा समीक्षा र समाधान गरिएको छ।',
+      reportId: 'रिपोर्ट ID',
+      contentType: 'सामग्री प्रकार',
+      status: 'स्थिति',
+      statusValue: 'समाधान भयो',
+      actionTaken: 'गरिएको कारबाही',
+      thankYou: 'Elevare लाई सुरक्षित राख्नमा तपाईंको सतर्कताको लागि धन्यवाद। तपाईंको योगदानले सबैका लागि सकारात्मक सिकाइ वातावरण कायम राख्न मद्दत गर्छ।',
+      helpingCommunity: 'सँगै, हामी राम्रो समुदाय निर्माण गर्छौं!',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: '신고가 해결되었습니다',
+      title: '신고 해결됨',
+      greeting: '안녕하세요',
+      message: '귀하의 신고가 중재 팀에서 검토되어 해결되었습니다.',
+      reportId: '신고 ID',
+      contentType: '콘텐츠 유형',
+      status: '상태',
+      statusValue: '해결됨',
+      actionTaken: '취해진 조치',
+      thankYou: 'Elevare를 안전하게 유지하는 데 대한 귀하의 경계심에 감사드립니다. 귀하의 기여는 모두를 위한 긍정적인 학습 환경을 유지하는 데 도움이 됩니다.',
+      helpingCommunity: '함께 더 나은 커뮤니티를 만듭니다!',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const contentTypeNames: Record<string, Record<string, string>> = {
+    en: { resource: 'Resource', group: 'Study Group', message: 'Message', comment: 'Comment' },
+    ne: { resource: 'स्रोत', group: 'अध्ययन समूह', message: 'सन्देश', comment: 'टिप्पणी' },
+    ko: { resource: '리소스', group: '스터디 그룹', message: '메시지', comment: '댓글' }
+  };
+
+  const actionNames: Record<string, Record<string, string>> = {
+    en: {
+      delete_content: 'Content removed',
+      warn_user: 'User warned',
+      suspend_user: 'User suspended',
+      ban: 'User banned',
+      resolve: 'Violation confirmed'
+    },
+    ne: {
+      delete_content: 'सामग्री हटाइयो',
+      warn_user: 'प्रयोगकर्तालाई चेतावनी दिइयो',
+      suspend_user: 'प्रयोगकर्ता निलम्बित',
+      ban: 'प्रयोगकर्ता प्रतिबन्धित',
+      resolve: 'उल्लङ्घन पुष्टि भयो'
+    },
+    ko: {
+      delete_content: '콘텐츠 삭제됨',
+      warn_user: '사용자 경고됨',
+      suspend_user: '사용자 정지됨',
+      ban: '사용자 차단됨',
+      resolve: '위반 확인됨'
+    }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const contentTypeName = contentTypeNames[locale]?.[contentType] || contentTypeNames['en'][contentType];
+  const actionName = actionNames[locale]?.[actionTaken] || actionTaken;
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: `${t.subject} (#${reportId.substring(0, 8)})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700;">Elevare</h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Educational Platform</p>
+                  </td>
+                </tr>
+
+                <!-- Success Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); padding: 20px 40px; border-bottom: 3px solid #2D6A4F;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #2D6A4F; border-radius: 50%; text-align: center; line-height: 32px; color: white; font-size: 20px; font-weight: bold;">✓</div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #1B5E20; font-size: 20px; font-weight: 700;">${t.title}</h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50;">${t.greeting} <strong>${name}</strong>,</p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">${t.message}</p>
+
+                    <!-- Report Details -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px; border-left: 4px solid #2D6A4F; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #1B5E20;">${t.reportId}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">#${reportId.substring(0, 8)}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #1B5E20;">${t.contentType}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${contentTypeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #1B5E20;">${t.status}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2D6A4F; font-weight: 600;">${t.statusValue}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #1B5E20;">${t.actionTaken}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${actionName}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.thankYou}</p>
+                    <p style="margin: 0; font-size: 18px; color: #2D6A4F; font-weight: 600; text-align: center;">🛡️ ${t.helpingCommunity}</p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">${t.footer}</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Report resolved email sent', { email, contentType, reportId, actionTaken, locale });
+  } catch (error) {
+    logger.error('Failed to send report resolved email', { email, contentType, reportId, actionTaken, locale, error });
+    throw new Error('Failed to send report resolved email');
+  }
+}
+
+/**
+ * Send report dismissed notification email
+ */
+export async function sendReportDismissedEmail(
+  email: string,
+  name: string,
+  contentType: string,
+  reportId: string,
+  _reason: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Your Report Has Been Reviewed',
+      title: 'Report Reviewed',
+      greeting: 'Hello',
+      message: 'Your report has been carefully reviewed by our moderation team.',
+      reportId: 'Report ID',
+      contentType: 'Content Type',
+      status: 'Status',
+      statusValue: 'No Violation Found',
+      outcome: 'Outcome',
+      outcomeMessage: 'After thorough review, we determined that the reported content does not violate our Community Guidelines.',
+      thankYou: 'We appreciate your vigilance and commitment to keeping Elevare safe. Please continue to report any content that concerns you.',
+      guidelines: 'If you have questions about our Community Guidelines, please visit our Help Center.',
+      footer: 'This is an automated notification from Elevare. Please do not reply to this email.'
+    },
+    ne: {
+      subject: 'तपाईंको रिपोर्ट समीक्षा गरिएको छ',
+      title: 'रिपोर्ट समीक्षा गरियो',
+      greeting: 'नमस्ते',
+      message: 'तपाईंको रिपोर्ट हाम्रो मोडरेशन टोलीद्वारा सावधानीपूर्वक समीक्षा गरिएको छ।',
+      reportId: 'रिपोर्ट ID',
+      contentType: 'सामग्री प्रकार',
+      status: 'स्थिति',
+      statusValue: 'कुनै उल्लङ्घन फेला परेन',
+      outcome: 'परिणाम',
+      outcomeMessage: 'पूर्ण समीक्षा पछि, हामीले निर्धारण गर्यौं कि रिपोर्ट गरिएको सामग्रीले हाम्रो समुदाय दिशानिर्देश उल्लङ्घन गर्दैन।',
+      thankYou: 'हामी तपाईंको सतर्कता र Elevare लाई सुरक्षित राख्ने प्रतिबद्धताको कदर गर्छौं। कृपया तपाईंलाई चिन्ता लाग्ने कुनै पनि सामग्री रिपोर्ट गर्न जारी राख्नुहोस्।',
+      guidelines: 'यदि तपाईंसँग हाम्रो समुदाय दिशानिर्देशहरूको बारेमा प्रश्नहरू छन् भने, कृपया हाम्रो सहायता केन्द्र भ्रमण गर्नुहोस्।',
+      footer: 'यो Elevare बाट स्वचालित सूचना हो। कृपया यो इमेलको जवाफ नदिनुहोस्।'
+    },
+    ko: {
+      subject: '신고가 검토되었습니다',
+      title: '신고 검토됨',
+      greeting: '안녕하세요',
+      message: '귀하의 신고가 중재 팀에서 신중하게 검토되었습니다.',
+      reportId: '신고 ID',
+      contentType: '콘텐츠 유형',
+      status: '상태',
+      statusValue: '위반 사항 없음',
+      outcome: '결과',
+      outcomeMessage: '철저한 검토 후, 신고된 콘텐츠가 커뮤니티 가이드라인을 위반하지 않는다고 판단했습니다.',
+      thankYou: 'Elevare를 안전하게 유지하려는 귀하의 경계심과 헌신에 감사드립니다. 우려되는 콘텐츠가 있으면 계속 신고해 주세요.',
+      guidelines: '커뮤니티 가이드라인에 대한 질문이 있으시면 도움말 센터를 방문하세요.',
+      footer: '이것은 Elevare의 자동 알림입니다. 이 이메일에 회신하지 마세요.'
+    }
+  };
+
+  const contentTypeNames: Record<string, Record<string, string>> = {
+    en: { resource: 'Resource', group: 'Study Group', message: 'Message', comment: 'Comment' },
+    ne: { resource: 'स्रोत', group: 'अध्ययन समूह', message: 'सन्देश', comment: 'टिप्पणी' },
+    ko: { resource: '리소스', group: '스터디 그룹', message: '메시지', comment: '댓글' }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const contentTypeName = contentTypeNames[locale]?.[contentType] || contentTypeNames['en'][contentType];
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: `${t.subject} (#${reportId.substring(0, 8)})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700;">Elevare</h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Educational Platform</p>
+                  </td>
+                </tr>
+
+                <!-- Info Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); padding: 20px 40px; border-bottom: 3px solid #1976D2;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #1976D2; border-radius: 50%; text-align: center; line-height: 32px; color: white; font-size: 20px;">ℹ</div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #0D47A1; font-size: 20px; font-weight: 700;">${t.title}</h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50;">${t.greeting} <strong>${name}</strong>,</p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">${t.message}</p>
+
+                    <!-- Report Details -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #F8F9FA; border-radius: 8px; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.reportId}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">#${reportId.substring(0, 8)}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.contentType}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${contentTypeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">${t.status}:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #1976D2; font-weight: 600;">${t.statusValue}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Outcome Box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 12px; border-left: 4px solid #1976D2; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0D47A1; text-transform: uppercase;">${t.outcome}</p>
+                          <p style="margin: 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.outcomeMessage}</p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #2C3E50; line-height: 1.6;">${t.thankYou}</p>
+                    <p style="margin: 0; font-size: 14px; color: #5F6368; line-height: 1.6;">💡 ${t.guidelines}</p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">${t.footer}</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Report dismissed email sent', { email, contentType, reportId, locale });
+  } catch (error) {
+    logger.error('Failed to send report dismissed email', { email, contentType, reportId, locale, error });
+    throw new Error('Failed to send report dismissed email');
+  }
+}
+
+/**
+ * Send admin notification email for new abuse report
+ */
+export async function sendAdminReportNotificationEmail(
+  email: string,
+  name: string,
+  contentType: string,
+  reason: string,
+  reportId: string
+): Promise<void> {
+  const contentTypeNames: Record<string, string> = {
+    resource: 'Resource',
+    study_group: 'Study Group',
+    message: 'Message',
+    comment: 'Comment',
+    note: 'Note',
+    file: 'File',
+    whiteboard: 'Whiteboard',
+    profile: 'Profile'
+  };
+
+  const reasonNames: Record<string, string> = {
+    spam: 'Spam',
+    harassment: 'Harassment',
+    inappropriate_content: 'Inappropriate Content',
+    copyright_violation: 'Copyright Violation',
+    hate_speech: 'Hate Speech',
+    violence: 'Violence',
+    other: 'Other'
+  };
+
+  const contentTypeName = contentTypeNames[contentType] || contentType;
+  const reasonName = reasonNames[reason] || reason;
+  const reviewUrl = `${config.corsOrigin}/admin/moderation/reports/${reportId}`;
+
+  const mailOptions = {
+    from: config.email.from,
+    to: email,
+    subject: `[Admin Alert] New Abuse Report - ${contentTypeName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F5F3EF;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F3EF; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); padding: 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 700;">Elevare Admin</h1>
+                    <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Moderation Alert</p>
+                  </td>
+                </tr>
+
+                <!-- Alert Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); padding: 20px 40px; border-bottom: 3px solid #FF9800;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" valign="top">
+                          <div style="width: 32px; height: 32px; background-color: #FF9800; border-radius: 50%; text-align: center; line-height: 32px; color: white; font-size: 20px; font-weight: bold;">!</div>
+                        </td>
+                        <td valign="middle">
+                          <h2 style="margin: 0; color: #E65100; font-size: 20px; font-weight: 700;">New Abuse Report</h2>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; color: #2C3E50;">Hello <strong>${name}</strong>,</p>
+                    <p style="margin: 0 0 30px 0; font-size: 16px; color: #2C3E50; line-height: 1.6;">
+                      A new abuse report has been submitted and requires moderation review.
+                    </p>
+
+                    <!-- Report Details -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border-radius: 12px; border-left: 4px solid #FF9800; margin-bottom: 30px;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #E65100; text-transform: uppercase;">Report Details</p>
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">Report ID:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">#${reportId.substring(0, 8)}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">Content Type:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${contentTypeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">Reason:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #2C3E50; font-weight: 600;">${reasonName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; font-size: 14px; color: #5F6368;">Status:</td>
+                              <td style="padding: 8px 0; font-size: 14px; color: #FF9800; font-weight: 600;">Pending Review</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Action Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding: 20px 0;">
+                          <table cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="border-radius: 8px; background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);">
+                                <a href="${reviewUrl}" style="display: inline-block; padding: 16px 40px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
+                                  Review Report →
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 30px 0 0 0; font-size: 14px; color: #5F6368; line-height: 1.6;">
+                      Please review this report as soon as possible to maintain community safety and trust.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #F8F9FA; padding: 30px 40px; border-top: 1px solid #E0E0E0;">
+                    <p style="margin: 0; font-size: 12px; color: #9E9E9E; line-height: 1.5;">
+                      This is an automated notification from Elevare Admin Dashboard. Please do not reply to this email.
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Admin report notification email sent', { email, contentType, reportId, reason });
+  } catch (error) {
+    logger.error('Failed to send admin report notification email', { email, contentType, reportId, reason, error });
+    throw new Error('Failed to send admin report notification email');
   }
 }

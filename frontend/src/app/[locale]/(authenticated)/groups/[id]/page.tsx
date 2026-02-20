@@ -45,6 +45,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { ClientOnly } from '@/components/ui/client-only';
 import { AuthGuard } from '@/components/ui/auth-guard';
+import { ReportButton } from '@/components/reports/report-button';
 
 export default function StudyGroupDetailPage() {
   const params = useParams();
@@ -188,6 +189,14 @@ export default function StudyGroupDetailPage() {
               <UserPlus className="h-4 w-4 mr-2" />
               {group.is_private ? 'Request to Join' : 'Join Group'}
             </Button>
+          )}
+          
+          {isMember && (
+            <ReportButton
+              contentType="group"
+              contentId={groupId}
+              variant="icon"
+            />
           )}
           
           {isOwner && (

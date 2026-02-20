@@ -1,0 +1,36 @@
+{
+  "button": "신고",
+  "reportResource": "리소스 신고",
+  "reportGroup": "그룹 신고",
+  "reportMessage": "메시지 신고",
+  "reportComment": "댓글 신고",
+  "title": "{contentType} 신고",
+  "description": "이 콘텐츠의 문제점을 알려주세요.",
+  "reason": "신고 사유",
+  "selectReason": "사유 선택",
+  "descriptionLabel": "추가 세부정보 (선택사항)",
+  "descriptionPlaceholder": "이 신고를 검토하는 데 도움이 될 수 있는 추가 정보를 제공해 주세요...",
+  "contentTypes": {
+    "resource": "리소스",
+    "group": "스터디 그룹",
+    "message": "메시지",
+    "comment": "댓글"
+  },
+  "reasons": {
+    "spam": "스팸 또는 오해의 소지",
+    "harassment": "괴롭힘 또는 협박",
+    "inappropriate_content": "부적절한 콘텐츠",
+    "copyright_violation": "저작권 침해",
+    "hate_speech": "혐오 발언",
+    "violence": "폭력 또는 위협",
+    "other": "기타"
+  },
+  "submit": "신고 제출",
+  "submitting": "제출 중...",
+  "cancel": "취소",
+  "success": "신고가 제출되었습니다. 곧 검토하겠습니다.",
+  "error": "신고 제출에 실패했습니다. 다시 시도해 주세요.",
+  "duplicate": "이미 이 콘텐츠를 신고하셨습니다.",
+  "rateLimitExceeded": "신고가 너무 많습니다. 나중에 다시 시도해 주세요.",
+  "cannotReportOwn": "자신의 콘텐츠는 신고할 수 없습니다."
+}

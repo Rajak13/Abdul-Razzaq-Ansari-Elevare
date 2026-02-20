@@ -7,7 +7,7 @@ export interface AbuseReport {
   id: string;
   reporter_id: string;
   reported_user_id: string;
-  content_type: 'note' | 'message' | 'file' | 'resource' | 'whiteboard' | 'profile' | 'study_group';
+  content_type: 'note' | 'message' | 'file' | 'resource' | 'whiteboard' | 'profile' | 'study_group' | 'comment';
   content_id: string;
   reason: 'spam' | 'harassment' | 'inappropriate_content' | 'copyright_violation' | 'hate_speech' | 'violence' | 'other';
   description?: string;
@@ -136,6 +136,60 @@ export class AdminModerationService {
         reported_user_id: data.reported_user_id
       }
     );
+
+    // Notify admins about the new report in the dashboard
+    try {
+      const AdminNotificationService = require('./adminNotificationService').default;
+      const notificationService = new AdminNotificationService(this.db);
+      
+      const contentTypeNames: Record<string, string> = {
+        resource: 'Resource',
+        study_group: 'Study Group',
+        message: 'Message',
+        comment: 'Comment',
+        note: 'Note',
+        file: 'File',
+        whiteboard: 'Whiteboard',
+        profile: 'Profile'
+      };
+
+      const reasonNames: Record<string, string> = {
+        spam: 'Spam',
+        harassment: 'Harassment',
+        inappropriate_content: 'Inappropriate Content',
+        copyright_violation: 'Copyright Violation',
+        hate_speech: 'Hate Speech',
+        violence: 'Violence',
+        other: 'Other'
+      };
+
+      const contentTypeName = contentTypeNames[data.content_type] || data.content_type;
+      const reasonName = reasonNames[data.reason] || data.reason;
+
+      await notificationService.broadcastToAdmins(
+        'new_report',
+        'New Abuse Report',
+        `A new ${contentTypeName.toLowerCase()} has been reported for ${reasonName.toLowerCase()}.`,
+        {
+          report_id: report.id,
+          content_type: data.content_type,
+          reason: data.reason,
+          priority: 'medium'
+        }
+      );
+
+      logger.info('Admin notification sent for new report', {
+        reportId: report.id,
+        contentType: data.content_type,
+        reason: data.reason
+      });
+    } catch (notificationError) {
+      logger.error('Failed to send admin notification for new report', {
+        reportId: report.id,
+        error: notificationError
+      });
+      // Don't fail the report creation if notification fails
+    }
 
     return report;
   }
@@ -355,39 +409,61 @@ export class AdminModerationService {
     ipAddress: string,
     userAgent?: string
   ): Promise<AbuseReport> {
+    logger.info('[Moderation] Starting moderation action', {
+      reportId,
+      moderatorId,
+      action: actionData.action,
+      duration_hours: actionData.duration_hours,
+      ipAddress
+    });
+
     const client = await this.db.connect();
 
     try {
       await client.query('BEGIN');
+      logger.info('[Moderation] Transaction started');
 
       // Get the abuse report
+      logger.info('[Moderation] Fetching abuse report', { reportId });
       const reportResult = await client.query(
         'SELECT * FROM abuse_reports WHERE id = $1',
         [reportId]
       );
 
       if (reportResult.rows.length === 0) {
+        logger.error('[Moderation] Abuse report not found', { reportId });
         throw new Error('Abuse report not found');
       }
 
       const report = reportResult.rows[0];
+      logger.info('[Moderation] Report found', {
+        reportId: report.id,
+        contentType: report.content_type,
+        reportedUserId: report.reported_user_id,
+        currentStatus: report.status
+      });
 
       // Update the abuse report
       const updateQuery = `
         UPDATE abuse_reports 
         SET 
-          status = $1,
+          status = $1::text,
           moderator_id = $2,
           action_taken = $3,
           moderator_notes = $4,
-          resolved_at = CASE WHEN $1 IN ('resolved', 'dismissed') THEN CURRENT_TIMESTAMP ELSE resolved_at END,
+          resolved_at = CASE WHEN $1::text IN ('resolved', 'dismissed') THEN CURRENT_TIMESTAMP ELSE resolved_at END,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $5
         RETURNING *
       `;
 
       const status = actionData.action === 'dismiss' ? 'dismissed' : 
-                    actionData.action === 'resolve' ? 'resolved' : 'under_review';
+                    ['resolve', 'warn', 'suspend', 'ban'].includes(actionData.action) ? 'resolved' : 'under_review';
+
+      logger.info('[Moderation] Updating report status', {
+        newStatus: status,
+        action: actionData.action
+      });
 
       const updateResult = await client.query(updateQuery, [
         status,
@@ -398,9 +474,15 @@ export class AdminModerationService {
       ]);
 
       const updatedReport = updateResult.rows[0];
+      logger.info('[Moderation] Report updated successfully');
 
       // Create user violation record if action is taken against user
       if (['warn', 'suspend', 'ban'].includes(actionData.action)) {
+        logger.info('[Moderation] Creating user violation record', {
+          action: actionData.action,
+          userId: report.reported_user_id
+        });
+        
         await this.createUserViolation(client, {
           user_id: report.reported_user_id,
           violation_type: report.reason,
@@ -411,10 +493,19 @@ export class AdminModerationService {
           action_taken: actionData.action,
           duration_hours: actionData.duration_hours
         });
+        
+        logger.info('[Moderation] User violation record created');
       }
 
       // Create suspension if needed
       if (['suspend', 'ban'].includes(actionData.action)) {
+        logger.info('[Moderation] Creating user suspension', {
+          action: actionData.action,
+          userId: report.reported_user_id,
+          suspensionType: actionData.action === 'ban' ? 'permanent' : 'temporary',
+          durationHours: actionData.duration_hours
+        });
+        
         await this.createUserSuspension(client, {
           user_id: report.reported_user_id,
           suspended_by: moderatorId,
@@ -422,9 +513,12 @@ export class AdminModerationService {
           suspension_type: actionData.action === 'ban' ? 'permanent' : 'temporary',
           duration_hours: actionData.duration_hours
         });
+        
+        logger.info('[Moderation] User suspension created');
       }
 
       // Log the moderation action
+      logger.info('[Moderation] Logging moderation action to database');
       await client.query(`
         INSERT INTO moderation_actions (
           moderator_id, action_type, target_user_id, target_content_type,
@@ -445,8 +539,10 @@ export class AdminModerationService {
         ipAddress,
         userAgent
       ]);
+      logger.info('[Moderation] Moderation action logged');
 
       // Create audit log entry
+      logger.info('[Moderation] Creating audit log entry');
       await this.auditService.createAuditLog(
         moderatorId,
         'moderation_action',
@@ -461,15 +557,92 @@ export class AdminModerationService {
           reason: actionData.reason
         }
       );
+      logger.info('[Moderation] Audit log entry created');
+
+      // Send email notification to reporter
+      logger.info('[Moderation] Fetching reporter information', {
+        reporterId: report.reporter_id
+      });
+      
+      const reporterResult = await client.query(
+        'SELECT email, name, preferred_language FROM users WHERE id = $1',
+        [report.reporter_id]
+      );
+
+      if (reporterResult.rows.length > 0) {
+        const reporter = reporterResult.rows[0];
+        const locale = reporter.preferred_language || 'en';
+        
+        logger.info('[Moderation] Sending email notification to reporter', {
+          reporterEmail: reporter.email,
+          status,
+          locale
+        });
+        
+        try {
+          const { sendReportUnderReviewEmail, sendReportResolvedEmail, sendReportDismissedEmail } = require('./emailService');
+          
+          if (status === 'under_review') {
+            await sendReportUnderReviewEmail(
+              reporter.email,
+              reporter.name,
+              report.content_type,
+              report.id,
+              locale
+            );
+            logger.info('[Moderation] Under review email sent');
+          } else if (status === 'resolved') {
+            await sendReportResolvedEmail(
+              reporter.email,
+              reporter.name,
+              report.content_type,
+              report.id,
+              actionData.action,
+              locale
+            );
+            logger.info('[Moderation] Resolved email sent');
+          } else if (status === 'dismissed') {
+            await sendReportDismissedEmail(
+              reporter.email,
+              reporter.name,
+              report.content_type,
+              report.id,
+              actionData.reason,
+              locale
+            );
+            logger.info('[Moderation] Dismissed email sent');
+          }
+        } catch (emailError) {
+          logger.error('[Moderation] Failed to send report status email', { emailError });
+          // Don't fail the moderation action if email fails
+        }
+      } else {
+        logger.warn('[Moderation] Reporter not found', {
+          reporterId: report.reporter_id
+        });
+      }
 
       await client.query('COMMIT');
+      logger.info('[Moderation] Transaction committed successfully', {
+        reportId,
+        action: actionData.action,
+        newStatus: status
+      });
+      
       return updatedReport;
 
     } catch (error) {
       await client.query('ROLLBACK');
+      logger.error('[Moderation] Transaction rolled back due to error', {
+        reportId,
+        action: actionData.action,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     } finally {
       client.release();
+      logger.info('[Moderation] Database client released');
     }
   }
 
@@ -941,8 +1114,9 @@ export class AdminModerationService {
     action_taken: string;
     duration_hours?: number;
   }): Promise<void> {
-    const expiresAt = data.duration_hours ? 
-      new Date(Date.now() + data.duration_hours * 60 * 60 * 1000) : null;
+    const durationHours = data.duration_hours !== undefined ? data.duration_hours : null;
+    const expiresAt = durationHours ? 
+      new Date(Date.now() + durationHours * 60 * 60 * 1000) : null;
 
     await client.query(`
       INSERT INTO user_violations (
@@ -957,7 +1131,7 @@ export class AdminModerationService {
       data.moderator_id,
       data.abuse_report_id || null,
       data.action_taken,
-      data.duration_hours || null,
+      durationHours,
       expiresAt
     ]);
   }
@@ -969,8 +1143,31 @@ export class AdminModerationService {
     suspension_type: 'temporary' | 'permanent';
     duration_hours?: number;
   }): Promise<void> {
+    logger.info('[Suspension] Creating user suspension', {
+      userId: data.user_id,
+      suspendedBy: data.suspended_by,
+      suspensionType: data.suspension_type,
+      durationHours: data.duration_hours,
+      reasonLength: data.reason.length
+    });
+
     const expiresAt = data.suspension_type === 'temporary' && data.duration_hours ? 
       new Date(Date.now() + data.duration_hours * 60 * 60 * 1000) : null;
+
+    // Ensure reason fits in VARCHAR(255)
+    const truncatedReason = data.reason.substring(0, 255);
+    
+    if (data.reason.length > 255) {
+      logger.warn('[Suspension] Reason truncated from length', {
+        originalLength: data.reason.length,
+        truncatedLength: truncatedReason.length
+      });
+    }
+
+    logger.info('[Suspension] Inserting suspension record', {
+      expiresAt,
+      reasonLength: truncatedReason.length
+    });
 
     await client.query(`
       INSERT INTO user_suspensions (
@@ -979,13 +1176,19 @@ export class AdminModerationService {
     `, [
       data.user_id,
       data.suspended_by,
-      data.reason,
+      truncatedReason,
       data.suspension_type,
       expiresAt
     ]);
 
+    logger.info('[Suspension] Suspension record inserted successfully');
+
     // Get user details for email notification
     try {
+      logger.info('[Suspension] Fetching user details for email', {
+        userId: data.user_id
+      });
+      
       const userResult = await client.query(
         'SELECT email, name, preferred_language FROM users WHERE id = $1',
         [data.user_id]
@@ -995,27 +1198,37 @@ export class AdminModerationService {
         const user = userResult.rows[0];
         const locale = user.preferred_language || 'en';
 
+        logger.info('[Suspension] Sending suspension email', {
+          userId: data.user_id,
+          email: user.email,
+          suspensionType: data.suspension_type,
+          locale
+        });
+
         // Send suspension email notification
         await sendSuspensionEmail(
           user.email,
           user.name,
-          data.reason,
+          truncatedReason,
           data.suspension_type,
           expiresAt || undefined,
           locale
         );
 
-        logger.info('Suspension email sent to user', {
+        logger.info('[Suspension] Suspension email sent successfully', {
           userId: data.user_id,
-          email: user.email,
-          suspensionType: data.suspension_type
+          email: user.email
+        });
+      } else {
+        logger.warn('[Suspension] User not found for email notification', {
+          userId: data.user_id
         });
       }
     } catch (emailError) {
       // Log error but don't fail the suspension
-      logger.error('Failed to send suspension email', {
+      logger.error('[Suspension] Failed to send suspension email', {
         userId: data.user_id,
-        error: emailError
+        error: emailError instanceof Error ? emailError.message : String(emailError)
       });
     }
   }

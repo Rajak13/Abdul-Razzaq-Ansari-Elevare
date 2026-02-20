@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { ResourceRating } from '@/components/resources/resource-rating';
 import { ResourceComments } from '@/components/resources/resource-comments';
+import { ReportButton } from '@/components/reports/report-button';
 
 interface Resource {
   id: string;
@@ -250,6 +251,11 @@ export default function ResourceDetailPage() {
                   <Button size="sm" variant="outline" onClick={handleShare}>
                     <Share2 className="h-4 w-4" />
                   </Button>
+                  <ReportButton
+                    contentType="resource"
+                    contentId={resource.id}
+                    variant="icon"
+                  />
                 </div>
               </div>
             </CardHeader>

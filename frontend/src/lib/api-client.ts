@@ -66,3 +66,21 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+
+/**
+ * Submit a report for content
+ */
+export async function submitReport(
+  contentType: 'resource' | 'group' | 'message' | 'comment',
+  contentId: string,
+  reason: string,
+  description?: string
+): Promise<void> {
+  const endpoint = `/reports/${contentType}/${contentId}`;
+  
+  await apiClient.post(endpoint, {
+    reason,
+    description
+  });
+}

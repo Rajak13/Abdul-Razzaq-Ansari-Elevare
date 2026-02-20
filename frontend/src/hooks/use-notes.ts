@@ -4,11 +4,11 @@ import { Note, CreateNoteData, UpdateNoteData } from '@/types/note';
 import { useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
-export function useNotes(params?: { 
+export function useNotes(params?: {
   folder_id?: string;
-  page?: number; 
-  limit?: number; 
-  sort_by?: string; 
+  page?: number;
+  limit?: number;
+  sort_by?: string;
   order?: string;
 }) {
   return useQuery({
@@ -95,16 +95,34 @@ export function useAutoSaveNote(noteId: string) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isAutoSavingRef = useRef(false);
 
+  const saveToLocalStorage = useCallback((data: { content: any; title: string; folder_id?: string; tags?: string[] }) => {
+    if (typeof window === 'undefined') return;
+    const key = noteId && noteId !== 'temp-note' ? `elevare_note_${noteId}` : 'elevare_note_draft';
+    localStorage.setItem(key, JSON.stringify({
+      ...data,
+      timestamp: Date.now()
+    }));
+  }, [noteId]);
+
+  const clearAutoSave = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const key = noteId && noteId !== 'temp-note' ? `elevare_note_${noteId}` : 'elevare_note_draft';
+    localStorage.removeItem(key);
+  }, [noteId]);
+
   const autoSave = useCallback(
-    async (data: { content: any; title: string }) => {
-      if (!noteId || isAutoSavingRef.current) return;
+    async (data: { content: any; title: string; folder_id?: string; tags?: string[] }) => {
+      // Always save to localStorage immediately for safety
+      saveToLocalStorage(data);
+
+      if (!noteId || noteId === 'temp-note' || isAutoSavingRef.current) return;
 
       // Clear existing timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
 
-      // Set new timeout for auto-save
+      // Set new timeout for auto-save to backend
       timeoutRef.current = setTimeout(async () => {
         try {
           isAutoSavingRef.current = true;
@@ -116,11 +134,12 @@ export function useAutoSaveNote(noteId: string) {
         }
       }, 2000); // Auto-save after 2 seconds of inactivity
     },
-    [noteId]
+    [noteId, saveToLocalStorage]
   );
 
   return {
     autoSave,
+    clearAutoSave,
     isAutoSaving: isAutoSavingRef.current,
   };
 }
@@ -133,10 +152,10 @@ export function useSearchNotes() {
 
 export function useExportNote() {
   return useMutation({
-    mutationFn: ({ id, format, includeSummary }: { 
-      id: string; 
-      format: 'html' | 'markdown' | 'pdf'; 
-      includeSummary?: boolean 
+    mutationFn: ({ id, format, includeSummary }: {
+      id: string;
+      format: 'html' | 'markdown' | 'pdf';
+      includeSummary?: boolean
     }) => noteService.exportNote(id, format, includeSummary),
   });
 }

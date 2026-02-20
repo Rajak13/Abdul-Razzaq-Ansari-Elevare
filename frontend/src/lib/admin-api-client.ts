@@ -3,7 +3,7 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 class AdminApiClient {
-  private client: AxiosInstance;
+  public client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
@@ -250,19 +250,52 @@ class AdminApiClient {
     status?: string;
   }) {
     const response = await this.client.get('/moderation/reports', { params });
-    return response.data;
+    return response.data.data || response.data;
+  }
+
+  async getReportedContent(contentType: string, contentId: string) {
+    const response = await this.client.get(`/moderation/content/${contentType}/${contentId}`);
+    return response.data.data || response.data;
   }
 
   async updateAbuseReport(
     reportId: string,
     action: string,
-    notes?: string
+    notes?: string,
+    duration?: number
   ) {
-    const response = await this.client.put(`/moderation/reports/${reportId}`, {
+    console.log('[Admin API] updateAbuseReport called:', {
+      reportId,
       action,
       notes,
+      duration
     });
-    return response.data;
+    
+    const payload = {
+      action,
+      reason: notes || 'No reason provided',
+      notes,
+      duration_hours: duration,
+    };
+    
+    console.log('[Admin API] Request payload:', payload);
+    
+    try {
+      const response = await this.client.put(`/moderation/reports/${reportId}`, payload);
+      console.log('[Admin API] Response received:', {
+        status: response.status,
+        data: response.data
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('[Admin API] Request failed:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
+      });
+      throw error;
+    }
   }
 
   async getViolationHistory(userId: string) {

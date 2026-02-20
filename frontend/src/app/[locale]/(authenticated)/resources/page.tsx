@@ -36,6 +36,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/use-toast';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
+import { ReportButton } from '@/components/reports/report-button';
 
 interface Resource {
   id: string;
@@ -540,6 +541,11 @@ export default function ResourcesPage() {
                       >
                         <Download className="h-3 w-3" />
                       </Button>
+                      <ReportButton
+                        contentType="resource"
+                        contentId={resource.id}
+                        variant="icon"
+                      />
                     </div>
                   </CardContent>
                 </Card>

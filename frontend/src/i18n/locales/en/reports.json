@@ -1,0 +1,36 @@
+{
+  "button": "Report",
+  "reportResource": "Report Resource",
+  "reportGroup": "Report Group",
+  "reportMessage": "Report Message",
+  "reportComment": "Report Comment",
+  "title": "Report {contentType}",
+  "description": "Help us understand what's wrong with this content.",
+  "reason": "Reason for reporting",
+  "selectReason": "Select a reason",
+  "descriptionLabel": "Additional details (optional)",
+  "descriptionPlaceholder": "Provide any additional context that might help us review this report...",
+  "contentTypes": {
+    "resource": "Resource",
+    "group": "Study Group",
+    "message": "Message",
+    "comment": "Comment"
+  },
+  "reasons": {
+    "spam": "Spam or misleading",
+    "harassment": "Harassment or bullying",
+    "inappropriate_content": "Inappropriate content",
+    "copyright_violation": "Copyright violation",
+    "hate_speech": "Hate speech",
+    "violence": "Violence or threats",
+    "other": "Other"
+  },
+  "submit": "Submit Report",
+  "submitting": "Submitting...",
+  "cancel": "Cancel",
+  "success": "Report submitted. We'll review it shortly.",
+  "error": "Failed to submit report. Please try again.",
+  "duplicate": "You've already reported this content.",
+  "rateLimitExceeded": "Too many reports. Please try again later.",
+  "cannotReportOwn": "You cannot report your own content."
+}

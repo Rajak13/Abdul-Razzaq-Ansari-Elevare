@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { adminApiClient } from '@/lib/admin-api-client';
 import { AdminRouteGuard } from '@/components/admin/admin-route-guard';
 import { AdminLayout } from '@/components/admin/admin-nav';
@@ -9,6 +10,7 @@ import { Shield, AlertTriangle, Search, Filter, Eye, CheckCircle, XCircle, Clock
 import { format } from 'date-fns';
 
 export default function AdminModerationPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +26,7 @@ export default function AdminModerationPage() {
   });
 
   const reports = data?.reports || [];
-  const pagination = data?.pagination;
+  const pagination = data?.pagination || { total: 0, totalPages: 0, page: 1, limit: 20 };
 
   const filteredReports = reports.filter((report: any) => {
     if (!searchTerm) return true;
@@ -217,7 +219,10 @@ export default function AdminModerationPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <button className="px-4 py-2 bg-[hsl(142,71%,45%)] hover:bg-[hsl(142,71%,40%)] text-white text-sm font-semibold rounded-lg transition-colors">
+                          <button 
+                            onClick={() => router.push(`/admin/moderation/reports/${report.id}`)}
+                            className="px-4 py-2 bg-[hsl(142,71%,45%)] hover:bg-[hsl(142,71%,40%)] text-white text-sm font-semibold rounded-lg transition-colors"
+                          >
                             Review
                           </button>
                         </td>

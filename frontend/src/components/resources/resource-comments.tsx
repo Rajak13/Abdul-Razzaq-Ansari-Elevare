@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageCircle, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useTranslations } from 'next-intl';
+import { ReportButton } from '@/components/reports/report-button';
 
 interface Comment {
   id: string;
@@ -169,15 +170,22 @@ export function ResourceComments({ resourceId }: ResourceCommentsProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{comment.user_name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(comment.created_at).toLocaleDateString()} at{' '}
-                      {new Date(comment.created_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{comment.user_name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(comment.created_at).toLocaleDateString()} at{' '}
+                        {new Date(comment.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    <ReportButton
+                      contentType="comment"
+                      contentId={comment.id}
+                      variant="icon"
+                    />
                   </div>
                   <p className="text-sm text-foreground whitespace-pre-wrap">
                     {comment.content}

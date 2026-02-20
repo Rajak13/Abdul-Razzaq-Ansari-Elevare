@@ -96,6 +96,7 @@ import resourceRoutes from './routes/resourceRoutes';
 import fileRoutes from './routes/fileRoutes';
 import adminRoutes from './routes/adminRoutes';
 import suspensionAppealRoutes from './routes/suspensionAppealRoutes';
+import reportRoutes from './routes/reportRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -112,6 +113,7 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/suspension-appeals', suspensionAppealRoutes);
+app.use('/api/reports', reportRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

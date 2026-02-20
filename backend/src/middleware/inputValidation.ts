@@ -234,23 +234,38 @@ export const checkSqlInjection = (
   _res: Response,
   next: NextFunction
 ) => {
-  const checkValue = (value: any): boolean => {
+  // Fields that are allowed to contain user-generated content with SQL-like patterns
+  const contentFields = ['content', 'summary', 'description', 'message', 'body', 'text'];
+  
+  const checkValue = (value: any, key?: string): boolean => {
+    // Skip SQL injection check for content fields
+    if (key && contentFields.includes(key)) {
+      return true;
+    }
+    
     if (typeof value === 'string') {
       return preventSqlInjection(value);
     }
     if (Array.isArray(value)) {
-      return value.every(checkValue);
+      return value.every((item) => checkValue(item));
     }
     if (typeof value === 'object' && value !== null) {
-      return Object.values(value).every(checkValue);
+      return Object.entries(value).every(([k, v]) => checkValue(v, k));
     }
     return true;
   };
 
+  const checkObject = (obj: any): boolean => {
+    if (typeof obj === 'object' && obj !== null) {
+      return Object.entries(obj).every(([key, value]) => checkValue(value, key));
+    }
+    return checkValue(obj);
+  };
+
   const isSafe =
-    checkValue(req.body) &&
-    checkValue(req.query) &&
-    checkValue(req.params);
+    checkObject(req.body) &&
+    checkObject(req.query) &&
+    checkObject(req.params);
 
   if (!isSafe) {
     throw new AppError(

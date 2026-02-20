@@ -14,12 +14,14 @@ import { generateContentHashSync } from '@/lib/content-hash';
 import { useNoteTemplates } from './note-templates';
 import { SummaryGenerator } from './summary-generator';
 import { SummaryDisplay } from './summary-display';
+import { RichTextEditor } from './rich-text-editor';
 import { Note, CreateNoteData } from '@/types/note';
 import { Eye, EyeOff, Folder, Hash, Maximize, Minimize, Plus, Save, X } from 'lucide-react';
 import { useRouter } from '@/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import '@/styles/rich-text-editor.css';
 
 interface NoteEditorProps {
   note?: Note;
@@ -59,7 +61,7 @@ export function NoteEditor({
   const createNote = useCreateNote();
   const updateNote = useUpdateNote();
   const updateSummary = useUpdateNoteSummary();
-  const { autoSave, isAutoSaving } = useAutoSaveNote(note?.id || '');
+  const { autoSave, clearAutoSave, isAutoSaving } = useAutoSaveNote(note?.id || '');
   const { data: folders = [] } = useNoteFolders();
 
   // Content change detection for summary staleness
@@ -84,6 +86,30 @@ export function NoteEditor({
       return;
     }
 
+    // Check for localStorage draft first - crucial for keeping notes after language switch
+    const storageKey = note?.id && note.id !== 'temp-note' ? `elevare_note_${note.id}` : 'elevare_note_draft';
+    const savedDataStr = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+
+    if (savedDataStr) {
+      try {
+        const savedData = JSON.parse(savedDataStr);
+        // For existing notes, check if the saved draft is newer than the note's updated_at
+        const noteUpdatedAt = note?.updated_at ? new Date(note.updated_at).getTime() : 0;
+
+        if (savedData.timestamp > noteUpdatedAt) {
+          console.log('✅ NoteEditor: Using newer content from localStorage draft');
+          if (savedData.content !== undefined) setContent(savedData.content);
+          if (savedData.title !== undefined) setTitle(savedData.title);
+          if (savedData.tags !== undefined) setTags(savedData.tags);
+          if (savedData.folder_id !== undefined) setSelectedFolderId(savedData.folder_id);
+          hasInitialized.current = true;
+          return;
+        }
+      } catch (e) {
+        console.error('Failed to parse localStorage data', e);
+      }
+    }
+
     // Wait for templates to load before initializing
     if (noteTemplates.length === 0) {
       console.log('⏳ NoteEditor: Waiting for templates to load...');
@@ -93,7 +119,7 @@ export function NoteEditor({
     console.log('🔄 NoteEditor: Content initialization useEffect triggered');
     console.log('📝 NoteEditor: note?.content exists:', !!note?.content);
     console.log('📝 NoteEditor: template:', template);
-    
+
     let initialContent = '';
 
     if (note?.content) {
@@ -110,8 +136,8 @@ export function NoteEditor({
       // Use the selected template content
       const selectedTemplate = noteTemplates.find(t => t.id === template);
       if (selectedTemplate) {
-        initialContent = typeof selectedTemplate.content === 'string' 
-          ? selectedTemplate.content 
+        initialContent = typeof selectedTemplate.content === 'string'
+          ? selectedTemplate.content
           : extractTextFromContent(selectedTemplate.content);
       }
     }
@@ -121,8 +147,8 @@ export function NoteEditor({
       // Fallback to default template
       const defaultTemplate = noteTemplates[0];
       if (defaultTemplate) {
-        initialContent = typeof defaultTemplate.content === 'string' 
-          ? defaultTemplate.content 
+        initialContent = typeof defaultTemplate.content === 'string'
+          ? defaultTemplate.content
           : extractTextFromContent(defaultTemplate.content);
       }
     }
@@ -137,7 +163,7 @@ export function NoteEditor({
     console.log('🔄 NoteEditor: Summary useEffect triggered');
     console.log('📝 NoteEditor: note?.summary:', note?.summary?.substring(0, 50) + '...');
     console.log('📝 NoteEditor: current summary state:', summary?.substring(0, 50) + '...');
-    
+
     if (note?.summary) {
       console.log('✅ NoteEditor: Setting summary from note');
       setSummary(note.summary);
@@ -146,29 +172,28 @@ export function NoteEditor({
     }
   }, [note?.summary]);
 
-  // Auto-save functionality
-  const handleContentChange = useCallback(
-    (newContent: string) => {
-      setContent(newContent);
+  // Auto-save triggers whenever title, content, folder or tags change
+  useEffect(() => {
+    if (hasInitialized.current) {
+      autoSave({
+        content,
+        title,
+        folder_id: selectedFolderId,
+        tags,
+      });
+    }
+  }, [content, title, selectedFolderId, tags, autoSave]);
 
-      if (note?.id) {
-        // For auto-save, only save content - don't clear summary fields
-        // Summary clearing will happen on manual save if content hash changed
-        autoSave({
-          content: newContent,
-          title,
-        });
-      }
-    },
-    [note?.id, autoSave, title]
-  );
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+  };
 
   // Handle manual save
   const handleSave = async () => {
     console.log('💾 NoteEditor: handleSave called');
     console.log('🔄 NoteEditor: createNote.isPending:', createNote.isPending);
     console.log('🔄 NoteEditor: updateNote.isPending:', updateNote.isPending);
-    
+
     if (createNote.isPending || updateNote.isPending) {
       console.log('⏸️ NoteEditor: Save already in progress, preventing duplicate');
       return; // Prevent duplicate saves
@@ -205,6 +230,7 @@ export function NoteEditor({
           data: noteData,
         });
         console.log('✅ NoteEditor: Note updated successfully:', updatedNote.id);
+        clearAutoSave(); // Clear draft as it's now successfully saved
         onSave?.(updatedNote);
         // Only show toast for manual saves, not auto-saves
         if (!isAutoSaving) {
@@ -219,7 +245,8 @@ export function NoteEditor({
         console.log('✅ NoteEditor: Note created successfully:', newNote.id);
         console.log('📝 NoteEditor: New note has summary:', !!newNote.summary);
         console.log('📝 NoteEditor: New note summary length:', newNote.summary?.length || 0);
-        
+        clearAutoSave();
+
         if (onSave) {
           console.log('🔄 NoteEditor: Calling onSave with new note');
           onSave(newNote);
@@ -263,17 +290,17 @@ export function NoteEditor({
     console.log('🆔 NoteEditor: note?.id:', note?.id);
     console.log('📄 NoteEditor: content length:', content.length);
     console.log('🔄 NoteEditor: current summary state:', summary?.substring(0, 50) + '...');
-    
+
     // Check if this is the same summary to prevent duplicate saves
     if (summary === generatedSummary) {
       console.log('⚠️ NoteEditor: Same summary, skipping duplicate save');
       return;
     }
-    
+
     console.log('🔄 NoteEditor: Setting summary state...');
     setSummary(generatedSummary);
     console.log('✅ NoteEditor: setSummary called with summary');
-    
+
     // If we have an existing note, save the summary immediately using the dedicated hook
     if (note?.id) {
       console.log('💾 NoteEditor: Attempting to save summary to database');
@@ -285,10 +312,10 @@ export function NoteEditor({
           model: 'PEGASUS'
         });
         console.log('✅ NoteEditor: Summary saved successfully:', result);
-        
+
         // Force re-render by updating the note state if needed
         console.log('🔄 NoteEditor: Summary save completed, state should be updated');
-        
+
         // Don't show toast here as it's already shown in the generator
         // toast.success('Summary generated and saved successfully');
       } catch (error) {
@@ -304,7 +331,7 @@ export function NoteEditor({
   const handleSummaryChanged = useCallback(async (newSummary: string) => {
     console.log('📝 NoteEditor: handleSummaryChanged called with summary length:', newSummary.length);
     setSummary(newSummary);
-    
+
     // If we have an existing note, save the updated summary using the dedicated hook
     if (note?.id && note.id !== 'temp-note') {
       console.log('💾 NoteEditor: Saving edited summary to database');
@@ -483,9 +510,9 @@ export function NoteEditor({
           {isPreviewMode ? (
             <div className="h-full overflow-auto p-4">
               <div className="prose prose-gray max-w-none dark:prose-invert">
-                <div 
+                <div
                   className="whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ 
+                  dangerouslySetInnerHTML={{
                     __html: content
                       .replace(/^# (.*$)/gim, '<h1>$1</h1>')
                       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -503,11 +530,12 @@ export function NoteEditor({
             <div className="flex h-full">
               {/* Main content area */}
               <div className="flex-1 flex flex-col">
-                <Textarea
+                <RichTextEditor
                   value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
+                  onChange={handleContentChange}
                   placeholder={t('editor.contentPlaceholder')}
-                  className="flex-1 resize-none border-none bg-transparent p-4 text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 dark:text-white dark:placeholder:text-gray-400"
+                  disabled={isLoading}
+                  className="flex-1"
                 />
               </div>
 
@@ -518,7 +546,7 @@ export function NoteEditor({
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                       {t('summary.title')}
                     </h3>
-                    
+
                     {/* Summary Generator */}
                     <SummaryGenerator
                       noteContent={content}

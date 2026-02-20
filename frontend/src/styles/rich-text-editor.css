@@ -1,0 +1,233 @@
+/* Rich Text Editor Theme Compatibility */
+
+/* Light theme styles */
+.rich-text-editor-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.rich-text-editor-wrapper .rc-md-editor {
+  border: none;
+  background: transparent;
+}
+
+.rich-text-editor-wrapper .rc-md-navigation {
+  background: rgb(249 250 251);
+  border-bottom: 1px solid rgb(229 231 235);
+  padding: 8px;
+}
+
+.rich-text-editor-wrapper .button-wrap button {
+  color: rgb(55 65 81);
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rich-text-editor-wrapper .button-wrap button:hover {
+  background: rgb(229 231 235);
+  color: rgb(17 24 39);
+}
+
+.rich-text-editor-wrapper .button-wrap button.active {
+  background: rgb(219 234 254);
+  color: rgb(29 78 216);
+}
+
+.rich-text-editor-wrapper .sec-md .input {
+  background: white;
+  color: rgb(17 24 39);
+  border: none;
+  padding: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rich-text-editor-wrapper .sec-html .html-wrap {
+  background: white;
+  color: rgb(17 24 39);
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rich-text-editor-wrapper .custom-html-style {
+  background: white;
+  color: rgb(17 24 39);
+}
+
+/* Dark theme styles */
+.dark .rich-text-editor-wrapper .rc-md-navigation {
+  background: rgb(31 41 55);
+  border-bottom: 1px solid rgb(55 65 81);
+}
+
+.dark .rich-text-editor-wrapper .button-wrap button {
+  color: rgb(209 213 219);
+}
+
+.dark .rich-text-editor-wrapper .button-wrap button:hover {
+  background: rgb(55 65 81);
+  color: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .button-wrap button.active {
+  background: rgb(30 58 138);
+  color: rgb(191 219 254);
+}
+
+.dark .rich-text-editor-wrapper .sec-md .input {
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+  caret-color: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .sec-html .html-wrap {
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style {
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style h1,
+.dark .rich-text-editor-wrapper .custom-html-style h2,
+.dark .rich-text-editor-wrapper .custom-html-style h3,
+.dark .rich-text-editor-wrapper .custom-html-style h4,
+.dark .rich-text-editor-wrapper .custom-html-style h5,
+.dark .rich-text-editor-wrapper .custom-html-style h6 {
+  color: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style a {
+  color: rgb(96 165 250);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style code {
+  background: rgb(55 65 81);
+  color: rgb(251 191 36);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style pre {
+  background: rgb(17 24 39);
+  border: 1px solid rgb(55 65 81);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style blockquote {
+  border-left-color: rgb(75 85 99);
+  color: rgb(156 163 175);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style table {
+  border-color: rgb(55 65 81);
+}
+
+.dark .rich-text-editor-wrapper .custom-html-style th,
+.dark .rich-text-editor-wrapper .custom-html-style td {
+  border-color: rgb(55 65 81);
+}
+
+/* Scrollbar styling */
+.rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar,
+.rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-track,
+.rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-track {
+  background: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-track,
+.dark .rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-track {
+  background: rgb(17 24 39);
+}
+
+.rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-thumb,
+.rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-thumb {
+  background: rgb(209 213 219);
+  border-radius: 4px;
+}
+
+.dark .rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-thumb,
+.dark .rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+}
+
+.rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-thumb:hover,
+.rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgb(156 163 175);
+}
+
+.dark .rich-text-editor-wrapper .sec-md .input::-webkit-scrollbar-thumb:hover,
+.dark .rich-text-editor-wrapper .sec-html .html-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Placeholder styling */
+.rich-text-editor-wrapper .sec-md .input::placeholder {
+  color: rgb(156 163 175);
+}
+
+.dark .rich-text-editor-wrapper .sec-md .input::placeholder {
+  color: rgb(107 114 128);
+}
+
+/* Focus states */
+.rich-text-editor-wrapper .rc-md-editor:focus-within {
+  outline: none;
+}
+
+/* Dropdown menus */
+.rich-text-editor-wrapper .drop-wrap {
+  background: white;
+  border: 1px solid rgb(229 231 235);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.dark .rich-text-editor-wrapper .drop-wrap {
+  background: rgb(31 41 55);
+  border: 1px solid rgb(55 65 81);
+}
+
+.rich-text-editor-wrapper .drop-wrap .list-item {
+  color: rgb(55 65 81);
+}
+
+.dark .rich-text-editor-wrapper .drop-wrap .list-item {
+  color: rgb(209 213 219);
+}
+
+.rich-text-editor-wrapper .drop-wrap .list-item:hover {
+  background: rgb(243 244 246);
+}
+
+.dark .rich-text-editor-wrapper .drop-wrap .list-item:hover {
+  background: rgb(55 65 81);
+}
+
+/* Full screen mode */
+.rc-md-editor.full {
+  z-index: 9999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rich-text-editor-wrapper .rc-md-navigation {
+    padding: 4px;
+    overflow-x: auto;
+  }
+  
+  .rich-text-editor-wrapper .button-wrap button {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+}
