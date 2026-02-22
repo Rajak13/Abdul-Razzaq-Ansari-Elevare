@@ -98,7 +98,8 @@ export default function RegisterPage() {
       
       // Redirect to OTP verification page after 1 second
       setTimeout(() => {
-        window.location.href = `/verify-otp?email=${encodeURIComponent(formData.email)}`;
+        const locale = window.location.pathname.split('/')[1] || 'en';
+        window.location.href = `/${locale}/verify-otp?email=${encodeURIComponent(formData.email)}`;
       }, 1000);
     } catch (error) {
       const axiosError = error as AxiosError<{ error: { message: string } }>;

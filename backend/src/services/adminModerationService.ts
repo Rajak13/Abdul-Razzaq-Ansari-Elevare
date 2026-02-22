@@ -74,7 +74,7 @@ export interface CreateAbuseReportData {
 }
 
 export interface ModerationActionData {
-  action: 'dismiss' | 'warn' | 'suspend' | 'ban' | 'resolve';
+  action: 'dismiss' | 'warn' | 'suspend' | 'ban' | 'resolve' | 'delete_content';
   reason: string;
   notes?: string;
   duration_hours?: number; // For temporary suspensions
@@ -95,7 +95,7 @@ export class AdminModerationService {
   constructor(
     private db: Pool,
     private auditService: AdminAuditService
-  ) {}
+  ) { }
 
   /**
    * Create a new abuse report (called by regular users)
@@ -141,7 +141,7 @@ export class AdminModerationService {
     try {
       const AdminNotificationService = require('./adminNotificationService').default;
       const notificationService = new AdminNotificationService(this.db);
-      
+
       const contentTypeNames: Record<string, string> = {
         resource: 'Resource',
         study_group: 'Study Group',
@@ -206,10 +206,10 @@ export class AdminModerationService {
   ): Promise<AbuseReport> {
     // Validate report reason
     const validReasons: AbuseReport['reason'][] = [
-      'spam', 'harassment', 'inappropriate_content', 'copyright_violation', 
+      'spam', 'harassment', 'inappropriate_content', 'copyright_violation',
       'hate_speech', 'violence', 'other'
     ];
-    
+
     if (!validReasons.includes(reason)) {
       throw new Error(`Invalid report reason: ${reason}`);
     }
@@ -217,7 +217,7 @@ export class AdminModerationService {
     // Get resource owner to set as reported_user_id
     const resourceQuery = 'SELECT user_id FROM resources WHERE id = $1';
     const resourceResult = await this.db.query(resourceQuery, [resourceId]);
-    
+
     if (resourceResult.rows.length === 0) {
       throw new Error('Resource not found');
     }
@@ -246,10 +246,10 @@ export class AdminModerationService {
   ): Promise<AbuseReport> {
     // Validate report reason
     const validReasons: AbuseReport['reason'][] = [
-      'spam', 'harassment', 'inappropriate_content', 'copyright_violation', 
+      'spam', 'harassment', 'inappropriate_content', 'copyright_violation',
       'hate_speech', 'violence', 'other'
     ];
-    
+
     if (!validReasons.includes(reason)) {
       throw new Error(`Invalid report reason: ${reason}`);
     }
@@ -263,7 +263,7 @@ export class AdminModerationService {
     // Get group owner to set as reported_user_id
     const groupQuery = 'SELECT owner_id FROM study_groups WHERE id = $1';
     const groupResult = await this.db.query(groupQuery, [groupId]);
-    
+
     if (groupResult.rows.length === 0) {
       throw new Error('Study group not found');
     }
@@ -288,7 +288,7 @@ export class AdminModerationService {
       SELECT 1 FROM group_members 
       WHERE user_id = $1 AND group_id = $2
     `;
-    
+
     const result = await this.db.query(query, [userId, groupId]);
     return result.rows.length > 0;
   }
@@ -457,8 +457,8 @@ export class AdminModerationService {
         RETURNING *
       `;
 
-      const status = actionData.action === 'dismiss' ? 'dismissed' : 
-                    ['resolve', 'warn', 'suspend', 'ban'].includes(actionData.action) ? 'resolved' : 'under_review';
+      const status = actionData.action === 'dismiss' ? 'dismissed' :
+        ['resolve', 'warn', 'suspend', 'ban', 'delete_content'].includes(actionData.action) ? 'resolved' : 'under_review';
 
       logger.info('[Moderation] Updating report status', {
         newStatus: status,
@@ -482,7 +482,7 @@ export class AdminModerationService {
           action: actionData.action,
           userId: report.reported_user_id
         });
-        
+
         await this.createUserViolation(client, {
           user_id: report.reported_user_id,
           violation_type: report.reason,
@@ -493,7 +493,7 @@ export class AdminModerationService {
           action_taken: actionData.action,
           duration_hours: actionData.duration_hours
         });
-        
+
         logger.info('[Moderation] User violation record created');
       }
 
@@ -505,7 +505,7 @@ export class AdminModerationService {
           suspensionType: actionData.action === 'ban' ? 'permanent' : 'temporary',
           durationHours: actionData.duration_hours
         });
-        
+
         await this.createUserSuspension(client, {
           user_id: report.reported_user_id,
           suspended_by: moderatorId,
@@ -513,7 +513,7 @@ export class AdminModerationService {
           suspension_type: actionData.action === 'ban' ? 'permanent' : 'temporary',
           duration_hours: actionData.duration_hours
         });
-        
+
         logger.info('[Moderation] User suspension created');
       }
 
@@ -541,6 +541,54 @@ export class AdminModerationService {
       ]);
       logger.info('[Moderation] Moderation action logged');
 
+      // Actually delete the content if action is delete_content
+      if (actionData.action === 'delete_content') {
+        logger.info('[Moderation] Deleting reported content', {
+          contentType: report.content_type,
+          contentId: report.content_id
+        });
+
+        try {
+          switch (report.content_type) {
+            case 'resource':
+              await client.query('DELETE FROM resources WHERE id = $1', [report.content_id]);
+              break;
+            case 'study_group':
+              await client.query('DELETE FROM study_groups WHERE id = $1', [report.content_id]);
+              break;
+            case 'message':
+              await client.query('DELETE FROM group_messages WHERE id = $1', [report.content_id]);
+              break;
+            case 'comment':
+              await client.query('DELETE FROM resource_comments WHERE id = $1', [report.content_id]);
+              break;
+            case 'note':
+              await client.query('DELETE FROM notes WHERE id = $1', [report.content_id]);
+              break;
+            case 'file':
+              await client.query('DELETE FROM files WHERE id = $1', [report.content_id]);
+              break;
+            case 'whiteboard':
+              await client.query('DELETE FROM whiteboards WHERE id = $1', [report.content_id]);
+              break;
+            case 'profile':
+              logger.warn('[Moderation] Cannot delete user profile via delete_content, use suspend/ban instead', {
+                reportId,
+                userId: report.content_id
+              });
+              break;
+          }
+          logger.info('[Moderation] Content deleted successfully');
+        } catch (deleteError) {
+          logger.error('[Moderation] Failed to delete content', {
+            error: deleteError,
+            contentType: report.content_type,
+            contentId: report.content_id
+          });
+          // Proceed with the transaction even if deletion fails to not block report resolution
+        }
+      }
+
       // Create audit log entry
       logger.info('[Moderation] Creating audit log entry');
       await this.auditService.createAuditLog(
@@ -563,7 +611,7 @@ export class AdminModerationService {
       logger.info('[Moderation] Fetching reporter information', {
         reporterId: report.reporter_id
       });
-      
+
       const reporterResult = await client.query(
         'SELECT email, name, preferred_language FROM users WHERE id = $1',
         [report.reporter_id]
@@ -572,21 +620,20 @@ export class AdminModerationService {
       if (reporterResult.rows.length > 0) {
         const reporter = reporterResult.rows[0];
         const locale = reporter.preferred_language || 'en';
-        
+
         logger.info('[Moderation] Sending email notification to reporter', {
           reporterEmail: reporter.email,
           status,
           locale
         });
-        
+
         try {
           const { sendReportUnderReviewEmail, sendReportResolvedEmail, sendReportDismissedEmail } = require('./emailService');
-          
+
           if (status === 'under_review') {
             await sendReportUnderReviewEmail(
               reporter.email,
               reporter.name,
-              report.content_type,
               report.id,
               locale
             );
@@ -595,7 +642,6 @@ export class AdminModerationService {
             await sendReportResolvedEmail(
               reporter.email,
               reporter.name,
-              report.content_type,
               report.id,
               actionData.action,
               locale
@@ -605,7 +651,6 @@ export class AdminModerationService {
             await sendReportDismissedEmail(
               reporter.email,
               reporter.name,
-              report.content_type,
               report.id,
               actionData.reason,
               locale
@@ -628,7 +673,7 @@ export class AdminModerationService {
         action: actionData.action,
         newStatus: status
       });
-      
+
       return updatedReport;
 
     } catch (error) {
@@ -1036,7 +1081,7 @@ export class AdminModerationService {
     reports_by_type: Array<{ content_type: string; count: number }>;
     reports_by_reason: Array<{ reason: string; count: number }>;
   }> {
-    const dateFilter = dateFrom && dateTo ? 
+    const dateFilter = dateFrom && dateTo ?
       'WHERE created_at >= $1 AND created_at <= $2' : '';
     const dateParams = dateFrom && dateTo ? [dateFrom, dateTo] : [];
 
@@ -1115,7 +1160,7 @@ export class AdminModerationService {
     duration_hours?: number;
   }): Promise<void> {
     const durationHours = data.duration_hours !== undefined ? data.duration_hours : null;
-    const expiresAt = durationHours ? 
+    const expiresAt = durationHours ?
       new Date(Date.now() + durationHours * 60 * 60 * 1000) : null;
 
     await client.query(`
@@ -1151,12 +1196,12 @@ export class AdminModerationService {
       reasonLength: data.reason.length
     });
 
-    const expiresAt = data.suspension_type === 'temporary' && data.duration_hours ? 
+    const expiresAt = data.suspension_type === 'temporary' && data.duration_hours ?
       new Date(Date.now() + data.duration_hours * 60 * 60 * 1000) : null;
 
     // Ensure reason fits in VARCHAR(255)
     const truncatedReason = data.reason.substring(0, 255);
-    
+
     if (data.reason.length > 255) {
       logger.warn('[Suspension] Reason truncated from length', {
         originalLength: data.reason.length,
@@ -1188,7 +1233,7 @@ export class AdminModerationService {
       logger.info('[Suspension] Fetching user details for email', {
         userId: data.user_id
       });
-      
+
       const userResult = await client.query(
         'SELECT email, name, preferred_language FROM users WHERE id = $1',
         [data.user_id]

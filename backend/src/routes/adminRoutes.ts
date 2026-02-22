@@ -1015,7 +1015,7 @@ router.put('/moderation/reports/:reportId',
   auditAdminAction('moderation_action'),
   [
     param('reportId').isUUID(),
-    body('action').isIn(['dismiss', 'warn', 'suspend', 'ban', 'resolve']),
+    body('action').isIn(['dismiss', 'warn', 'suspend', 'ban', 'resolve', 'delete_content']),
     body('reason').isString().notEmpty(),
     body('notes').optional().isString(),
     body('duration_hours').optional().isInt({ min: 1 })

@@ -100,7 +100,6 @@ export async function reportResource(req: Request, res: Response): Promise<any> 
         await sendReportSubmittedEmail(
           user.email,
           user.name,
-          'resource',
           report.id,
           user.preferred_language || 'en'
         );
@@ -211,7 +210,6 @@ export async function reportStudyGroup(req: Request, res: Response): Promise<any
         await sendReportSubmittedEmail(
           user.email,
           user.name,
-          'group',
           report.id,
           user.preferred_language || 'en'
         );
@@ -323,7 +321,6 @@ export async function reportGroupMessage(req: Request, res: Response): Promise<a
         await sendReportSubmittedEmail(
           user.email,
           user.name,
-          'message',
           report.id,
           user.preferred_language || 'en'
         );
@@ -422,7 +419,6 @@ export async function reportResourceComment(req: Request, res: Response): Promis
         await sendReportSubmittedEmail(
           user.email,
           user.name,
-          'comment',
           report.id,
           user.preferred_language || 'en'
         );

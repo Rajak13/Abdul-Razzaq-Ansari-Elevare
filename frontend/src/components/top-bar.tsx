@@ -56,7 +56,8 @@ export default function TopBar({ pathname }: TopBarProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+      const locale = window.location.pathname.split('/')[1] || 'en';
+      window.location.href = `/${locale}/search?q=${encodeURIComponent(searchQuery)}`;
     }
   };
 

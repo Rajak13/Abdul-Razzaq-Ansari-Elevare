@@ -307,7 +307,7 @@ export const enforceSessionTimeout = (req: Request, _res: Response, next: NextFu
 
 /**
  * Audit logging middleware for admin actions
- * Logs all admin actions for compliance and security
+ * Logs all admin actions for compliance and security with cryptographic integrity
  */
 export const auditAdminAction = (actionType: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -322,25 +322,166 @@ export const auditAdminAction = (actionType: string) => {
     res.json = function(body: any) {
       // Log admin action after successful response
       if (res.statusCode < 400) {
-        // Import here to avoid circular dependency
-        import('../db/connection').then(({ query }) => {
-          query(
-            `INSERT INTO audit_logs (admin_id, action_type, target_entity, target_id, details, ip_address, timestamp)
-             VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
-            [
-              req.admin!.id,
-              actionType,
-              req.params.entity || 'unknown',
-              req.params.id || null,
-              JSON.stringify({
-                method: req.method,
-                path: req.path,
-                query: req.query,
-                body: req.body,
-                response_status: res.statusCode
-              }),
-              req.ip
-            ]
+        // Import audit service to use proper hash generation
+        import('../services/adminAuditService').then(({ default: adminAuditService }) => {
+          const ipAddress = req.ip || '0.0.0.0';
+          const userAgent = req.get('User-Agent') || '';
+          
+          // Determine target entity and ID from request
+          let targetEntity = 'unknown';
+          let targetId = null;
+          
+          // Extract from path - check the actual path for entity type
+          const path = req.path;
+          
+          console.log('🔍 Audit Middleware - Parsing request:', {
+            path,
+            method: req.method,
+            params: req.params,
+            actionType
+          });
+          
+          // Extract from params first
+          if (req.params.userId) {
+            targetEntity = 'user';
+            targetId = req.params.userId;
+            console.log('✅ Found userId in params:', targetId);
+          } else if (req.params.reportId) {
+            targetEntity = 'abuse_report';
+            targetId = req.params.reportId;
+            console.log('✅ Found reportId in params:', targetId);
+          } else if (req.params.name) {
+            targetEntity = 'feature_flag';
+            targetId = req.params.name;
+            console.log('✅ Found name in params:', targetId);
+          } else if (req.params.key) {
+            targetEntity = 'system_config';
+            targetId = req.params.key;
+            console.log('✅ Found key in params:', targetId);
+          } else if (req.params.ipAddress) {
+            targetEntity = 'ip_address';
+            targetId = req.params.ipAddress;
+            console.log('✅ Found ipAddress in params:', targetId);
+          } else if (req.params.appealId) {
+            targetEntity = 'appeal';
+            targetId = req.params.appealId;
+            console.log('✅ Found appealId in params:', targetId);
+          } else {
+            console.log('⚠️ No params found, will parse from path');
+          }
+          
+          // If params didn't work, parse from path
+          if (targetEntity === 'unknown') {
+            console.log('🔎 Parsing path for entity and ID...');
+            
+            // Match /users/:id patterns
+            if (path.includes('/users/') && path.includes('/suspend')) {
+              const userIdMatch = path.match(/\/users\/([a-f0-9-]+)\//);
+              if (userIdMatch) {
+                targetEntity = 'user';
+                targetId = userIdMatch[1];
+                console.log('✅ Parsed user suspend:', targetId);
+              }
+            } else if (path.includes('/users/') && path.includes('/unsuspend')) {
+              const userIdMatch = path.match(/\/users\/([a-f0-9-]+)\//);
+              if (userIdMatch) {
+                targetEntity = 'user';
+                targetId = userIdMatch[1];
+                console.log('✅ Parsed user unsuspend:', targetId);
+              }
+            } else if (path.includes('/users/') && path.includes('/reset-password')) {
+              const userIdMatch = path.match(/\/users\/([a-f0-9-]+)\//);
+              if (userIdMatch) {
+                targetEntity = 'user';
+                targetId = userIdMatch[1];
+                console.log('✅ Parsed user password reset:', targetId);
+              }
+            } else if (path.includes('/users/') && req.method === 'DELETE') {
+              const userIdMatch = path.match(/\/users\/([a-f0-9-]+)/);
+              if (userIdMatch) {
+                targetEntity = 'user';
+                targetId = userIdMatch[1];
+                console.log('✅ Parsed user delete:', targetId);
+              }
+            } else if (path.includes('/moderation/reports/')) {
+              // Match /moderation/reports/:reportId
+              const reportIdMatch = path.match(/\/moderation\/reports\/([a-f0-9-]+)/);
+              if (reportIdMatch) {
+                targetEntity = 'abuse_report';
+                targetId = reportIdMatch[1];
+                console.log('✅ Parsed moderation report:', targetId);
+              } else {
+                console.log('❌ Failed to parse moderation report from path:', path);
+              }
+            } else if (path.includes('/appeals/')) {
+              // Match /appeals/:appealId
+              const appealIdMatch = path.match(/\/appeals\/([a-f0-9-]+)/);
+              if (appealIdMatch) {
+                targetEntity = 'appeal';
+                targetId = appealIdMatch[1];
+                console.log('✅ Parsed appeal:', targetId);
+              }
+            } else if (path.includes('/config/features/')) {
+              // Match /config/features/:name
+              const nameMatch = path.match(/\/config\/features\/([^/]+)/);
+              if (nameMatch) {
+                targetEntity = 'feature_flag';
+                targetId = nameMatch[1];
+                console.log('✅ Parsed feature flag:', targetId);
+              }
+            } else if (path.includes('/config/system/')) {
+              // Match /config/system/:key
+              const keyMatch = path.match(/\/config\/system\/([^/]+)/);
+              if (keyMatch) {
+                targetEntity = 'system_config';
+                targetId = keyMatch[1];
+                console.log('✅ Parsed system config:', targetId);
+              }
+            } else if (path.includes('/security/block-ip/')) {
+              // Match /security/block-ip/:ipAddress
+              const ipMatch = path.match(/\/security\/block-ip\/([^/]+)/);
+              if (ipMatch) {
+                targetEntity = 'ip_address';
+                targetId = ipMatch[1];
+                console.log('✅ Parsed IP address:', targetId);
+              }
+            } else {
+              console.log('❌ No pattern matched for path:', path);
+            }
+          }
+          
+          console.log('📝 Final audit log data:', {
+            targetEntity,
+            targetId,
+            actionType,
+            adminId: req.admin!.id,
+            adminEmail: req.admin!.email
+          });
+          
+          // Sanitize sensitive data from body
+          const sanitizedBody = { ...req.body };
+          if (sanitizedBody.password) sanitizedBody.password = '[REDACTED]';
+          if (sanitizedBody.mfaToken) sanitizedBody.mfaToken = '[REDACTED]';
+          if (sanitizedBody.refreshToken) sanitizedBody.refreshToken = '[REDACTED]';
+          
+          const details = {
+            method: req.method,
+            path: req.path,
+            query: req.query,
+            body: sanitizedBody,
+            response_status: res.statusCode,
+            admin_email: req.admin!.email,
+            admin_role: req.admin!.role
+          };
+          
+          adminAuditService.createAuditLog(
+            req.admin!.id,
+            actionType,
+            ipAddress,
+            userAgent,
+            targetEntity,
+            targetId || undefined,
+            details
           ).catch(error => {
             logger.error('Failed to create audit log entry', { error, actionType });
           });

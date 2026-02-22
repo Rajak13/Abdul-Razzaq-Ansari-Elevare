@@ -91,7 +91,8 @@ function LoginForm() {
       // If email not verified, redirect to OTP verification
       if (errorCode === 'EMAIL_NOT_VERIFIED') {
         toast.info(t('verifyEmailFirst'));
-        window.location.href = `/verify-otp?email=${encodeURIComponent(formData.email)}`;
+        const locale = window.location.pathname.split('/')[1] || 'en';
+        window.location.href = `/${locale}/verify-otp?email=${encodeURIComponent(formData.email)}`;
         return;
       }
 

@@ -126,7 +126,13 @@ export function useNotifications() {
         duration: 5000,
         action: notification.link ? {
           label: t('actions.view'),
-          onClick: () => window.location.href = notification.link!
+          onClick: () => {
+            const locale = window.location.pathname.split('/')[1] || 'en';
+            const link = notification.link!.startsWith('/') && !notification.link!.startsWith(`/${locale}`)
+              ? `/${locale}${notification.link}`
+              : notification.link!;
+            window.location.href = link;
+          }
         } : undefined,
         className: 'notification-toast',
       });

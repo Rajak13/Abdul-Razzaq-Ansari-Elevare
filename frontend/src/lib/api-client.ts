@@ -56,7 +56,8 @@ apiClient.interceptors.response.use(
         // Refresh failed - clear tokens and redirect to login
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        const locale = window.location.pathname.split('/')[1] || 'en';
+        window.location.href = `/${locale}/login`;
         return Promise.reject(refreshError);
       }
     }

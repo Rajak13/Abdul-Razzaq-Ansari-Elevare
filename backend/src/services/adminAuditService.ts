@@ -114,110 +114,117 @@ export class AdminAuditService {
   /**
    * Search and filter audit log entries
    */
-  async searchAuditLogs(filter: AuditLogFilter): Promise<AuditLogSearchResult> {
-    try {
-      const limit = Math.min(filter.limit || 50, this.MAX_SEARCH_RESULTS);
-      const offset = filter.offset || 0;
+  /**
+     * Search and filter audit log entries
+     */
+    async searchAuditLogs(filter: AuditLogFilter): Promise<AuditLogSearchResult> {
+      try {
+        const limit = Math.min(filter.limit || 50, this.MAX_SEARCH_RESULTS);
+        const offset = filter.offset || 0;
 
-      // Build dynamic query
-      let whereClause = 'WHERE 1=1';
-      const params: any[] = [];
-      let paramIndex = 1;
+        // Build dynamic query
+        let whereClause = 'WHERE 1=1';
+        const params: any[] = [];
+        let paramIndex = 1;
 
-      if (filter.adminId) {
-        whereClause += ` AND admin_id = $${paramIndex}`;
-        params.push(filter.adminId);
-        paramIndex++;
+        if (filter.adminId) {
+          whereClause += ` AND al.admin_id = $${paramIndex}`;
+          params.push(filter.adminId);
+          paramIndex++;
+        }
+
+        if (filter.actionType) {
+          whereClause += ` AND al.action_type = $${paramIndex}`;
+          params.push(filter.actionType);
+          paramIndex++;
+        }
+
+        if (filter.targetEntity) {
+          whereClause += ` AND al.target_entity = $${paramIndex}`;
+          params.push(filter.targetEntity);
+          paramIndex++;
+        }
+
+        if (filter.startDate) {
+          whereClause += ` AND al.timestamp >= $${paramIndex}`;
+          params.push(filter.startDate);
+          paramIndex++;
+        }
+
+        if (filter.endDate) {
+          whereClause += ` AND al.timestamp <= $${paramIndex}`;
+          params.push(filter.endDate);
+          paramIndex++;
+        }
+
+        if (filter.ipAddress) {
+          whereClause += ` AND al.ip_address = $${paramIndex}`;
+          params.push(filter.ipAddress);
+          paramIndex++;
+        }
+
+        // Get total count
+        const countQuery = `
+          SELECT COUNT(*) as total
+          FROM audit_logs al
+          ${whereClause}
+        `;
+
+        const countResult = await query(countQuery, params);
+        const total = parseInt(countResult.rows[0].total);
+
+        // Get paginated results with admin email
+        const searchQuery = `
+          SELECT 
+            al.id, al.admin_id, al.action_type, al.target_entity, al.target_id, 
+            al.details, al.ip_address, al.user_agent, al.timestamp, al.hash,
+            au.email as admin_email, au.role as admin_role
+          FROM audit_logs al
+          LEFT JOIN admin_users au ON al.admin_id = au.id
+          ${whereClause}
+          ORDER BY al.timestamp DESC
+          LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+
+        params.push(limit, offset);
+
+        const result = await query(searchQuery, params);
+
+        const entries: AuditLogEntry[] = result.rows.map(row => ({
+          id: row.id,
+          admin_id: row.admin_id,
+          action_type: row.action_type,
+          target_entity: row.target_entity,
+          target_id: row.target_id,
+          details: row.details,
+          ip_address: row.ip_address,
+          user_agent: row.user_agent,
+          timestamp: row.timestamp,
+          hash: row.hash,
+          admin_email: row.admin_email,
+          admin_role: row.admin_role
+        } as any));
+
+        const hasMore = offset + limit < total;
+
+        logger.debug('Audit log search completed', {
+          filter,
+          resultCount: entries.length,
+          total,
+          hasMore
+        });
+
+        return {
+          entries,
+          total,
+          hasMore
+        };
+
+      } catch (error) {
+        logger.error('Failed to search audit logs', { filter, error });
+        throw new Error('Failed to search audit logs');
       }
-
-      if (filter.actionType) {
-        whereClause += ` AND action_type = $${paramIndex}`;
-        params.push(filter.actionType);
-        paramIndex++;
-      }
-
-      if (filter.targetEntity) {
-        whereClause += ` AND target_entity = $${paramIndex}`;
-        params.push(filter.targetEntity);
-        paramIndex++;
-      }
-
-      if (filter.startDate) {
-        whereClause += ` AND timestamp >= $${paramIndex}`;
-        params.push(filter.startDate);
-        paramIndex++;
-      }
-
-      if (filter.endDate) {
-        whereClause += ` AND timestamp <= $${paramIndex}`;
-        params.push(filter.endDate);
-        paramIndex++;
-      }
-
-      if (filter.ipAddress) {
-        whereClause += ` AND ip_address = $${paramIndex}`;
-        params.push(filter.ipAddress);
-        paramIndex++;
-      }
-
-      // Get total count
-      const countQuery = `
-        SELECT COUNT(*) as total
-        FROM audit_logs
-        ${whereClause}
-      `;
-
-      const countResult = await query(countQuery, params);
-      const total = parseInt(countResult.rows[0].total);
-
-      // Get paginated results
-      const searchQuery = `
-        SELECT 
-          id, admin_id, action_type, target_entity, target_id, 
-          details, ip_address, user_agent, timestamp, hash
-        FROM audit_logs
-        ${whereClause}
-        ORDER BY timestamp DESC
-        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-      `;
-
-      params.push(limit, offset);
-
-      const result = await query(searchQuery, params);
-
-      const entries: AuditLogEntry[] = result.rows.map(row => ({
-        id: row.id,
-        admin_id: row.admin_id,
-        action_type: row.action_type,
-        target_entity: row.target_entity,
-        target_id: row.target_id,
-        details: row.details,
-        ip_address: row.ip_address,
-        user_agent: row.user_agent,
-        timestamp: row.timestamp,
-        hash: row.hash
-      }));
-
-      const hasMore = offset + limit < total;
-
-      logger.debug('Audit log search completed', {
-        filter,
-        resultCount: entries.length,
-        total,
-        hasMore
-      });
-
-      return {
-        entries,
-        total,
-        hasMore
-      };
-
-    } catch (error) {
-      logger.error('Failed to search audit logs', { filter, error });
-      throw new Error('Failed to search audit logs');
     }
-  }
 
   /**
    * Get audit log entry by ID with integrity verification

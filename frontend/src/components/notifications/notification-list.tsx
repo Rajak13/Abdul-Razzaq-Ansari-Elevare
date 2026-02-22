@@ -72,7 +72,12 @@ export function NotificationList({ onClose }: NotificationListProps) {
     }
     
     if (notification.link) {
-      window.location.href = notification.link;
+      // Ensure link has locale prefix
+      const locale = window.location.pathname.split('/')[1] || 'en';
+      const link = notification.link.startsWith('/') && !notification.link.startsWith(`/${locale}`)
+        ? `/${locale}${notification.link}`
+        : notification.link;
+      window.location.href = link;
       onClose?.();
     }
   };

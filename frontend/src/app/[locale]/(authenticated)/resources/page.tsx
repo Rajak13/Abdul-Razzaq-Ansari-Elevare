@@ -528,7 +528,10 @@ export default function ResourcesPage() {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        onClick={() => window.location.href = `/resources/${resource.id}`}
+                        onClick={() => {
+                          const locale = window.location.pathname.split('/')[1] || 'en';
+                          window.location.href = `/${locale}/resources/${resource.id}`;
+                        }}
                         className="flex-1"
                       >
                         <Eye className="mr-2 h-3 w-3" />

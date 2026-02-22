@@ -370,7 +370,16 @@ class AdminApiClient {
     startDate?: string;
     endDate?: string;
   }) {
-    const response = await this.client.get('/audit/logs', { params });
+    // Convert camelCase to snake_case for backend
+    const backendParams: any = {};
+    if (params?.page) backendParams.page = params.page;
+    if (params?.limit) backendParams.limit = params.limit;
+    if (params?.adminId) backendParams.admin_id = params.adminId;
+    if (params?.actionType) backendParams.action_type = params.actionType;
+    if (params?.startDate) backendParams.start_date = params.startDate;
+    if (params?.endDate) backendParams.end_date = params.endDate;
+    
+    const response = await this.client.get('/audit/logs', { params: backendParams });
     return response.data;
   }
 
