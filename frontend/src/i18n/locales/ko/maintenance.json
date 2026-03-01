@@ -1,0 +1,30 @@
+{
+  "title": "곧 돌아오겠습니다!",
+  "description": "현재 플랫폼은 더 나은 경험을 제공하기 위해 예정된 유지보수를 진행 중입니다. 불편을 드려 죄송하며 양해해 주셔서 감사합니다.",
+  "imageAlt": "유지보수 진행 중",
+  "goBack": "뒤로 가기",
+  "cards": {
+    "whatsHappening": {
+      "title": "무슨 일이 일어나고 있나요?",
+      "description": "더 나은 서비스를 제공하기 위해 시스템 업그레이드 및 개선 작업을 수행하고 있습니다."
+    },
+    "whenBack": {
+      "title": "언제 돌아올까요",
+      "description": "곧 다시 온라인 상태가 될 것으로 예상됩니다. 잠시 후 다시 확인해 주세요."
+    },
+    "needHelp": {
+      "title": "도움이 필요하신가요?",
+      "description": "긴급한 문제가 있으시면 이메일을 통해 지원팀에 문의해 주세요."
+    }
+  },
+  "footer": "이해해 주시고 지속적인 지원에 감사드립니다!",
+  "notification": {
+    "title": "유지보수 모드 활성화됨",
+    "description": "{seconds}초 후 시스템이 유지보수 모드로 전환됩니다. 작업을 저장해 주세요.",
+    "defaultMessage": "시스템 유지보수가 곧 시작됩니다.",
+    "seconds": "초",
+    "goNow": "지금 이동",
+    "deactivated": "유지보수 모드 종료됨",
+    "deactivatedDescription": "시스템이 다시 온라인 상태입니다. 플랫폼을 계속 사용하실 수 있습니다."
+  }
+}

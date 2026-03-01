@@ -73,13 +73,13 @@ export function AccessibilityValidator() {
             
             {validationState.hasFailures && (
               <div className="text-xs text-destructive">
-                ⚠️ {validationState.failedCombinations.length} compliance issues found
+                 {validationState.failedCombinations.length} compliance issues found
               </div>
             )}
             
             {!validationState.hasFailures && !validationState.isValidating && (
               <div className="text-xs text-green-600 dark:text-green-400">
-                ✅ All color combinations are WCAG compliant
+                 All color combinations are WCAG compliant
               </div>
             )}
 

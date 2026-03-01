@@ -602,8 +602,21 @@ ${JSON.stringify(alert.details, null, 2)}
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + durationHours);
 
-      // This would integrate with a firewall or rate limiting system
-      // For now, we'll log the block action
+      // Insert into blocked_ips table
+      await query(
+        `INSERT INTO blocked_ips (ip_address, reason, blocked_by, expires_at, is_active)
+         VALUES ($1, $2, $3, $4, true)
+         ON CONFLICT (ip_address) 
+         DO UPDATE SET 
+           reason = EXCLUDED.reason,
+           blocked_by = EXCLUDED.blocked_by,
+           blocked_at = CURRENT_TIMESTAMP,
+           expires_at = EXCLUDED.expires_at,
+           is_active = true`,
+        [ipAddress, reason, blockedBy, expiresAt]
+      );
+
+      // Log the block action
       await this.logSecurityEvent(
         'ip_blocked',
         'high',

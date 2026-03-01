@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { body, query, param, validationResult } from 'express-validator';
+import { body, query as queryValidator, param, validationResult } from 'express-validator';
 import {
   authenticateAdmin,
   auditAdminAction,
@@ -22,7 +22,7 @@ import adminAuditService from '../services/adminAuditService';
 import adminConfigService from '../services/adminConfigService';
 import { AdminComplianceService } from '../services/adminComplianceService';
 import adminSecurityService from '../services/adminSecurityService';
-import pool, { getClient } from '../db/connection';
+import pool, { getClient, query } from '../db/connection';
 import logger from '../utils/logger';
 
 const router = express.Router();
@@ -485,12 +485,12 @@ router.get('/users',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('search').optional().isString(),
-    query('status').optional().isIn(['active', 'suspended', 'deleted']),
-    query('email').optional().isString(),
-    query('email_verified').optional().isBoolean()
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('search').optional().isString(),
+    queryValidator('status').optional().isIn(['active', 'suspended', 'deleted']),
+    queryValidator('email').optional().isString(),
+    queryValidator('email_verified').optional().isBoolean()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -890,11 +890,11 @@ router.get('/moderation/reports',
   allAdmins,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('status').optional().isIn(['pending', 'under_review', 'resolved', 'dismissed']),
-    query('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
-    query('content_type').optional().isString()
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('status').optional().isIn(['pending', 'under_review', 'resolved', 'dismissed']),
+    queryValidator('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
+    queryValidator('content_type').optional().isString()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -1269,8 +1269,8 @@ router.get('/moderation/stats',
   allAdmins,
   allAdmins,
   [
-    query('date_from').optional().isISO8601(),
-    query('date_to').optional().isISO8601()
+    queryValidator('date_from').optional().isISO8601(),
+    queryValidator('date_to').optional().isISO8601()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -1810,12 +1810,12 @@ router.get('/audit/logs',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('action_type').optional().isString(),
-    query('admin_id').optional().isUUID(),
-    query('start_date').optional().isISO8601(),
-    query('end_date').optional().isISO8601()
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('action_type').optional().isString(),
+    queryValidator('admin_id').optional().isUUID(),
+    queryValidator('start_date').optional().isISO8601(),
+    queryValidator('end_date').optional().isISO8601()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -1887,9 +1887,9 @@ router.get('/audit/search',
   adminOrOwner,
   allAdmins,
   [
-    query('query').isString().notEmpty(),
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 })
+    queryValidator('query').isString().notEmpty(),
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 })
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -1943,8 +1943,8 @@ router.get('/audit/stats',
   adminOrOwner,
   allAdmins,
   [
-    query('start_date').optional().isISO8601(),
-    query('end_date').optional().isISO8601()
+    queryValidator('start_date').optional().isISO8601(),
+    queryValidator('end_date').optional().isISO8601()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2255,12 +2255,12 @@ router.get('/security/events',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('severity').optional().isIn(['low', 'medium', 'high', 'critical']),
-    query('event_type').optional().isString(),
-    query('start_date').optional().isISO8601(),
-    query('end_date').optional().isISO8601()
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('severity').optional().isIn(['low', 'medium', 'high', 'critical']),
+    queryValidator('event_type').optional().isString(),
+    queryValidator('start_date').optional().isISO8601(),
+    queryValidator('end_date').optional().isISO8601()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2277,30 +2277,26 @@ router.get('/security/events',
 
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
-      const offset = (page - 1) * limit;
 
-      const filters: any = {
-        limit,
-        offset
-      };
+      const filters: any = {};
 
       if (req.query.severity) {
         filters.severity = req.query.severity as string;
       }
 
       if (req.query.event_type) {
-        filters.event_type = req.query.event_type as string;
+        filters.eventType = req.query.event_type as string;
       }
 
       if (req.query.start_date) {
-        filters.start_date = new Date(req.query.start_date as string);
+        filters.startDate = new Date(req.query.start_date as string);
       }
 
       if (req.query.end_date) {
-        filters.end_date = new Date(req.query.end_date as string);
+        filters.endDate = new Date(req.query.end_date as string);
       }
 
-      const result = await adminSecurityService.getSecurityEvents(filters);
+      const result = await adminSecurityService.getSecurityEvents(page, limit, filters);
 
       res.json({
         success: true,
@@ -2321,6 +2317,76 @@ router.get('/security/events',
         error: {
           code: 'SECURITY_EVENTS_ERROR',
           message: 'Failed to retrieve security events'
+        }
+      });
+    }
+  }
+);
+
+// Resolve security event
+router.put('/security/events/:eventId/resolve',
+  adminOrOwner,
+  allAdmins,
+  auditAdminAction('security_event_resolve'),
+  [
+    param('eventId').isUUID(),
+    body('notes').optional().isString()
+  ],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input data',
+            details: errors.array()
+          }
+        });
+      }
+
+      const { eventId } = req.params;
+      const { notes } = req.body;
+
+      // Update security event to resolved
+      const result = await query(
+        `UPDATE security_events 
+         SET resolved = true, 
+             resolved_by = $1, 
+             resolved_at = CURRENT_TIMESTAMP,
+             resolution_notes = $2
+         WHERE id = $3
+         RETURNING *`,
+        [req.admin!.id, notes || null, eventId]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          error: {
+            code: 'EVENT_NOT_FOUND',
+            message: 'Security event not found'
+          }
+        });
+      }
+
+      logger.info('Security event resolved', {
+        eventId,
+        adminId: req.admin!.id,
+        notes
+      });
+
+      res.json({
+        success: true,
+        message: 'Security event resolved successfully',
+        data: result.rows[0]
+      });
+
+    } catch (error) {
+      logger.error('Resolve security event error', { eventId: req.params.eventId, error });
+      res.status(500).json({
+        error: {
+          code: 'RESOLVE_EVENT_ERROR',
+          message: 'Failed to resolve security event'
         }
       });
     }
@@ -2364,9 +2430,9 @@ router.get('/security/failed-logins',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('hours').optional().isInt({ min: 1, max: 168 })
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('hours').optional().isInt({ min: 1, max: 168 })
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2508,12 +2574,10 @@ router.delete('/security/block-ip/:ipAddress',
       // Unblock IP address
       const client = await getClient();
       await client.query(
-        `UPDATE ip_blocks 
-         SET unblocked_at = CURRENT_TIMESTAMP, 
-             unblocked_by = $1,
-             unblock_reason = $2
-         WHERE ip_address = $3 AND unblocked_at IS NULL`,
-        [req.admin!.id, req.body.reason, req.params.ipAddress]
+        `UPDATE blocked_ips 
+         SET is_active = false
+         WHERE ip_address = $1 AND is_active = true`,
+        [req.params.ipAddress]
       );
 
       await adminAuditService.createAuditLog(
@@ -2550,8 +2614,8 @@ router.get('/security/blocked-ips',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 })
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 })
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2573,15 +2637,25 @@ router.get('/security/blocked-ips',
       // Get blocked IP addresses
       const client = await getClient();
       const blockedIps = await client.query(
-        `SELECT * FROM ip_blocks 
-         WHERE unblocked_at IS NULL
+        `SELECT 
+          id,
+          ip_address,
+          reason,
+          blocked_by,
+          blocked_at,
+          expires_at,
+          is_active,
+          blocked_at as createdAt,
+          NULL as unblocked_at
+         FROM blocked_ips 
+         WHERE is_active = true
          ORDER BY blocked_at DESC
          LIMIT $1 OFFSET $2`,
         [limit, offset]
       );
 
       const countResult = await client.query(
-        'SELECT COUNT(*) as total FROM ip_blocks WHERE unblocked_at IS NULL'
+        'SELECT COUNT(*) as total FROM blocked_ips WHERE is_active = true'
       );
 
       client.release();
@@ -2621,8 +2695,8 @@ router.get('/security/stats',
   adminOrOwner,
   allAdmins,
   [
-    query('start_date').optional().isISO8601(),
-    query('end_date').optional().isISO8601()
+    queryValidator('start_date').optional().isISO8601(),
+    queryValidator('end_date').optional().isISO8601()
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2644,17 +2718,23 @@ router.get('/security/stats',
       const client = await getClient();
       const eventsCount = await client.query(
         `SELECT COUNT(*) as total, severity 
-         FROM admin_security_events 
+         FROM security_events 
          WHERE created_at BETWEEN $1 AND $2
          GROUP BY severity`,
         [startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), endDate || new Date()]
+      );
+
+      // Get blocked IPs count
+      const blockedIpsCount = await client.query(
+        `SELECT COUNT(*) as total FROM blocked_ips WHERE is_active = true`
       );
 
       client.release();
 
       const stats = {
         total_events: eventsCount.rows.reduce((sum, row) => sum + parseInt(row.total), 0),
-        by_severity: eventsCount.rows
+        by_severity: eventsCount.rows,
+        blocked_ips: parseInt(blockedIpsCount.rows[0]?.total || '0')
       };
 
       res.json({
@@ -2753,10 +2833,10 @@ router.get('/security/incidents',
   adminOrOwner,
   allAdmins,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('severity').optional().isIn(['low', 'medium', 'high', 'critical']),
-    query('status').optional().isIn(['open', 'investigating', 'resolved', 'closed'])
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 }),
+    queryValidator('severity').optional().isIn(['low', 'medium', 'high', 'critical']),
+    queryValidator('status').optional().isIn(['open', 'investigating', 'resolved', 'closed'])
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {
@@ -2863,9 +2943,9 @@ router.get('/appeals',
   allAdmins,
   auditAdminAction('view_appeals'),
   [
-    query('status').optional().isIn(['pending', 'approved', 'rejected', 'under_review']),
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 })
+    queryValidator('status').optional().isIn(['pending', 'approved', 'rejected', 'under_review']),
+    queryValidator('page').optional().isInt({ min: 1 }),
+    queryValidator('limit').optional().isInt({ min: 1, max: 100 })
   ],
   async (req: Request, res: Response): Promise<any> => {
     try {

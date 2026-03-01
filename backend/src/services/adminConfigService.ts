@@ -563,25 +563,25 @@ export class AdminConfigService {
     try {
       await client.query('BEGIN');
 
-      // Get current config
+      // Get current config if it exists
       const currentResult = await client.query(
         'SELECT * FROM system_config WHERE key = $1',
         [key]
       );
 
-      if (currentResult.rows.length === 0) {
-        throw new Error('System config not found');
-      }
-
       const currentConfig = currentResult.rows[0];
 
-      // Update config
+      // Upsert config (insert or update)
       const result = await client.query(
-        `UPDATE system_config
-         SET value = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
-         WHERE key = $3
+        `INSERT INTO system_config (key, value, updated_by, updated_at)
+         VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+         ON CONFLICT (key) 
+         DO UPDATE SET 
+           value = EXCLUDED.value,
+           updated_by = EXCLUDED.updated_by,
+           updated_at = CURRENT_TIMESTAMP
          RETURNING id, key, value, description, category, updated_by, updated_at`,
-        [JSON.stringify(value), adminId, key]
+        [key, JSON.stringify(value), adminId]
       );
 
       const updatedConfig = result.rows[0];
@@ -596,7 +596,7 @@ export class AdminConfigService {
         updatedConfig.id,
         {
           key,
-          old_value: currentConfig.value,
+          old_value: currentConfig?.value,
           new_value: value
         }
       );
@@ -605,7 +605,7 @@ export class AdminConfigService {
 
       logger.info('System config updated', {
         key,
-        oldValue: currentConfig.value,
+        oldValue: currentConfig?.value,
         newValue: value,
         adminId
       });
@@ -829,6 +829,20 @@ export class AdminConfigService {
         adminId
       });
 
+      // Broadcast maintenance mode activation to all connected users via socket
+      try {
+        const { socketService } = await import('./socketService');
+        if (socketService) {
+          const estimatedDurationMinutes = estimatedResolution 
+            ? Math.round((estimatedResolution.getTime() - Date.now()) / 60000)
+            : undefined;
+          socketService.broadcastMaintenanceModeActivated(message, estimatedDurationMinutes);
+        }
+      } catch (socketError) {
+        logger.error('Failed to broadcast maintenance mode activation', { socketError });
+        // Don't throw - maintenance mode is still enabled even if broadcast fails
+      }
+
       return {
         enabled: true,
         message,
@@ -870,6 +884,17 @@ export class AdminConfigService {
 
       logger.info('Maintenance mode disabled', { adminId });
 
+      // Broadcast maintenance mode deactivation to all connected users via socket
+      try {
+        const { socketService } = await import('./socketService');
+        if (socketService) {
+          socketService.broadcastMaintenanceModeDeactivated();
+        }
+      } catch (socketError) {
+        logger.error('Failed to broadcast maintenance mode deactivation', { socketError });
+        // Don't throw - maintenance mode is still disabled even if broadcast fails
+      }
+
       return { enabled: false };
 
     } catch (error) {
@@ -894,16 +919,22 @@ export class AdminConfigService {
       };
 
       for (const config of configs) {
+        // Parse the JSONB value - it's stored as a JSON string
+        const value = typeof config.value === 'string' 
+          ? JSON.parse(config.value) 
+          : config.value;
+        const numValue = typeof value === 'string' ? parseInt(value) : value;
+
         if (config.key === 'max_file_upload_size') {
-          limits.max_file_upload_size = parseInt(config.value);
+          limits.max_file_upload_size = numValue;
         } else if (config.key === 'rate_limit_requests_per_minute') {
-          limits.rate_limit_requests_per_minute = parseInt(config.value);
+          limits.rate_limit_requests_per_minute = numValue;
         } else if (config.key === 'session_timeout_hours') {
-          limits.session_timeout_hours = parseInt(config.value);
+          limits.session_timeout_hours = numValue;
         } else if (config.key === 'max_failed_login_attempts') {
-          limits.max_failed_login_attempts = parseInt(config.value);
+          limits.max_failed_login_attempts = numValue;
         } else if (config.key === 'account_lock_duration_minutes') {
-          limits.account_lock_duration_minutes = parseInt(config.value);
+          limits.account_lock_duration_minutes = numValue;
         }
       }
 

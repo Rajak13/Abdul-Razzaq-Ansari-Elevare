@@ -31,6 +31,19 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+    // Handle 503 Maintenance Mode
+    if (error.response?.status === 503) {
+      const errorData = error.response.data as any;
+      if (errorData?.error?.code === 'MAINTENANCE_MODE') {
+        // Redirect to maintenance page
+        const locale = window.location.pathname.split('/')[1] || 'en';
+        if (!window.location.pathname.includes('/maintenance')) {
+          window.location.href = `/${locale}/maintenance`;
+        }
+        return Promise.reject(error);
+      }
+    }
+
     // Handle 401 Unauthorized - Token expired
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;

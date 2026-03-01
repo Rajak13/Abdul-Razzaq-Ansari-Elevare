@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/auth-context';
 import { QueryProvider } from '@/providers/query-provider';
 import { VideoCallNotificationProvider } from '@/components/video-call/video-call-notification';
+import { MaintenanceGuard } from '@/components/maintenance-guard';
+import { MaintenanceNotification } from '@/components/maintenance-notification';
 import { Toaster } from 'sonner';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
@@ -89,7 +91,10 @@ export default async function LocaleLayout({
             <ThemeProvider>
               <AuthProvider>
                 <VideoCallNotificationProvider>
-                  {children}
+                  <MaintenanceNotification />
+                  <MaintenanceGuard>
+                    {children}
+                  </MaintenanceGuard>
                   <Toaster
                     position="top-right"
                     richColors

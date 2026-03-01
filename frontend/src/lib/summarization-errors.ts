@@ -168,7 +168,7 @@ export function validateSummarizationRequest(body: any): {
     }
   }
 
-  const MAX_TEXT_LENGTH = 10000
+  const MAX_TEXT_LENGTH = 100000  // Increased to 100k characters (~25k words)
   if (sanitizedText.length > MAX_TEXT_LENGTH) {
     return {
       isValid: false,

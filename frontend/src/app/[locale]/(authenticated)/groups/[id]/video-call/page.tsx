@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/navigation';
 import { VideoCallInterface } from '@/components/video-call/video-call-interface';
+import { EnhancedCallLayout } from '@/components/video-call/enhanced-call-layout';
 import { VideoCallLobby } from '@/components/video-call/video-call-lobby';
 import { useAuth } from '@/contexts/auth-context';
 import { useSocket } from '@/hooks/use-socket';
@@ -43,6 +44,7 @@ export default function VideoCallPage() {
   const [error, setError] = useState<string | null>(null);
   const [inLobby, setInLobby] = useState(true);
   const [callSettings, setCallSettings] = useState<CallSettings | null>(null);
+  const [useEnhancedLayout, setUseEnhancedLayout] = useState(true); // Toggle for testing
 
   const groupId = params.id as string;
   const callId = `group-${groupId}-call`; // Fixed call ID for the group
@@ -138,12 +140,21 @@ export default function VideoCallPage() {
 
   return (
     <div className="h-screen bg-background">
-      <VideoCallInterface
-        callId={callId}
-        groupId={groupId}
-        groupName={group.name}
-        onLeave={handleLeaveCall}
-      />
+      {useEnhancedLayout ? (
+        <EnhancedCallLayout
+          callId={callId}
+          groupId={groupId}
+          groupName={group.name}
+          onLeave={handleLeaveCall}
+        />
+      ) : (
+        <VideoCallInterface
+          callId={callId}
+          groupId={groupId}
+          groupName={group.name}
+          onLeave={handleLeaveCall}
+        />
+      )}
     </div>
   );
 }

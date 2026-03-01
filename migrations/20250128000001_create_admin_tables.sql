@@ -205,14 +205,7 @@ CREATE TRIGGER audit_logs_set_hash
 
 -- Note: Default system configuration will be inserted after first admin user is created
 
--- Create initial feature flags
-INSERT INTO feature_flags (name, description, enabled, rollout_percentage) VALUES
-  ('admin_dashboard', 'Enable admin dashboard access', true, 100),
-  ('advanced_analytics', 'Enable advanced analytics features', false, 0),
-  ('bulk_user_operations', 'Enable bulk user management operations', false, 0),
-  ('real_time_monitoring', 'Enable real-time system monitoring', true, 100),
-  ('automated_backups', 'Enable automated system backups', true, 100)
-ON CONFLICT (name) DO NOTHING;
+-- Feature flags will be created through the admin UI as needed
 
 -- Add comments for documentation
 COMMENT ON TABLE admin_users IS 'Administrative users with role-based access control';

@@ -317,9 +317,49 @@ class AdminApiClient {
     return response.data;
   }
 
-  async updateFeatureFlags(flags: Record<string, boolean>) {
-    const response = await this.client.put('/config/features', { flags });
+  async getFeatureFlag(name: string) {
+    const response = await this.client.get(`/config/features/${name}`);
     return response.data;
+  }
+
+  async createFeatureFlag(data: {
+    name: string;
+    description?: string;
+    enabled: boolean;
+    rollout_percentage: number;
+    config?: any;
+  }) {
+    const response = await this.client.post('/config/features', data);
+    return response.data;
+  }
+
+  async updateFeatureFlag(name: string, updates: {
+    description?: string;
+    enabled?: boolean;
+    rollout_percentage?: number;
+    config?: any;
+  }) {
+    const response = await this.client.put(`/config/features/${name}`, updates);
+    return response.data;
+  }
+
+  async deleteFeatureFlag(name: string) {
+    const response = await this.client.delete(`/config/features/${name}`);
+    return response.data;
+  }
+
+  async updateFeatureFlags(flags: Record<string, boolean>) {
+    // Update multiple flags by calling updateFeatureFlag for each
+    const results = [];
+    for (const [name, enabled] of Object.entries(flags)) {
+      try {
+        const result = await this.updateFeatureFlag(name, { enabled });
+        results.push(result);
+      } catch (error) {
+        console.error(`Failed to update feature flag ${name}:`, error);
+      }
+    }
+    return { success: true, updated: results.length };
   }
 
   async getSystemConfig() {
@@ -358,6 +398,27 @@ class AdminApiClient {
 
   async disableMaintenanceMode() {
     const response = await this.client.delete('/config/maintenance');
+    return response.data;
+  }
+
+  async getMaintenanceMode() {
+    const response = await this.client.get('/config/maintenance');
+    return response.data;
+  }
+
+  async getSystemLimits() {
+    const response = await this.client.get('/config/limits');
+    return response.data;
+  }
+
+  async updateSystemLimits(limits: {
+    max_file_upload_size?: number;
+    rate_limit_requests_per_minute?: number;
+    session_timeout_hours?: number;
+    max_failed_login_attempts?: number;
+    account_lock_duration_minutes?: number;
+  }) {
+    const response = await this.client.put('/config/limits', limits);
     return response.data;
   }
 
@@ -445,6 +506,45 @@ class AdminApiClient {
     const response = await this.client.get('/security/failed-logins', {
       params,
     });
+    return response.data;
+  }
+
+  async getBlockedIps(params?: { page?: number; limit?: number }) {
+    const response = await this.client.get('/security/blocked-ips', { params });
+    return response.data;
+  }
+
+  async unblockIpAddress(ipAddress: string, reason: string) {
+    const response = await this.client.delete(`/security/block-ip/${ipAddress}`, {
+      data: { reason },
+    });
+    return response.data;
+  }
+
+  async resolveSecurityEvent(eventId: string, notes?: string) {
+    const response = await this.client.put(`/security/events/${eventId}/resolve`, {
+      notes,
+    });
+    return response.data;
+  }
+
+  async getSecurityStatistics() {
+    const response = await this.client.get('/security/stats');
+    return response.data;
+  }
+
+  async createSecurityIncident(data: {
+    title: string;
+    description: string;
+    severity: string;
+    affectedSystems?: string[];
+  }) {
+    const response = await this.client.post('/security/incidents', data);
+    return response.data;
+  }
+
+  async getSecurityIncidents(params?: { page?: number; limit?: number; status?: string }) {
+    const response = await this.client.get('/security/incidents', { params });
     return response.data;
   }
 

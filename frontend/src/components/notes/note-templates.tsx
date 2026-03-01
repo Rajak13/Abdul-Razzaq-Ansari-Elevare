@@ -110,7 +110,7 @@ Definition and explanation...
 - Decisions made
 - Concerns raised
 
-## ✅ Action Items
+##  Action Items
 - [ ] **[Assignee]** - Action item 1 (Due: [Date])
 - [ ] **[Assignee]** - Action item 2 (Due: [Date])
 - [ ] **[Assignee]** - Action item 3 (Due: [Date])
@@ -161,13 +161,13 @@ Brief description of what this project aims to achieve.
 
 ## 📊 Progress Tracking
 
-### Completed ✅
+### Completed 
 - [List completed items]
 
 ### In Progress 🔄
 - [List current work]
 
-### Blocked ⚠️
+### Blocked 
 - [List blocked items]
 
 ## 📝 Notes & Updates

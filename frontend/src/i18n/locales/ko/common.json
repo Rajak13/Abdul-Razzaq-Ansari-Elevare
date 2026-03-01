@@ -216,6 +216,10 @@
     "notifications": {
       "title": "알림 - Elevare",
       "description": "알림 및 경고를 확인하고 관리하세요"
+    },
+    "maintenance": {
+      "title": "유지보수 모드 - Elevare",
+      "description": "Elevare는 현재 예정된 유지보수를 진행 중입니다. 곧 돌아오겠습니다!"
     }
   }
 }

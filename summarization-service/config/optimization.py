@@ -10,7 +10,12 @@ from dataclasses import dataclass
 @dataclass
 class ModelConfig:
     """Configuration for PEGASUS model optimization"""
-    model_name: str = "google/pegasus-xsum"
+    # Academic models - better for educational content:
+    # - google/pegasus-large: Best general-purpose model (recommended for most content)
+    # - google/pegasus-xsum: News articles and general text (faster)
+    # - google/pegasus-arxiv: Scientific papers with LaTeX notation
+    # - google/pegasus-pubmed: Medical/biomedical papers
+    model_name: str = "google/pegasus-large"
     max_length: int = 128
     min_length: int = 30
     num_beams: int = 4
@@ -26,8 +31,8 @@ class ModelConfig:
 @dataclass
 class ChunkingConfig:
     """Configuration for text chunking optimization"""
-    max_chunk_size: int = 800  # Tokens per chunk
-    overlap_size: int = 100    # Overlap between chunks
+    max_chunk_size: int = 400  # Tokens per chunk (PEGASUS max is 512, leave buffer)
+    overlap_size: int = 50     # Overlap between chunks
     min_chunk_size: int = 50   # Minimum viable chunk size
     max_chunks: int = 20       # Maximum number of chunks to process
     chunk_separator: str = "\n\n"  # Preferred split points

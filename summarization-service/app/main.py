@@ -1,9 +1,15 @@
 """
 FastAPI Summarization Service
 
-This service provides PEGASUS-based text summarization capabilities
-for the Elevare note-taking application.
+This service provides transformer-based text summarization capabilities
+for the Elevare note-taking application. Supports BART and PEGASUS models.
 """
+
+import os
+from dotenv import load_dotenv
+
+# Load environment variables FIRST before any other imports
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,8 +20,14 @@ from typing import Optional
 from contextlib import asynccontextmanager
 import uvicorn
 import logging
-import os
-from transformers import PegasusForConditionalGeneration, PegasusTokenizer
+from transformers import (
+    PegasusForConditionalGeneration, 
+    PegasusTokenizer,
+    BartForConditionalGeneration,
+    BartTokenizer,
+    AutoTokenizer,
+    AutoModelForSeq2SeqLM
+)
 import torch
 import re
 from typing import List, Dict, Any
@@ -27,9 +39,8 @@ import signal
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
-# Import optimization configurations
+# Import optimization configurations AFTER loading .env
 import sys
-import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.optimization import optimization_manager
 
@@ -199,8 +210,9 @@ class SummaryCache:
 
 class ModelWrapper:
     """
-    Wrapper class for PEGASUS model operations.
+    Wrapper class for transformer model operations.
     Handles model loading, inference, error management, and caching.
+    Supports both BART and PEGASUS models.
     """
     
     def __init__(self):
@@ -209,13 +221,18 @@ class ModelWrapper:
         
         # Use optimization manager for configuration
         self.model_name = optimization_manager.model_config.model_name
+        self.model_type = os.getenv("MODEL_TYPE", "pegasus").lower()  # bart or pegasus
         self.max_tokens = optimization_manager.chunking_config.max_chunk_size
         self.chunk_overlap = optimization_manager.chunking_config.overlap_size
         self.device = optimization_manager.performance_config.model_device
         self.is_loaded = False
         
+        # Adjust max_tokens based on model type
+        if self.model_type == "bart":
+            self.max_tokens = 1024  # BART supports up to 1024 tokens
+        
         # Size limits for input validation
-        self.max_input_chars = int(os.getenv("MAX_INPUT_CHARS", "50000"))  # 50k characters
+        self.max_input_chars = int(os.getenv("MAX_INPUT_CHARS", "100000"))  # 100k characters
         self.max_chunks = optimization_manager.chunking_config.max_chunks
         self.max_tokens_per_chunk = self.max_tokens - 100  # Reserve tokens for special tokens
         
@@ -231,13 +248,14 @@ class ModelWrapper:
     
     async def load_model(self):
         """
-        Load PEGASUS model and tokenizer at startup with comprehensive error handling.
+        Load transformer model and tokenizer at startup with comprehensive error handling.
+        Supports both BART and PEGASUS models.
         
         Raises:
             RuntimeError: If model loading fails with categorized error message
         """
         try:
-            logger.info(f"Loading PEGASUS model: {self.model_name}")
+            logger.info(f"Loading {self.model_type.upper()} model: {self.model_name}")
             logger.info(f"Using device: {self.device}")
             
             # Check system resources before loading
@@ -260,15 +278,22 @@ class ModelWrapper:
             # Load tokenizer with timeout
             logger.info("Loading tokenizer...")
             def load_tokenizer():
-                return PegasusTokenizer.from_pretrained(self.model_name)
+                if self.model_type == "bart":
+                    return BartTokenizer.from_pretrained(self.model_name)
+                else:  # pegasus
+                    return PegasusTokenizer.from_pretrained(self.model_name)
             
-            self.tokenizer = self._run_with_timeout(load_tokenizer, 120)  # 2 minute timeout
+            self.tokenizer = self._run_with_timeout(load_tokenizer, 600)  # 10 minute timeout for tokenizer
             logger.info("Tokenizer loaded successfully")
             
             # Load model with timeout and optimization settings
             logger.info("Loading model...")
             def load_model():
-                model = PegasusForConditionalGeneration.from_pretrained(self.model_name)
+                if self.model_type == "bart":
+                    model = BartForConditionalGeneration.from_pretrained(self.model_name)
+                else:  # pegasus
+                    model = PegasusForConditionalGeneration.from_pretrained(self.model_name)
+                
                 model.to(self.device)
                 model.eval()  # Set to evaluation mode
                 
@@ -279,11 +304,11 @@ class ModelWrapper:
                 
                 return model
             
-            self.model = self._run_with_timeout(load_model, 300)  # 5 minute timeout
+            self.model = self._run_with_timeout(load_model, 1800)  # 30 minute timeout for model loading
             logger.info("Model loaded successfully")
             
             self.is_loaded = True
-            logger.info("PEGASUS model initialization complete")
+            logger.info(f"{self.model_type.upper()} model initialization complete")
             
             # Log final resource usage
             try:
@@ -295,7 +320,7 @@ class ModelWrapper:
                 pass  # Don't fail if resource checking fails
             
         except Exception as e:
-            logger.error(f"Failed to load PEGASUS model: {str(e)}")
+            logger.error(f"Failed to load {self.model_type.upper()} model: {str(e)}")
             self.is_loaded = False
             self._handle_model_loading_error(e)
     
@@ -878,7 +903,7 @@ async def lifespan(app: FastAPI):
     # Startup
     startup_success = False
     try:
-        logger.info("Starting PEGASUS Summarization Service...")
+        logger.info("Starting Summarization Service...")
         
         # Set up signal handlers for graceful shutdown
         def signal_handler(signum, frame):
@@ -909,11 +934,11 @@ async def lifespan(app: FastAPI):
             raise
     finally:
         # Shutdown
-        logger.info("Shutting down PEGASUS Summarization Service...")
+        logger.info("Shutting down Summarization Service...")
         
         try:
             # Clear cache
-            if hasattr(model_wrapper, 'cache'):
+            if hasattr(model_wrapper, 'cache') and model_wrapper.cache:
                 model_wrapper.cache.clear()
                 logger.info("Cache cleared")
             
@@ -943,9 +968,9 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app with lifespan events
 app = FastAPI(
-    title="PEGASUS Summarization Service",
-    description="AI-powered text summarization using PEGASUS transformer model",
-    version="1.0.0",
+    title="AI Summarization Service",
+    description="AI-powered text summarization using BART or PEGASUS transformer models",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -1088,8 +1113,10 @@ async def root():
         dict: Basic service information
     """
     return {
-        "message": "PEGASUS Summarization Service",
-        "version": "1.0.0",
+        "message": "AI Summarization Service",
+        "version": "2.0.0",
+        "model_type": model_wrapper.model_type if model_wrapper.is_loaded else "not loaded",
+        "model_name": model_wrapper.model_name if model_wrapper.is_loaded else "not loaded",
         "endpoints": {
             "health": "/health",
             "model-info": "/model-info",
@@ -1192,11 +1219,10 @@ async def detailed_health_check():
             detail="Health check failed"
         )
 
-# Placeholder summarize endpoint (will be implemented in task 2)
 @app.post("/summarize", response_model=SummarizationResponse)
 async def summarize_text(request: SummarizationRequest):
     """
-    Generate abstractive summary using PEGASUS model.
+    Generate abstractive summary using BART or PEGASUS model.
     Handles long texts by chunking and consolidating summaries.
     
     Args:
@@ -1359,7 +1385,7 @@ async def summarize_text(request: SummarizationRequest):
             summary=final_summary,
             processing_time=processing_time,
             chunks_processed=len(chunk_summaries),
-            model=model_wrapper.model_name,
+            model=f"{model_wrapper.model_type.upper()}: {model_wrapper.model_name}",
             failed_chunks=failed_chunks if failed_chunks else None,
             warnings=warnings if warnings else None
         )

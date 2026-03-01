@@ -1,0 +1,18 @@
+export default {
+  common: require('./common.json'),
+  auth: require('./auth.json'),
+  dashboard: require('./dashboard.json'),
+  tasks: require('./tasks.json'),
+  notes: require('./notes.json'),
+  groups: require('./groups.json'),
+  resources: require('./resources.json'),
+  profile: require('./profile.json'),
+  notifications: require('./notifications.json'),
+  validation: require('./validation.json'),
+  errors: require('./errors.json'),
+  files: require('./files.json'),
+  landing: require('./landing.json'),
+  suspension: require('./suspension.json'),
+  maintenance: require('./maintenance.json'),
+  reports: require('./reports.json'),
+};

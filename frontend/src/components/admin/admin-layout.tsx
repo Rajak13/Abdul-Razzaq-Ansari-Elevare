@@ -15,6 +15,7 @@ import {
   Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Toaster } from 'sonner';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -70,6 +71,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <span className="text-[10px] mt-1 font-medium">Profile</span>
         </Link>
       </nav>
+      
+      {/* Toast Notifications */}
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

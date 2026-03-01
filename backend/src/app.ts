@@ -10,6 +10,7 @@ import { securityHeaders } from './middleware/securityHeaders';
 import { sanitizeInput, checkSqlInjection } from './middleware/inputValidation';
 import { checkBlockedIP, ddosProtection, standardRateLimiter } from './middleware/advancedRateLimiter';
 import { enforceHttps, tlsSecurityHeaders } from './middleware/encryption';
+import { checkMaintenanceMode } from './middleware/maintenanceMode';
 
 const app: Application = express();
 
@@ -40,6 +41,35 @@ app.use(ddosProtection);
 
 // Comprehensive security headers (OWASP best practices)
 app.use(securityHeaders);
+
+// Public maintenance status endpoint (before maintenance check)
+app.get('/api/system/maintenance-status', async (_req, res): Promise<void> => {
+  try {
+    const { query } = await import('./db/connection');
+    const result = await query(
+      `SELECT value FROM system_config WHERE key = 'maintenance_mode'`
+    );
+
+    if (result.rows.length > 0) {
+      const maintenanceConfig = result.rows[0].value;
+      res.json({
+        enabled: maintenanceConfig?.enabled || false,
+        message: maintenanceConfig?.message,
+        enabled_at: maintenanceConfig?.enabled_at,
+        estimated_duration: maintenanceConfig?.estimated_duration,
+      });
+      return;
+    }
+
+    res.json({ enabled: false });
+  } catch (error) {
+    logger.error('Failed to check maintenance status', { error });
+    res.json({ enabled: false });
+  }
+});
+
+// Check for maintenance mode (blocks regular users, allows admins)
+app.use(checkMaintenanceMode);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

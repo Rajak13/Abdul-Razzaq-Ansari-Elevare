@@ -915,6 +915,26 @@ export class SocketService {
     logger.info('Call invitation sent', { userId, callId: invitation.callId });
   }
 
+  // Method to broadcast maintenance mode activation to all connected users
+  public broadcastMaintenanceModeActivated(message: string, estimatedDuration?: number) {
+    this.io.emit('maintenance_mode_activated', {
+      message,
+      estimatedDuration,
+      activatedAt: new Date().toISOString(),
+      timestamp: Date.now()
+    });
+    logger.info('Maintenance mode activation broadcasted to all users', { message, estimatedDuration });
+  }
+
+  // Method to broadcast maintenance mode deactivation to all connected users
+  public broadcastMaintenanceModeDeactivated() {
+    this.io.emit('maintenance_mode_deactivated', {
+      deactivatedAt: new Date().toISOString(),
+      timestamp: Date.now()
+    });
+    logger.info('Maintenance mode deactivation broadcasted to all users');
+  }
+
   public getIO() {
     return this.io;
   }

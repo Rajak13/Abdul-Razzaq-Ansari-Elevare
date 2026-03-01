@@ -9,65 +9,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  // Load all translation namespaces based on locale
-  let messages;
-  
-  if (locale === 'ko') {
-    messages = {
-      common: (await import('./locales/ko/common.json')).default,
-      auth: (await import('./locales/ko/auth.json')).default,
-      dashboard: (await import('./locales/ko/dashboard.json')).default,
-      tasks: (await import('./locales/ko/tasks.json')).default,
-      notes: (await import('./locales/ko/notes.json')).default,
-      groups: (await import('./locales/ko/groups.json')).default,
-      resources: (await import('./locales/ko/resources.json')).default,
-      profile: (await import('./locales/ko/profile.json')).default,
-      notifications: (await import('./locales/ko/notifications.json')).default,
-      validation: (await import('./locales/ko/validation.json')).default,
-      errors: (await import('./locales/ko/errors.json')).default,
-      files: (await import('./locales/ko/files.json')).default,
-      landing: (await import('./locales/ko/landing.json')).default,
-      suspension: (await import('./locales/ko/suspension.json')).default,
-      reports: (await import('./locales/ko/reports.json')).default,
-    };
-  } else if (locale === 'ne') {
-    messages = {
-      common: (await import('./locales/ne/common.json')).default,
-      auth: (await import('./locales/ne/auth.json')).default,
-      dashboard: (await import('./locales/ne/dashboard.json')).default,
-      tasks: (await import('./locales/ne/tasks.json')).default,
-      notes: (await import('./locales/ne/notes.json')).default,
-      groups: (await import('./locales/ne/groups.json')).default,
-      resources: (await import('./locales/ne/resources.json')).default,
-      profile: (await import('./locales/ne/profile.json')).default,
-      notifications: (await import('./locales/ne/notifications.json')).default,
-      validation: (await import('./locales/ne/validation.json')).default,
-      errors: (await import('./locales/ne/errors.json')).default,
-      files: (await import('./locales/ne/files.json')).default,
-      landing: (await import('./locales/ne/landing.json')).default,
-      suspension: (await import('./locales/ne/suspension.json')).default,
-      reports: (await import('./locales/ne/reports.json')).default,
-    };
-  } else {
-    // Default to English
-    messages = {
-      common: (await import('./locales/en/common.json')).default,
-      auth: (await import('./locales/en/auth.json')).default,
-      dashboard: (await import('./locales/en/dashboard.json')).default,
-      tasks: (await import('./locales/en/tasks.json')).default,
-      notes: (await import('./locales/en/notes.json')).default,
-      groups: (await import('./locales/en/groups.json')).default,
-      resources: (await import('./locales/en/resources.json')).default,
-      profile: (await import('./locales/en/profile.json')).default,
-      notifications: (await import('./locales/en/notifications.json')).default,
-      validation: (await import('./locales/en/validation.json')).default,
-      errors: (await import('./locales/en/errors.json')).default,
-      files: (await import('./locales/en/files.json')).default,
-      landing: (await import('./locales/en/landing.json')).default,
-      suspension: (await import('./locales/en/suspension.json')).default,
-      reports: (await import('./locales/en/reports.json')).default,
-    };
-  }
+  // Dynamically load messages for the requested locale
+  const messages = (await import(`./locales/${locale}/index.ts`)).default;
 
   return {
     locale,

@@ -1,0 +1,30 @@
+{
+  "title": "We'll Be Back Soon!",
+  "description": "Our platform is currently undergoing scheduled maintenance to improve your experience. We apologize for any inconvenience and appreciate your patience.",
+  "imageAlt": "Maintenance in progress",
+  "goBack": "Go Back",
+  "cards": {
+    "whatsHappening": {
+      "title": "What's Happening?",
+      "description": "We're performing system upgrades and improvements to serve you better."
+    },
+    "whenBack": {
+      "title": "When We'll Be Back",
+      "description": "We expect to be back online shortly. Please check back in a few moments."
+    },
+    "needHelp": {
+      "title": "Need Help?",
+      "description": "For urgent matters, please contact our support team via email."
+    }
+  },
+  "footer": "Thank you for your understanding and continued support!",
+  "notification": {
+    "title": "Maintenance Mode Activated",
+    "description": "The system will enter maintenance mode in {seconds} seconds. Please save your work.",
+    "defaultMessage": "System maintenance is starting soon.",
+    "seconds": "seconds",
+    "goNow": "Go Now",
+    "deactivated": "Maintenance Mode Ended",
+    "deactivatedDescription": "The system is now back online. You can continue using the platform."
+  }
+}
