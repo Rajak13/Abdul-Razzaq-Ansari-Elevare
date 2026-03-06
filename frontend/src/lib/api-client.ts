@@ -8,7 +8,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000, // 60 seconds to handle cold starts
+  timeout: 180000, // 180 seconds (3 minutes) to handle geographic latency
 });
 
 // Add request timing for debugging

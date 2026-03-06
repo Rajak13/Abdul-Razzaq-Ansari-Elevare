@@ -33,14 +33,18 @@ export async function register(req: Request, res: Response): Promise<void> {
       name,
     });
 
-    // Send OTP email
-    try {
-      await emailService.sendOTPEmail(email, name, otp);
-    } catch (error) {
-      logger.error('Failed to send OTP email', { error });
-      // Continue even if email fails - user can request resend
-    }
+    // Send OTP email asynchronously (non-blocking)
+    Promise.resolve().then(async () => {
+      try {
+        await emailService.sendOTPEmail(email, name, otp);
+        logger.info('OTP email sent successfully', { email });
+      } catch (error) {
+        logger.error('Failed to send OTP email', { error, email });
+        // User can request resend if needed
+      }
+    });
 
+    // Respond immediately without waiting for email
     res.status(201).json({
       message: 'User registered successfully. Please check your email for the OTP code.',
       user,
