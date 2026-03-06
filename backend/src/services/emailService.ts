@@ -1,17 +1,10 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  host: config.email.host,
-  port: config.email.port,
-  secure: config.email.port === 465,
-  auth: {
-    user: config.email.user,
-    pass: config.email.password,
-  },
-});
+// Initialize SendGrid with API key from SMTP_PASSWORD env var
+// (We reuse SMTP_PASSWORD to avoid changing environment variables)
+sgMail.setApiKey(config.email.password);
 
 // Enterprise Email Template Base
 const getEmailTemplate = (content: string) => `
@@ -194,15 +187,15 @@ export async function sendOTPEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('OTP email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send OTP email', { email, locale, error });
@@ -300,15 +293,15 @@ export async function sendVerificationEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: 'Verify your Elevare account',
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Verification email sent', { email });
   } catch (error) {
     logger.error('Failed to send verification email', { email, error });
@@ -439,15 +432,15 @@ export async function sendPasswordResetEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Password reset email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send password reset email', { email, locale, error });
@@ -611,15 +604,15 @@ export async function sendSuspensionEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Suspension email sent', { email, suspensionType, locale });
   } catch (error) {
     logger.error('Failed to send suspension email', { email, suspensionType, locale, error });
@@ -738,15 +731,15 @@ export async function sendUnsuspensionEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Unsuspension email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send unsuspension email', { email, locale, error });
@@ -763,16 +756,16 @@ export async function sendNotificationEmail(options: {
   text: string;
   html: string;
 }): Promise<void> {
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: options.to,
+    from: config.email.from,
     subject: options.subject,
     text: options.text,
     html: options.html,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Notification email sent', { to: options.to, subject: options.subject });
   } catch (error) {
     logger.error('Failed to send notification email', { to: options.to, subject: options.subject, error });
@@ -899,15 +892,15 @@ export async function sendReportSubmittedEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Report submitted email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report submitted email', { email, reportId, locale, error });
@@ -1023,15 +1016,15 @@ export async function sendReportUnderReviewEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Report under review email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report under review email', { email, reportId, locale, error });
@@ -1151,15 +1144,15 @@ export async function sendReportResolvedEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Report resolved email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report resolved email', { email, reportId, locale, error });
@@ -1290,15 +1283,15 @@ export async function sendReportDismissedEmail(
     ${getFooter()}
   `;
 
-  const mailOptions = {
-    from: config.email.from,
+  const msg = {
     to: email,
+    from: config.email.from,
     subject: t.subject,
     html: getEmailTemplate(content),
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     logger.info('Report dismissed email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report dismissed email', { email, reportId, locale, error });
