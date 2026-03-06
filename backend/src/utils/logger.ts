@@ -39,6 +39,16 @@ if (config.nodeEnv !== 'production') {
       ),
     })
   );
+} else {
+  // In production, log to console for cloud platforms (Render, Heroku, etc.)
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      ),
+    })
+  );
 }
 
 export default logger;

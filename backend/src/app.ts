@@ -11,6 +11,7 @@ import { sanitizeInput, checkSqlInjection } from './middleware/inputValidation';
 import { checkBlockedIP, ddosProtection, standardRateLimiter } from './middleware/advancedRateLimiter';
 import { enforceHttps, tlsSecurityHeaders } from './middleware/encryption';
 import { checkMaintenanceMode } from './middleware/maintenanceMode';
+import { requestLogger } from './middleware/requestLogger';
 
 const app: Application = express();
 
@@ -28,6 +29,9 @@ app.use(
     maxAge: 600, // 10 minutes
   })
 );
+
+// Request logger (logs all requests including CORS preflight)
+app.use(requestLogger);
 
 // Enforce HTTPS/TLS in production
 app.use(enforceHttps);
@@ -105,6 +109,15 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: config.nodeEnv,
+  });
+});
+
+// CORS test endpoint
+app.post('/api/test/cors', (_req, res) => {
+  res.status(200).json({
+    message: 'CORS is working correctly',
+    timestamp: new Date().toISOString(),
+    receivedOrigin: _req.headers.origin,
   });
 });
 

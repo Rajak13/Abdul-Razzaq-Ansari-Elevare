@@ -11,6 +11,26 @@ const apiClient: AxiosInstance = axios.create({
   timeout: 60000, // 60 seconds to handle cold starts
 });
 
+// Add request timing for debugging
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // @ts-ignore - Add timestamp for performance tracking
+    config.metadata = { startTime: new Date() };
+    return config;
+  }
+);
+
+apiClient.interceptors.response.use(
+  (response) => {
+    // @ts-ignore
+    const duration = new Date() - response.config.metadata.startTime;
+    if (duration > 5000) {
+      console.warn(`Slow API call: ${response.config.url} took ${duration}ms`);
+    }
+    return response;
+  }
+);
+
 // Request interceptor - Add auth token to requests
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

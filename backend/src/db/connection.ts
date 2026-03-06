@@ -11,8 +11,11 @@ const pool = new Pool({
   password: config.database.password,
   ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
   max: 20, // Maximum number of clients in the pool
+  min: 2, // Minimum number of clients (keep connections warm)
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection cannot be established
+  connectionTimeoutMillis: 10000, // Increased to 10 seconds for cold starts
+  keepAlive: true, // Keep connections alive
+  keepAliveInitialDelayMillis: 10000,
 });
 
 // Pool error handler
