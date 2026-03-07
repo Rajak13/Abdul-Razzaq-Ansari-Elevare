@@ -75,12 +75,25 @@ export function useSocket() {
 
     socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Connection failed';
+      
+      if (error.message.includes('timeout') || error.message.includes('ECONNREFUSED')) {
+        errorMessage = 'Server is waking up, retrying...';
+        console.warn('Backend may be sleeping (Render free tier). Will retry automatically.');
+      } else if (error.message.includes('Authentication')) {
+        errorMessage = 'Authentication failed';
+      } else if (error.message.includes('xhr poll error')) {
+        errorMessage = 'Network error, retrying...';
+      }
+      
       setState(prev => ({
         ...prev,
         socket: null,
         isConnected: false,
         isConnecting: false,
-        error: error.message,
+        error: errorMessage,
       }));
     });
 

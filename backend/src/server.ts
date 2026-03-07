@@ -40,6 +40,27 @@ async function startServer() {
       logger.info(`Notification Scheduler: Started`);
     });
 
+    // Keep-alive mechanism for Render free tier
+    // Prevents service from spinning down due to inactivity
+    if (config.nodeEnv === 'production') {
+      const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes (before 15-min timeout)
+      
+      setInterval(async () => {
+        try {
+          const response = await fetch(`${config.apiUrl}/health`);
+          if (response.ok) {
+            logger.info('Keep-alive ping successful');
+          } else {
+            logger.warn('Keep-alive ping returned non-OK status', { status: response.status });
+          }
+        } catch (error) {
+          logger.error('Keep-alive ping failed', { error });
+        }
+      }, KEEP_ALIVE_INTERVAL);
+      
+      logger.info('Keep-alive mechanism enabled (14-minute interval)');
+    }
+
     return server;
   } catch (error) {
     logger.error('Failed to start server:', error);
