@@ -46,11 +46,17 @@ export function useSocket() {
 
     setState(prev => ({ ...prev, isConnecting: true, error: null }));
 
+    // Use polling only in production (Render free tier has WebSocket issues)
+    // Use websocket in development for better performance
+    const transports = process.env.NODE_ENV === 'production' 
+      ? ['polling'] 
+      : ['websocket', 'polling'];
+
     const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
       auth: {
         token: token,
       },
-      transports: ['websocket', 'polling'],
+      transports,
       timeout: 20000,
       forceNew: false, // Don't force new connections
       reconnection: true, // Let socket.io handle reconnection
