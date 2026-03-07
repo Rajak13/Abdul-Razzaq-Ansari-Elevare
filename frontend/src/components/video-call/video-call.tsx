@@ -49,31 +49,27 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const screenPeerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
 
-  // Modern WebRTC configuration with TURN server for NAT traversal
+  // Production WebRTC configuration with Metered TURN server
   const rtcConfig: RTCConfiguration = {
     iceServers: [
+      // STUN servers for NAT discovery
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:stun2.l.google.com:19302' },
-      // Free public TURN server for testing (replace with your own in production)
+      // Production Metered TURN servers (50GB free tier)
       {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
+        urls: [
+          'turn:elevarenp.metered.live:80',
+          'turn:elevarenp.metered.live:80?transport=tcp',
+          'turn:elevarenp.metered.live:443',
+          'turns:elevarenp.metered.live:443'
+        ],
+        username: process.env.NEXT_PUBLIC_TURN_USERNAME || 'elevarenp',
+        credential: process.env.NEXT_PUBLIC_TURN_PASSWORD || 'FSOofLCSpAluGfLhxOMjQlS42WtGMQMIKHjKKW1dbiuGQIAq'
       }
     ],
     iceCandidatePoolSize: 10,
-    bundlePolicy: 'balanced', // Most compatible across browsers
+    bundlePolicy: 'max-bundle', // Optimize for production
     rtcpMuxPolicy: 'require'
   };
 
