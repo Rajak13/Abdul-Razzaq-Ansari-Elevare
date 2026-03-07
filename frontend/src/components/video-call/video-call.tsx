@@ -791,19 +791,37 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     initializeLocalStream();
 
     return () => {
+      // Properly cleanup media streams
       if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
+        localStream.getTracks().forEach(track => {
+          track.stop();
+          localStream.removeTrack(track);
+        });
       }
       if (screenStream) {
-        screenStream.getTracks().forEach(track => track.stop());
+        screenStream.getTracks().forEach(track => {
+          track.stop();
+          screenStream.removeTrack(track);
+        });
       }
 
       setParticipants([]);
 
-      peerConnections.current.forEach(pc => pc.close());
-      screenPeerConnections.current.forEach(pc => pc.close());
+      // Close all peer connections
+      peerConnections.current.forEach(pc => {
+        pc.close();
+      });
+      screenPeerConnections.current.forEach(pc => {
+        pc.close();
+      });
       peerConnections.current.clear();
       screenPeerConnections.current.clear();
+
+      // Leave call room
+      const socket = socketService.getSocket();
+      if (socket?.connected && user?.id) {
+        socket.emit('leave_call', { callId, userId: user.id });
+      }
     };
   }, [initializeLocalStream]);
 

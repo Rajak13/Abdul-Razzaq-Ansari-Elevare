@@ -20,10 +20,17 @@ export class SocketService {
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.FRONTEND_URL || "http://localhost:3000",
+        origin: config.corsOrigin, // Use the same CORS config as main app
         methods: ["GET", "POST"],
         credentials: true
-      }
+      },
+      // Production-ready settings
+      transports: ['websocket', 'polling'],
+      pingTimeout: 60000,
+      pingInterval: 25000,
+      upgradeTimeout: 30000,
+      maxHttpBufferSize: 1e6,
+      allowEIO3: true
     });
 
     this.setupMiddleware();
