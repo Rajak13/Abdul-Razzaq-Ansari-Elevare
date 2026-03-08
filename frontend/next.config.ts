@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
         tls: false,
       };
     }
-    
+
     // Optimize chunk splitting
     config.optimization = {
       ...config.optimization,
@@ -72,11 +72,10 @@ const nextConfig: NextConfig = {
         },
       },
     };
-    
+
     return config;
   },
   // Optimize production builds
-  swcMinify: true,
   poweredByHeader: false,
   compress: true,
 };
