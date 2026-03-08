@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from '@/navigation';
-import { 
+import {
   VideoCameraIcon,
   UserGroupIcon,
   ClockIcon,
@@ -10,6 +10,13 @@ import {
 } from '@heroicons/react/24/outline';
 import { socketService } from '@/services/socket-service';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 interface CallStatus {
   isActive: boolean;
@@ -37,12 +44,12 @@ interface VideoCallButtonProps {
   className?: string;
 }
 
-export function StartVideoCallButton({ 
-  groupId, 
-  groupName, 
+export function StartVideoCallButton({
+  groupId,
+  groupName,
   memberCount,
   disabled = false,
-  className = '' 
+  className = ''
 }: VideoCallButtonProps) {
   const router = useRouter();
   const [callStatus, setCallStatus] = useState<CallStatus>({
@@ -54,66 +61,58 @@ export function StartVideoCallButton({
   const [isStarting, setIsStarting] = useState(false);
 
   useEffect(() => {
-    const socket = socketService.getSocket();
-    
-    if (socket && socket.connected) {
-      setIsConnected(true);
-      
-      // Join group to receive call status updates
-      socket.emit('join_group', groupId);
+    let cleanup: (() => void) | undefined;
 
-      // Request current call status immediately
-      socket.emit('get_call_status', { groupId });
+    const setupListeners = () => {
+      const socket = socketService.getSocket();
+      if (socket && socket.connected) {
+        setIsConnected(true);
+        socket.emit('join_group', groupId);
+        socket.emit('get_call_status', { groupId });
 
-      // Listen for call status updates
-      socket.on('group_call_status', (status: any) => {
-        console.log('📞 Received call status:', status);
-        if (status.groupId === groupId) {
+        socket.on('group_call_status', (status: any) => {
           setCallStatus({
             isActive: status.isActive,
             participants: status.participants || [],
             startedBy: status.startedBy,
             startedAt: status.startedAt
           });
-        }
-      });
+        });
 
-      socket.on('group_call_started', (data: any) => {
-        console.log('🎥 Call started:', data);
-        if (data.groupId === groupId) {
+        socket.on('group_call_started', (data: any) => {
           setCallStatus({
             isActive: true,
-            participants: [{ userId: data.startedBy.id, user: data.startedBy }],
+            participants: [{ userId: data.startedBy?.id || 'unknown', user: data.startedBy }],
             startedBy: data.startedBy,
             startedAt: data.startedAt
           });
-        }
-      });
+        });
 
-      socket.on('group_call_ended', (data: any) => {
-        console.log('📞 Call ended:', data);
-        if (data.groupId === groupId) {
-          setCallStatus({
-            isActive: false,
-            participants: [],
-            startedBy: null
-          });
-        }
-      });
+        socket.on('group_call_ended', () => {
+          setCallStatus({ isActive: false, participants: [], startedBy: null });
+        });
 
-      return () => {
-        socket.off('group_call_status');
-        socket.off('group_call_started');
-        socket.off('group_call_ended');
-      };
-    } else {
-      setIsConnected(false);
-      
-      // Try to reconnect if we have a token
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        socketService.connect(token);
+        cleanup = () => {
+          socket.off('group_call_status');
+          socket.off('group_call_started');
+          socket.off('group_call_ended');
+        };
+      } else {
+        setIsConnected(false);
       }
+    };
+
+    setupListeners();
+
+    const socket = socketService.getSocket();
+    if (socket) {
+      socket.on('connect', setupListeners);
+      socket.on('disconnect', () => setIsConnected(false));
+      return () => {
+        socket.off('connect', setupListeners);
+        socket.off('disconnect');
+        if (cleanup) cleanup();
+      };
     }
   }, [groupId]);
 
@@ -144,7 +143,8 @@ export function StartVideoCallButton({
     <Button
       onClick={handleVideoCall}
       disabled={disabled || isStarting}
-      className={`${callStatus.isActive ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} ${className}`}
+      variant={callStatus.isActive ? "default" : "secondary"}
+      className={`${callStatus.isActive ? 'animate-pulse ring-2 ring-primary ring-offset-2' : ''} ${className}`}
       size="lg"
     >
       {callStatus.isActive ? (
@@ -158,7 +158,7 @@ export function StartVideoCallButton({
           {isStarting ? 'Starting...' : 'Start Video Call'}
         </>
       )}
-      
+
       {callStatus.isActive && !isStarting && (
         <div className="ml-2 flex items-center">
           <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
@@ -169,9 +169,9 @@ export function StartVideoCallButton({
 }
 
 // Compact version for smaller spaces
-export function StartVideoCallButtonCompact({ 
-  groupId, 
-  groupName, 
+export function StartVideoCallButtonCompact({
+  groupId,
+  groupName,
   memberCount,
   disabled = false,
   className = ''
@@ -187,20 +187,22 @@ export function StartVideoCallButtonCompact({
 
   useEffect(() => {
     const socket = socketService.getSocket();
-    
+
     if (socket && socket.connected) {
       setIsConnected(true);
       socket.emit('join_group', groupId);
 
+      // Request current call status immediately
+      socket.emit('get_call_status', { groupId });
+
       socket.on('group_call_status', (status: any) => {
-        if (status.groupId === groupId) {
-          setCallStatus({
-            isActive: status.isActive,
-            participants: status.participants || [],
-            startedBy: status.startedBy,
-            startedAt: status.startedAt
-          });
-        }
+        console.log('📞 Compact button received call status:', status);
+        setCallStatus({
+          isActive: status.isActive,
+          participants: status.participants || [],
+          startedBy: status.startedBy,
+          startedAt: status.startedAt
+        });
       });
 
       return () => {
@@ -223,9 +225,9 @@ export function StartVideoCallButtonCompact({
     <Button
       onClick={handleVideoCall}
       disabled={disabled || isStarting || !isConnected}
-      variant="outline"
+      variant={callStatus.isActive ? "default" : "outline"}
       size="sm"
-      className={`${callStatus.isActive ? 'border-green-500 text-green-600 hover:bg-green-50' : ''} ${className}`}
+      className={`${callStatus.isActive ? 'animate-pulse' : ''} ${className}`}
     >
       {callStatus.isActive ? (
         <>
@@ -243,11 +245,11 @@ export function StartVideoCallButtonCompact({
 }
 
 // Video call card for prominent display
-export function VideoCallCard({ 
-  groupId, 
-  groupName, 
+export function VideoCallCard({
+  groupId,
+  groupName,
   memberCount,
-  disabled = false 
+  disabled = false
 }: VideoCallButtonProps) {
   const router = useRouter();
   const [callStatus, setCallStatus] = useState<CallStatus>({
@@ -259,48 +261,57 @@ export function VideoCallCard({
   const [isStarting, setIsStarting] = useState(false);
 
   useEffect(() => {
-    const socket = socketService.getSocket();
-    
-    if (socket && socket.connected) {
-      setIsConnected(true);
-      socket.emit('join_group', groupId);
+    let cleanup: (() => void) | undefined;
 
-      socket.on('group_call_status', (status: any) => {
-        if (status.groupId === groupId) {
+    const setupListeners = () => {
+      const socket = socketService.getSocket();
+      if (socket && socket.connected) {
+        setIsConnected(true);
+        socket.emit('join_group', groupId);
+        socket.emit('get_call_status', { groupId });
+
+        socket.on('group_call_status', (status: any) => {
           setCallStatus({
             isActive: status.isActive,
             participants: status.participants || [],
             startedBy: status.startedBy,
             startedAt: status.startedAt
           });
-        }
-      });
+        });
 
-      socket.on('group_call_started', (data: any) => {
-        if (data.groupId === groupId) {
+        socket.on('group_call_started', (data: any) => {
           setCallStatus({
             isActive: true,
-            participants: [{ userId: data.startedBy.id, user: data.startedBy }],
+            participants: [{ userId: data.startedBy?.id || 'unknown', user: data.startedBy }],
             startedBy: data.startedBy,
             startedAt: data.startedAt
           });
-        }
-      });
+        });
 
-      socket.on('group_call_ended', (data: any) => {
-        if (data.groupId === groupId) {
-          setCallStatus({
-            isActive: false,
-            participants: [],
-            startedBy: null
-          });
-        }
-      });
+        socket.on('group_call_ended', () => {
+          setCallStatus({ isActive: false, participants: [], startedBy: null });
+        });
 
+        cleanup = () => {
+          socket.off('group_call_status');
+          socket.off('group_call_started');
+          socket.off('group_call_ended');
+        };
+      } else {
+        setIsConnected(false);
+      }
+    };
+
+    setupListeners();
+
+    const socket = socketService.getSocket();
+    if (socket) {
+      socket.on('connect', setupListeners);
+      socket.on('disconnect', () => setIsConnected(false));
       return () => {
-        socket.off('group_call_status');
-        socket.off('group_call_started');
-        socket.off('group_call_ended');
+        socket.off('connect', setupListeners);
+        socket.off('disconnect');
+        if (cleanup) cleanup();
       };
     }
   }, [groupId]);
@@ -321,101 +332,100 @@ export function VideoCallCard({
     const started = new Date(startedAt);
     const diffMs = now.getTime() - started.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Just started';
     if (diffMins < 60) return `${diffMins}m ago`;
     const diffHours = Math.floor(diffMins / 60);
     return `${diffHours}h ${diffMins % 60}m ago`;
   };
 
+  // Log current state for debugging
+  console.log('🎨 VideoCallCard rendering with state:', {
+    groupId,
+    isConnected,
+    isActive: callStatus.isActive,
+    participantCount: callStatus.participants.length,
+    startedBy: callStatus.startedBy?.name
+  });
+
   return (
-    <div className={`rounded-lg p-6 text-white ${
-      callStatus.isActive 
-        ? 'bg-gradient-to-r from-green-500 to-emerald-600' 
-        : 'bg-gradient-to-r from-blue-500 to-purple-600'
-    }`}>
-      <div className="flex items-center justify-between">
+    <Card className={`relative overflow-hidden border-2 transition-all duration-300 ${callStatus.isActive
+      ? 'border-primary shadow-lg shadow-primary/20 bg-primary/5'
+      : 'border-border bg-card'
+      }`}>
+      {callStatus.isActive && (
+        <div className="absolute top-0 right-0 p-2">
+          <div className="flex items-center space-x-1 px-2 py-0.5 bg-primary text-primary-foreground rounded-full text-[10px] font-bold animate-pulse">
+            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+            <span>LIVE</span>
+          </div>
+        </div>
+      )}
+
+      <CardHeader className="pb-3">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-white/20 rounded-full">
+          <div className={`p-3 rounded-full transition-colors duration-300 ${callStatus.isActive
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground'
+            }`}>
             {callStatus.isActive ? (
-              <PhoneIcon className="w-8 h-8" />
+              <PhoneIcon className="w-6 h-6" />
             ) : (
-              <VideoCameraIcon className="w-8 h-8" />
+              <VideoCameraIcon className="w-6 h-6" />
             )}
           </div>
           <div>
-            <h3 className="text-lg font-semibold">
+            <CardTitle className="text-lg">
               {callStatus.isActive ? 'Video Call Active' : 'Video Study Session'}
-            </h3>
-            <p className={callStatus.isActive ? 'text-green-100' : 'text-blue-100'}>
-              {callStatus.isActive 
+            </CardTitle>
+            <CardDescription className={callStatus.isActive ? 'text-primary font-medium' : ''}>
+              {callStatus.isActive
                 ? `${callStatus.participants.length} participant${callStatus.participants.length !== 1 ? 's' : ''} in call`
                 : `Connect with ${memberCount} member${memberCount !== 1 ? 's' : ''} in ${groupName}`
               }
-            </p>
+            </CardDescription>
           </div>
         </div>
-        
-        <Button
-          onClick={handleVideoCall}
-          disabled={disabled || isStarting || !isConnected}
-          variant="secondary"
-          size="lg"
-          className={`bg-white hover:bg-gray-100 ${
-            callStatus.isActive ? 'text-green-600' : 'text-blue-600'
-          }`}
-        >
-          {callStatus.isActive ? (
-            <>
-              <PhoneIcon className="w-5 h-5 mr-2" />
-              {isStarting ? 'Joining...' : 'Join Call'}
-            </>
-          ) : (
-            <>
-              <VideoCameraIcon className="w-5 h-5 mr-2" />
-              {isStarting ? 'Starting...' : 'Start Call'}
-            </>
-          )}
-        </Button>
-      </div>
-      
-      {callStatus.isActive && callStatus.startedBy ? (
-        <div className="mt-4 pt-4 border-t border-white/20">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-2">
-              <UserGroupIcon className="w-4 h-4" />
-              <span>Started by {callStatus.startedBy.name}</span>
-            </div>
-            <div className="flex items-center space-x-4">
+      </CardHeader>
+
+      <CardContent>
+        <div className="flex flex-col space-y-4">
+          <Button
+            onClick={handleVideoCall}
+            disabled={disabled || isStarting || !isConnected}
+            variant={callStatus.isActive ? "default" : "secondary"}
+            size="lg"
+            className="w-full"
+          >
+            {callStatus.isActive ? (
+              <>
+                <PhoneIcon className="w-5 h-5 mr-2" />
+                {isStarting ? 'Joining...' : 'Join Call'}
+              </>
+            ) : (
+              <>
+                <VideoCameraIcon className="w-5 h-5 mr-2" />
+                {isStarting ? 'Starting...' : 'Start Video Call'}
+              </>
+            )}
+          </Button>
+
+          {callStatus.isActive && (
+            <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-4">
+              <div className="flex items-center space-x-2">
+                <UserGroupIcon className="w-4 h-4" />
+                <span>{callStatus.startedBy?.name ? `Started by ${callStatus.startedBy.name}` : 'Ongoing session'}</span>
+              </div>
               {callStatus.startedAt && (
                 <div className="flex items-center space-x-1">
                   <ClockIcon className="w-4 h-4" />
                   <span>{getTimeAgo(callStatus.startedAt)}</span>
                 </div>
               )}
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Live</span>
-              </div>
             </div>
-          </div>
+          )}
         </div>
-      ) : (
-        <div className="mt-4 flex items-center space-x-4 text-sm text-blue-100">
-          <div className="flex items-center space-x-1">
-            <UserGroupIcon className="w-4 h-4" />
-            <span>Group video calls</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span>Screen sharing</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span>Breakout rooms</span>
-          </div>
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

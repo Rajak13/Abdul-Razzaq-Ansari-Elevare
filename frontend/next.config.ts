@@ -20,7 +20,9 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb' as any
-    }
+    },
+    // Enable optimized package imports
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'date-fns'],
   },
   // Performance optimizations
   compiler: {
@@ -36,8 +38,47 @@ const nextConfig: NextConfig = {
         tls: false,
       };
     }
+    
+    // Optimize chunk splitting
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          // Vendor chunk for node_modules
+          vendor: {
+            name: 'vendor',
+            chunks: 'all',
+            test: /node_modules/,
+            priority: 20,
+          },
+          // Common chunk for shared code
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 10,
+            reuseExistingChunk: true,
+            enforce: true,
+          },
+          // Separate chunk for large libraries
+          lib: {
+            test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+            name: 'lib',
+            priority: 30,
+          },
+        },
+      },
+    };
+    
     return config;
   },
+  // Optimize production builds
+  swcMinify: true,
+  poweredByHeader: false,
+  compress: true,
 };
 
 module.exports = withNextIntl(nextConfig);

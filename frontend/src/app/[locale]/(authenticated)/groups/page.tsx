@@ -11,7 +11,7 @@ import { useStudyGroups } from '@/hooks/use-study-groups';
 import { StudyGroupForm } from '@/components/study-groups/study-group-form';
 import { StudyGroupCard } from '@/components/study-groups/study-group-card';
 import { StudyGroupQueryParams } from '@/types/study-group';
-import { Plus, Search, Users, Filter } from 'lucide-react';
+import { Plus, Search, Users, Filter, Settings, UserPlus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ui/client-only';
 import { AuthGuard } from '@/components/ui/auth-guard';
@@ -157,11 +157,27 @@ export default function GroupsPage() {
         {/* Tabs */}
         <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse" />}>
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="discover">{t('search.allSubjects')}</TabsTrigger>
-              <TabsTrigger value="my-groups">{t('myGroups')}</TabsTrigger>
-              <TabsTrigger value="owned">{t('actions.manageMembers')}</TabsTrigger>
-              <TabsTrigger value="requests">{t('requests.title')}</TabsTrigger>
+            <TabsList className="w-full overflow-x-auto flex justify-start">
+              <TabsTrigger value="discover" className="flex items-center gap-1.5">
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('search.allSubjects')}</span>
+                <span className="sm:hidden">Discover</span>
+              </TabsTrigger>
+              <TabsTrigger value="my-groups" className="flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('myGroups')}</span>
+                <span className="sm:hidden">My Groups</span>
+              </TabsTrigger>
+              <TabsTrigger value="owned" className="flex items-center gap-1.5">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('actions.manageMembers')}</span>
+                <span className="sm:hidden">Owned</span>
+              </TabsTrigger>
+              <TabsTrigger value="requests" className="flex items-center gap-1.5">
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('requests.title')}</span>
+                <span className="sm:hidden">Requests</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab} className="mt-6">

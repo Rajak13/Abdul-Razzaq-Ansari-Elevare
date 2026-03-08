@@ -5,17 +5,24 @@ class SocketService {
   private token: string | null = null;
 
   connect(token: string) {
-    if (this.socket?.connected) {
-      return this.socket;
+    // If we already have a socket and it's connecting/connected, return it
+    if (this.socket) {
+      if (this.socket.connected || this.socket.active) {
+        return this.socket;
+      }
+      // If it exists but is disconnected/inactive, we'll create a new one below
     }
 
     this.token = token;
-    
+
     this.socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
       auth: {
         token: token
       },
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     this.setupEventHandlers();
@@ -39,7 +46,7 @@ class SocketService {
         console.error('🔴 Socket error: Empty error object - possible server disconnection');
         return;
       }
-      
+
       const errorMessage = error.message || error.toString() || 'Unknown socket error';
       console.error('🔴 Socket error:', errorMessage);
     });
@@ -210,13 +217,13 @@ class SocketService {
   // Drawing events with operation ordering
   emitDrawStart(whiteboardId: string, x: number, y: number, tool: string, color: string, size: number) {
     if (this.socket) {
-      this.socket.emit('draw_start', { 
-        whiteboardId, 
-        x, 
-        y, 
-        tool, 
-        color, 
-        size, 
+      this.socket.emit('draw_start', {
+        whiteboardId,
+        x,
+        y,
+        tool,
+        color,
+        size,
         timestamp: Date.now(),
         operationId: `${Date.now()}-${Math.random()}`
       });
@@ -225,10 +232,10 @@ class SocketService {
 
   emitDrawMove(whiteboardId: string, x: number, y: number, operationId?: string) {
     if (this.socket) {
-      this.socket.emit('draw_move', { 
-        whiteboardId, 
-        x, 
-        y, 
+      this.socket.emit('draw_move', {
+        whiteboardId,
+        x,
+        y,
         timestamp: Date.now(),
         operationId
       });
@@ -237,8 +244,8 @@ class SocketService {
 
   emitDrawEnd(whiteboardId: string, operationId?: string) {
     if (this.socket) {
-      this.socket.emit('draw_end', { 
-        whiteboardId, 
+      this.socket.emit('draw_end', {
+        whiteboardId,
         timestamp: Date.now(),
         operationId
       });
@@ -248,8 +255,8 @@ class SocketService {
   // Element manipulation events with conflict resolution
   emitAddElement(whiteboardId: string, element: any) {
     if (this.socket) {
-      this.socket.emit('add_element', { 
-        whiteboardId, 
+      this.socket.emit('add_element', {
+        whiteboardId,
         element: {
           ...element,
           timestamp: Date.now(),
@@ -263,9 +270,9 @@ class SocketService {
 
   emitUpdateElement(whiteboardId: string, elementId: string, updates: any) {
     if (this.socket) {
-      this.socket.emit('update_element', { 
-        whiteboardId, 
-        elementId, 
+      this.socket.emit('update_element', {
+        whiteboardId,
+        elementId,
         updates: {
           ...updates,
           lastModified: Date.now()
@@ -278,8 +285,8 @@ class SocketService {
 
   emitDeleteElement(whiteboardId: string, elementId: string) {
     if (this.socket) {
-      this.socket.emit('delete_element', { 
-        whiteboardId, 
+      this.socket.emit('delete_element', {
+        whiteboardId,
         elementId,
         operationId: `delete-${elementId}`,
         timestamp: Date.now()
@@ -289,7 +296,7 @@ class SocketService {
 
   emitClearCanvas(whiteboardId: string) {
     if (this.socket) {
-      this.socket.emit('clear_canvas', { 
+      this.socket.emit('clear_canvas', {
         whiteboardId,
         operationId: `clear-${Date.now()}`,
         timestamp: Date.now()
@@ -314,19 +321,19 @@ class SocketService {
 
   // Cursor tracking with throttling
   private cursorThrottle: { [key: string]: number } = {};
-  
+
   emitCursorMove(whiteboardId: string, x: number, y: number, userId: string, userName: string, color: string) {
     if (this.socket) {
       const now = Date.now();
       const throttleKey = `${whiteboardId}-${userId}`;
-      
+
       // Throttle cursor updates to 60fps (16ms)
       if (this.cursorThrottle[throttleKey] && now - this.cursorThrottle[throttleKey] < 16) {
         return;
       }
-      
+
       this.cursorThrottle[throttleKey] = now;
-      
+
       this.socket.emit('cursor_move', {
         whiteboardId,
         x,
@@ -469,10 +476,10 @@ class SocketService {
 
   emitSyncResponse(whiteboardId: string, elements: any[]) {
     if (this.socket) {
-      this.socket.emit('sync_response', { 
-        whiteboardId, 
-        elements, 
-        timestamp: Date.now() 
+      this.socket.emit('sync_response', {
+        whiteboardId,
+        elements,
+        timestamp: Date.now()
       });
     }
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WhiteboardToolbar } from './whiteboard-toolbar';
@@ -55,14 +55,13 @@ const COLORS = [
 
 const SIZES = [2, 4, 6, 8, 12, 16, 20];
 
-export function WhiteboardCanvas({ 
+const WhiteboardCanvas = memo(function WhiteboardCanvas({ 
   whiteboardId, 
   groupId, 
   canEdit, 
   className = '' 
 }: WhiteboardCanvasProps) {
-  console.log('🎨 WhiteboardCanvas props:', { whiteboardId, groupId, canEdit });
-  
+  // Remove excessive logging
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentTool, setCurrentTool] = useState<DrawingTool>({
@@ -628,4 +627,8 @@ export function WhiteboardCanvas({
       )}
     </Card>
   );
-}
+});
+
+WhiteboardCanvas.displayName = 'WhiteboardCanvas';
+
+export default WhiteboardCanvas;

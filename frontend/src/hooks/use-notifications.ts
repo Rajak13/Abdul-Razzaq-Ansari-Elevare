@@ -68,7 +68,7 @@ export function useNotifications() {
   });
 
   const updatePreferencesMutation = useMutation({
-    mutationFn: (preferences: NotificationPreferencesData) => 
+    mutationFn: (preferences: NotificationPreferencesData) =>
       notificationService.updatePreferences(preferences),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'preferences'] });
@@ -95,7 +95,10 @@ export function useNotifications() {
       const audio = new Audio('/sounds/notification.mp3');
       audio.volume = 0.5;
       audio.play().catch(error => {
-        console.log('Could not play notification sound:', error);
+        // Silently handle decode errors for placeholder files
+        if (error.name !== 'NotAllowedError') {
+          console.log('🔇 Notification sound skipped (placeholder or blocked)');
+        }
       });
     } catch (error) {
       console.log('Could not create audio element:', error);
@@ -148,7 +151,7 @@ export function useNotifications() {
 
     // Set up event listeners
     socketService.onNotification(handleNotification);
-    
+
     const socket = socketService.getSocket();
     if (socket) {
       socket.on('connect', handleConnect);
@@ -197,7 +200,7 @@ export function useNotifications() {
     notifications: notificationsData?.notifications || [],
     unreadCount,
     preferences: preferencesData?.preferences || [],
-    
+
     // Loading states
     isLoading,
     isMarkingAsRead: markAsReadMutation.isPending,
@@ -205,10 +208,10 @@ export function useNotifications() {
     isDeleting: deleteNotificationMutation.isPending,
     isUpdatingPreferences: updatePreferencesMutation.isPending,
     isSendingTest: sendTestNotificationMutation.isPending,
-    
+
     // Connection state
     isConnected,
-    
+
     // Actions
     markAsRead,
     markAllAsRead,
@@ -217,7 +220,7 @@ export function useNotifications() {
     sendTestNotification,
     refreshNotifications,
     playNotificationSound,
-    
+
     // Error
     error,
   };

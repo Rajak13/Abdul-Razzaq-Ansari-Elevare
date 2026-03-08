@@ -452,3 +452,35 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+  /* Mobile-responsive tabs - scrollable on small screens */
+  @media (max-width: 640px) {
+    [role="tablist"] {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    [role="tablist"]::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    
+    [role="tab"] {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+  }
+  
+  /* Video call mobile optimizations */
+  @media (max-width: 768px) {
+    .video-grid {
+      gap: 0.25rem;
+      padding: 0.5rem;
+    }
+    
+    .participant-video {
+      min-height: 120px;
+    }
+  }

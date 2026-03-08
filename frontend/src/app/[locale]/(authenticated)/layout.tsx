@@ -2,12 +2,14 @@
 
 import { cn } from '@/lib/utils'
 import * as React from 'react'
-import { Sidebar } from '@/components/sidebar'
 import { useAuth } from '@/contexts/auth-context'
 import TopBar from '@/components/top-bar'
-import { MobileNav } from '@/components/navigation/mobile-nav'
 import { usePathname } from '@/navigation'
 import { Toaster } from 'sonner'
+
+// Lazy load heavy components
+const Sidebar = React.lazy(() => import('@/components/sidebar').then(mod => ({ default: mod.Sidebar })))
+const MobileNav = React.lazy(() => import('@/components/navigation/mobile-nav').then(mod => ({ default: mod.MobileNav })))
 
 // Disable static generation for authenticated routes
 export const dynamic = 'force-dynamic'
@@ -25,6 +27,11 @@ function AppLayout({
 }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
   const { user } = useAuth()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const layoutUser = user
     ? {
@@ -36,13 +43,15 @@ function AppLayout({
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar - Hidden on mobile, tablet, and iPad */}
-      {showSidebar && (
+      {showSidebar && mounted && (
         <div className="hidden xl:flex">
-          <Sidebar
-            isOpen={sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
-            user={layoutUser}
-          />
+          <React.Suspense fallback={<div className="w-64 border-r bg-background" />}>
+            <Sidebar
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+              user={layoutUser}
+            />
+          </React.Suspense>
         </div>
       )}
 
@@ -68,6 +77,11 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <AppLayout showSidebar={true}>
@@ -77,7 +91,11 @@ export default function AuthenticatedLayout({
           {children}
         </div>
       </div>
-      <MobileNav />
+      {mounted && (
+        <React.Suspense fallback={null}>
+          <MobileNav />
+        </React.Suspense>
+      )}
       <Toaster richColors position="top-right" />
     </AppLayout>
   );

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Users, Eye, Lock } from 'lucide-react';
-import { WhiteboardCanvas } from './whiteboard-canvas';
+import WhiteboardCanvas from './whiteboard-canvas';
 import apiClient from '@/lib/api-client';
 
 interface Whiteboard {

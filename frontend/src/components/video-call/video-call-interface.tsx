@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { VideoCall } from './video-call';
-import { WhiteboardCanvas } from '@/components/whiteboard/whiteboard-canvas';
+import WhiteboardCanvas from '@/components/whiteboard/whiteboard-canvas';
 import { 
   ArrowLeft,
   Users,
@@ -62,34 +62,34 @@ export function VideoCallInterface({
   };
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-screen flex flex-col md:flex-row bg-background">
       {/* Main video call area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="bg-card border-b border-border px-6 py-4">
+        <div className="bg-card border-b border-border px-3 md:px-6 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4 min-w-0">
               <button
                 onClick={onLeave}
-                className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                className="p-1.5 md:p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                 title="Leave call"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary rounded-lg">
-                  <Video className="w-5 h-5 text-primary-foreground" />
+              <div className="flex items-center space-x-2 md:space-x-3 min-w-0">
+                <div className="p-1.5 md:p-2 bg-primary rounded-lg flex-shrink-0">
+                  <Video className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
                 </div>
-                <div>
-                  <h1 className="text-lg font-semibold text-foreground">{groupName}</h1>
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="min-w-0">
+                  <h1 className="text-sm md:text-lg font-semibold text-foreground truncate">{groupName}</h1>
+                  <div className="flex items-center space-x-2 md:space-x-4 text-xs md:text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3 h-3 md:w-4 md:h-4" />
                       <span>{formatDuration(callDuration)}</span>
                     </div>
                     {isRecording && (
-                      <div className="flex items-center space-x-1 text-destructive">
+                      <div className="hidden sm:flex items-center space-x-1 text-destructive">
                         <div className="w-2 h-2 bg-destructive rounded-full animate-pulse"></div>
                         <span>Recording</span>
                       </div>
@@ -100,60 +100,60 @@ export function VideoCallInterface({
             </div>
 
             {/* Header actions */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0">
               <button
                 onClick={() => toggleSidebar('chat')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 md:p-2 rounded-lg transition-colors ${
                   showSidebar && sidebarTab === 'chat'
                     ? 'bg-primary text-primary-foreground'
                     : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                 }`}
                 title="Chat"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               
               <button
                 onClick={() => toggleSidebar('notes')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 md:p-2 rounded-lg transition-colors hidden sm:flex ${
                   showSidebar && sidebarTab === 'notes'
                     ? 'bg-primary text-primary-foreground'
                     : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                 }`}
                 title="Notes"
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               
               <button
                 onClick={() => toggleSidebar('whiteboard')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 md:p-2 rounded-lg transition-colors hidden sm:flex ${
                   showSidebar && sidebarTab === 'whiteboard'
                     ? 'bg-primary text-primary-foreground'
                     : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                 }`}
                 title="Whiteboard"
               >
-                <PenTool className="w-5 h-5" />
+                <PenTool className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               
               <button
                 onClick={() => toggleSidebar('settings')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 md:p-2 rounded-lg transition-colors ${
                   showSidebar && sidebarTab === 'settings'
                     ? 'bg-primary text-primary-foreground'
                     : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                 }`}
                 title="Settings"
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Video call component */}
-        <div className="flex-1">
+        <div className="flex-1 min-h-0">
           <VideoCall
             callId={callId}
             groupId={groupId}
@@ -162,9 +162,9 @@ export function VideoCallInterface({
         </div>
       </div>
 
-      {/* Sidebar */}
+      {/* Sidebar - Full screen on mobile, sidebar on desktop */}
       {showSidebar && (
-        <div className="w-80 bg-card border-l border-border flex flex-col">
+        <div className="fixed inset-0 md:relative md:w-80 bg-card md:border-l border-border flex flex-col z-50">
           <SidebarContent 
             tab={sidebarTab} 
             groupId={groupId}
@@ -302,35 +302,74 @@ function ChatPanel({ groupId }: { groupId: string }) {
 function NotesPanel({ groupId }: { groupId: string }) {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Auto-save notes every 5 seconds when there are changes
+  useEffect(() => {
+    if (!notes.trim()) return;
+
+    const autoSaveTimer = setTimeout(() => {
+      saveNotes();
+    }, 5000);
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [notes]);
 
   const saveNotes = async () => {
+    if (!notes.trim() || saving) return;
+    
     setSaving(true);
-    // Add save logic here
-    setTimeout(() => setSaving(false), 1000);
+    try {
+      // Save to localStorage for now (can be enhanced to save to backend)
+      localStorage.setItem(`call-notes-${groupId}`, notes);
+      setLastSaved(new Date());
+      
+      // Could also emit via socket for real-time sync
+      // socketService.getSocket()?.emit('save_call_notes', { groupId, notes });
+    } catch (error) {
+      console.error('Error saving notes:', error);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  // Load saved notes on mount
+  useEffect(() => {
+    const savedNotes = localStorage.getItem(`call-notes-${groupId}`);
+    if (savedNotes) {
+      setNotes(savedNotes);
+    }
+  }, [groupId]);
 
   return (
     <div className="flex flex-col h-full p-4">
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-foreground">Collaborative Notes</h3>
-          <button
-            onClick={saveNotes}
-            disabled={saving}
-            className="px-3 py-1 bg-primary hover:bg-primary/90 disabled:bg-muted text-primary-foreground text-sm rounded transition-colors"
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
+          <h3 className="text-sm font-medium text-foreground">Call Notes</h3>
+          <div className="flex items-center space-x-2">
+            {lastSaved && (
+              <span className="text-xs text-muted-foreground">
+                Saved {lastSaved.toLocaleTimeString()}
+              </span>
+            )}
+            <button
+              onClick={saveNotes}
+              disabled={saving || !notes.trim()}
+              className="px-3 py-1 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed text-primary-foreground text-sm rounded transition-colors"
+            >
+              {saving ? 'Saving...' : 'Save Now'}
+            </button>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Notes are automatically synced with all participants
+          Notes are auto-saved every 5 seconds and stored locally
         </p>
       </div>
       
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Start taking notes..."
+        placeholder="Start taking notes during the call..."
         className="flex-1 p-3 bg-background text-foreground rounded-lg border border-input focus:border-primary focus:outline-none resize-none"
       />
     </div>

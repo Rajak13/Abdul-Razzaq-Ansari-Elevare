@@ -12,20 +12,15 @@ import { EnhancedCallLayout } from '@/components/video-call/enhanced-call-layout
 import { VideoCallLobby } from '@/components/video-call/video-call-lobby';
 import { useAuth } from '@/contexts/auth-context';
 import { useSocket } from '@/hooks/use-socket';
-import { 
+import {
+  useStudyGroup
+} from '@/hooks/use-study-groups';
+import {
   ArrowLeftIcon,
   UserGroupIcon,
   ClockIcon,
   VideoCameraIcon
 } from '@heroicons/react/24/outline';
-
-interface StudyGroup {
-  id: string;
-  name: string;
-  description: string;
-  member_count: number;
-  is_member: boolean;
-}
 
 interface CallSettings {
   audioEnabled: boolean;
@@ -39,9 +34,7 @@ export default function VideoCallPage() {
   const router = useRouter();
   const { user } = useAuth();
   const socket = useSocket();
-  const [group, setGroup] = useState<StudyGroup | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [membershipError, setMembershipError] = useState<string | null>(null);
   const [inLobby, setInLobby] = useState(true);
   const [callSettings, setCallSettings] = useState<CallSettings | null>(null);
   const [useEnhancedLayout, setUseEnhancedLayout] = useState(true); // Toggle for testing
@@ -49,40 +42,20 @@ export default function VideoCallPage() {
   const groupId = params.id as string;
   const callId = `group-${groupId}-call`; // Fixed call ID for the group
 
-  // Fetch group details
+  // Use the cached study group hook instead of raw fetch to prevent loops
+  const { data: groupData, isLoading: loading, error: queryError } = useStudyGroup(groupId);
+  const group = groupData?.group;
+
+  // Check group membership once data is loaded
   useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const response = await fetch(`/api/groups/${groupId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch group details');
-        }
-
-        const groupData = await response.json();
-        
-        if (!groupData.is_member) {
-          setError('You must be a member of this group to join video calls');
-          return;
-        }
-
-        setGroup(groupData);
-      } catch (err) {
-        console.error('Error fetching group:', err);
-        setError('Failed to load group details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user && groupId) {
-      fetchGroup();
+    if (group && !group.is_member) {
+      setMembershipError('You must be a member of this group to join video calls');
+    } else {
+      setMembershipError(null);
     }
-  }, [user, groupId]);
+  }, [group]);
+
+  const error = queryError ? 'Failed to load group details' : membershipError;
 
   const handleJoinCall = (settings: CallSettings) => {
     setCallSettings(settings);

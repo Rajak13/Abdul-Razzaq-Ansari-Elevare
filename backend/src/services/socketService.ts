@@ -127,6 +127,12 @@ export class SocketService {
         try {
           const { groupId } = data;
           
+          logger.info('📞 get_call_status request received', { 
+            userId: socket.userId, 
+            groupId,
+            socketId: socket.id 
+          });
+          
           // Verify user is a member of the group
           const memberCheck = await query(
             'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2',
@@ -137,12 +143,27 @@ export class SocketService {
             const callId = `group-${groupId}-call`;
             const callParticipants = await this.getCallParticipants(callId);
             
-            socket.emit('group_call_status', {
+            const statusResponse = {
               groupId,
               callId,
               isActive: callParticipants.length > 0,
               participants: callParticipants,
               startedBy: callParticipants[0]?.user || null
+            };
+            
+            logger.info('📞 Sending call status response', { 
+              userId: socket.userId, 
+              groupId,
+              isActive: statusResponse.isActive,
+              participantCount: callParticipants.length,
+              socketId: socket.id
+            });
+            
+            socket.emit('group_call_status', statusResponse);
+          } else {
+            logger.warn('📞 User not authorized for group', { 
+              userId: socket.userId, 
+              groupId 
             });
           }
         } catch (error) {
@@ -178,45 +199,105 @@ export class SocketService {
       // Whiteboard events
       socket.on('whiteboard_join', async (whiteboardId: string) => {
         try {
-          // Verify user has access to the whiteboard
-          const accessCheck = await query(
-            `SELECT w.id, w.canvas_data FROM whiteboards w 
-             LEFT JOIN study_groups sg ON w.group_id = sg.id 
-             LEFT JOIN group_members gm ON sg.id = gm.group_id 
-             WHERE w.id = $1 AND (w.user_id = $2 OR gm.user_id = $2)`,
-            [whiteboardId, socket.userId]
-          );
-
-          if (accessCheck.rows[0]) {
-            socket.join(`whiteboard:${whiteboardId}`);
+          // Handle composite whiteboard IDs (e.g., "group-{uuid}-shared")
+          let actualWhiteboardId = whiteboardId;
+          let groupId: string | null = null;
+          
+          // Check if it's a group whiteboard ID format
+          const groupWhiteboardMatch = whiteboardId.match(/^group-(.+)-shared$/);
+          if (groupWhiteboardMatch) {
+            groupId = groupWhiteboardMatch[1];
             
-            // Get current participants
-            const participants = await this.getWhiteboardParticipants(whiteboardId);
+            // For group whiteboards, check group membership and get whiteboard
+            const groupAccessCheck = await query(
+              `SELECT w.id as whiteboard_id, sg.id as group_id
+               FROM study_groups sg
+               JOIN group_members gm ON sg.id = gm.group_id
+               LEFT JOIN whiteboards w ON w.group_id = sg.id
+               WHERE sg.id = $1 AND gm.user_id = $2`,
+              [groupId, socket.userId]
+            );
             
-            // Get whiteboard data
-            const whiteboardData = accessCheck.rows[0];
-            const canvasData = typeof whiteboardData.canvas_data === 'string' 
-              ? JSON.parse(whiteboardData.canvas_data) 
-              : whiteboardData.canvas_data;
+            if (groupAccessCheck.rows[0]) {
+              actualWhiteboardId = groupAccessCheck.rows[0].whiteboard_id;
+              
+              socket.join(`whiteboard:${whiteboardId}`);
+              
+              // Get current participants
+              const participants = await this.getWhiteboardParticipants(whiteboardId);
+              
+              // Get whiteboard data
+              const whiteboardData = await query(
+                `SELECT id, canvas_data FROM whiteboards WHERE id = $1`,
+                [actualWhiteboardId]
+              );
+              
+              const canvasData = whiteboardData.rows[0]?.canvas_data 
+                ? (typeof whiteboardData.rows[0].canvas_data === 'string' 
+                    ? JSON.parse(whiteboardData.rows[0].canvas_data) 
+                    : whiteboardData.rows[0].canvas_data)
+                : { elements: [] };
 
-            // Send join confirmation with current state
-            socket.emit('whiteboard_joined', { 
-              whiteboardId,
-              elements: canvasData.elements || [],
-              users: participants.map(p => p.user.name || 'Unknown User')
-            });
-            
-            // Notify other users about new participant
-            socket.to(`whiteboard:${whiteboardId}`).emit('user_joined_whiteboard', {
-              whiteboardId,
-              userId: socket.userId,
-              userName: socket.user?.name || 'Unknown User',
-              user: socket.user
-            });
+              // Send join confirmation with current state
+              socket.emit('whiteboard_joined', { 
+                whiteboardId,
+                elements: canvasData.elements || [],
+                users: participants.map(p => p.user.name || 'Unknown User')
+              });
+              
+              // Notify other users about new participant
+              socket.to(`whiteboard:${whiteboardId}`).emit('user_joined_whiteboard', {
+                whiteboardId,
+                userId: socket.userId,
+                userName: socket.user?.name || 'Unknown User',
+                user: socket.user
+              });
 
-            logger.info('User joined whiteboard', { userId: socket.userId, whiteboardId });
+              logger.info('User joined group whiteboard', { userId: socket.userId, whiteboardId, groupId });
+            } else {
+              socket.emit('error', { message: 'Not authorized to access this whiteboard' });
+            }
           } else {
-            socket.emit('error', { message: 'Not authorized to access this whiteboard' });
+            // Regular whiteboard ID - use original logic
+            const accessCheck = await query(
+              `SELECT w.id, w.canvas_data FROM whiteboards w 
+               LEFT JOIN study_groups sg ON w.group_id = sg.id 
+               LEFT JOIN group_members gm ON sg.id = gm.group_id 
+               WHERE w.id = $1 AND (w.user_id = $2 OR gm.user_id = $2)`,
+              [whiteboardId, socket.userId]
+            );
+
+            if (accessCheck.rows[0]) {
+              socket.join(`whiteboard:${whiteboardId}`);
+              
+              // Get current participants
+              const participants = await this.getWhiteboardParticipants(whiteboardId);
+              
+              // Get whiteboard data
+              const whiteboardData = accessCheck.rows[0];
+              const canvasData = typeof whiteboardData.canvas_data === 'string' 
+                ? JSON.parse(whiteboardData.canvas_data) 
+                : whiteboardData.canvas_data;
+
+              // Send join confirmation with current state
+              socket.emit('whiteboard_joined', { 
+                whiteboardId,
+                elements: canvasData.elements || [],
+                users: participants.map(p => p.user.name || 'Unknown User')
+              });
+              
+              // Notify other users about new participant
+              socket.to(`whiteboard:${whiteboardId}`).emit('user_joined_whiteboard', {
+                whiteboardId,
+                userId: socket.userId,
+                userName: socket.user?.name || 'Unknown User',
+                user: socket.user
+              });
+
+              logger.info('User joined whiteboard', { userId: socket.userId, whiteboardId });
+            } else {
+              socket.emit('error', { message: 'Not authorized to access this whiteboard' });
+            }
           }
         } catch (error) {
           logger.error('Error joining whiteboard', { error, userId: socket.userId, whiteboardId });
@@ -375,7 +456,8 @@ export class SocketService {
           
           // If this is a group call and the first person, notify all group members
           if (groupId && isCallStarter) {
-            socket.to(`group:${groupId}`).emit('group_call_started', {
+            // Broadcast to ALL group members including the sender
+            this.io.to(`group:${groupId}`).emit('group_call_started', {
               callId,
               groupId,
               startedBy: socket.user,
@@ -446,7 +528,8 @@ export class SocketService {
           // Update group call status
           if (groupId) {
             const updatedParticipants = await this.getCallParticipants(callId);
-            socket.to(`group:${groupId}`).emit('group_call_status', {
+            // Broadcast to ALL group members including the sender
+            this.io.to(`group:${groupId}`).emit('group_call_status', {
               groupId,
               callId,
               isActive: true,
@@ -462,42 +545,51 @@ export class SocketService {
         }
       });
 
-      socket.on('leave_call', async (callId: string) => {
-        socket.leave(`call:${callId}`);
-        socket.to(`call:${callId}`).emit('user_left_call', {
-          userId: socket.userId,
-          user: socket.user,
-          callId
-        });
-
-        // Check if call is now empty and update group status
-        const remainingParticipants = await this.getCallParticipants(callId);
-        
-        // Extract groupId from callId (format: group-{groupId}-call)
-        const groupIdMatch = callId.match(/^group-(.+)-call$/);
-        if (groupIdMatch) {
-          const groupId = groupIdMatch[1];
+      socket.on('leave_call', async (callId: string | any) => {
+        try {
+          // Ensure callId is a string
+          const callIdStr = typeof callId === 'string' ? callId : callId?.callId || '';
           
-          if (remainingParticipants.length === 0) {
-            // Call ended - notify group members
-            socket.to(`group:${groupId}`).emit('group_call_ended', {
-              callId,
-              groupId,
-              endedAt: new Date().toISOString()
-            });
+          if (!callIdStr) {
+            logger.error('Invalid callId in leave_call', { callId, userId: socket.userId });
+            return;
+          }
 
-            socket.to(`group:${groupId}`).emit('group_call_status', {
-              groupId,
-              callId,
-              isActive: false,
-              participants: [],
-              startedBy: null
-            });
-          } else {
-            // Update participant count
-            socket.to(`group:${groupId}`).emit('group_call_status', {
-              groupId,
-              callId,
+          socket.leave(`call:${callIdStr}`);
+          socket.to(`call:${callIdStr}`).emit('user_left_call', {
+            userId: socket.userId,
+            user: socket.user,
+            callId: callIdStr
+          });
+
+          // Check if call is now empty and update group status
+          const remainingParticipants = await this.getCallParticipants(callIdStr);
+          
+          // Extract groupId from callId (format: group-{groupId}-call)
+          const groupIdMatch = callIdStr.match(/^group-(.+)-call$/);
+          if (groupIdMatch) {
+            const groupId = groupIdMatch[1];
+            
+            if (remainingParticipants.length === 0) {
+              // Call ended - notify ALL group members including the sender
+              this.io.to(`group:${groupId}`).emit('group_call_ended', {
+                callId: callIdStr,
+                groupId,
+                endedAt: new Date().toISOString()
+              });
+
+              this.io.to(`group:${groupId}`).emit('group_call_status', {
+                groupId,
+                callId: callIdStr,
+                isActive: false,
+                participants: [],
+                startedBy: null
+              });
+            } else {
+              // Update participant count - broadcast to ALL group members
+              this.io.to(`group:${groupId}`).emit('group_call_status', {
+                groupId,
+                callId: callIdStr,
               isActive: true,
               participants: remainingParticipants,
               startedBy: remainingParticipants[0]?.user || null
@@ -505,7 +597,10 @@ export class SocketService {
           }
         }
 
-        logger.info('User left call', { userId: socket.userId, callId });
+        logger.info('User left call', { userId: socket.userId, callId: callIdStr });
+        } catch (error) {
+          logger.error('Error leaving call', { error, userId: socket.userId, callId });
+        }
       });
 
       // WebRTC Offer/Answer Exchange

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { 
+import {
   VideoCameraIcon,
   MicrophoneIcon,
   Cog6ToothIcon,
@@ -27,11 +27,11 @@ interface CallSettings {
   videoDevice?: string;
 }
 
-export function VideoCallLobby({ 
-  groupName, 
-  memberCount, 
-  onJoinCall, 
-  onCancel 
+export function VideoCallLobby({
+  groupName,
+  memberCount,
+  onJoinCall,
+  onCancel
 }: VideoCallLobbyProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -53,10 +53,10 @@ export function VideoCallLobby({
         const devices = await navigator.mediaDevices.enumerateDevices();
         const audioInputs = devices.filter(device => device.kind === 'audioinput');
         const videoInputs = devices.filter(device => device.kind === 'videoinput');
-        
+
         setAudioDevices(audioInputs);
         setVideoDevices(videoInputs);
-        
+
         // Set default devices
         if (audioInputs.length > 0) {
           setSelectedAudioDevice(audioInputs[0].deviceId);
@@ -75,7 +75,7 @@ export function VideoCallLobby({
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-        
+
         setError(null);
       } catch (err) {
         console.error('Error accessing media devices:', err);
@@ -105,15 +105,15 @@ export function VideoCallLobby({
 
         // Get new stream with selected devices
         const constraints: MediaStreamConstraints = {
-          video: videoEnabled && selectedVideoDevice ? 
+          video: videoEnabled && selectedVideoDevice ?
             { deviceId: { exact: selectedVideoDevice } } : false,
-          audio: audioEnabled && selectedAudioDevice ? 
+          audio: audioEnabled && selectedAudioDevice ?
             { deviceId: { exact: selectedAudioDevice } } : false
         };
 
         const newStream = await navigator.mediaDevices.getUserMedia(constraints);
         setLocalStream(newStream);
-        
+
         if (videoRef.current) {
           videoRef.current.srcObject = newStream;
         }
@@ -154,7 +154,7 @@ export function VideoCallLobby({
       audioDevice: selectedAudioDevice,
       videoDevice: selectedVideoDevice
     };
-    
+
     onJoinCall(settings);
   };
 
@@ -189,7 +189,7 @@ export function VideoCallLobby({
                   </div>
                 </div>
               </div>
-              
+
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
@@ -210,7 +210,7 @@ export function VideoCallLobby({
                     autoPlay
                     playsInline
                     muted
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover -scale-x-100"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -228,11 +228,10 @@ export function VideoCallLobby({
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={toggleAudio}
-                      className={`p-3 rounded-full transition-all ${
-                        audioEnabled
+                      className={`p-3 rounded-full transition-all ${audioEnabled
                           ? 'bg-accent hover:bg-accent/80 text-foreground'
                           : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                      }`}
+                        }`}
                       title={audioEnabled ? 'Mute microphone' : 'Unmute microphone'}
                     >
                       {audioEnabled ? (
@@ -244,11 +243,10 @@ export function VideoCallLobby({
 
                     <button
                       onClick={toggleVideo}
-                      className={`p-3 rounded-full transition-all ${
-                        videoEnabled
+                      className={`p-3 rounded-full transition-all ${videoEnabled
                           ? 'bg-accent hover:bg-accent/80 text-foreground'
                           : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                      }`}
+                        }`}
                       title={videoEnabled ? 'Turn off camera' : 'Turn on camera'}
                     >
                       {videoEnabled ? (
@@ -272,7 +270,7 @@ export function VideoCallLobby({
             {showSettings && (
               <div className="w-80 bg-muted p-6 border-l border-border">
                 <h3 className="text-lg font-semibold text-foreground mb-4">Settings</h3>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -318,7 +316,7 @@ export function VideoCallLobby({
               <div className="text-sm text-muted-foreground">
                 Make sure your camera and microphone are working properly
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <button
                   onClick={onCancel}

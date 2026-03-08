@@ -8,6 +8,7 @@ import { ParticipantGrid, ParticipantGridCompact } from './participant-grid';
 import { ScreenShare } from './screen-share';
 import { BreakoutRooms } from './breakout-rooms';
 import { FloatingVideoWindow } from './floating-video-window';
+import { toast } from 'sonner';
 
 interface Participant {
   userId: string;
@@ -48,22 +49,18 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const screenPeerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const hasJoinedCallRef = useRef(false);
+  const makingOffer = useRef<Map<string, boolean>>(new Map());
+  const ignoreOffer = useRef<Map<string, boolean>>(new Map());
 
   // Production WebRTC configuration with Metered TURN server
   const rtcConfig: RTCConfiguration = {
     iceServers: [
-      // STUN servers for NAT discovery
+      // STUN server for NAT discovery
       { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      // Production Metered TURN servers (50GB free tier)
+      // Production Metered TURN server
       {
-        urls: [
-          'turn:elevarenp.metered.live:80',
-          'turn:elevarenp.metered.live:80?transport=tcp',
-          'turn:elevarenp.metered.live:443',
-          'turns:elevarenp.metered.live:443'
-        ],
+        urls: 'turn:elevarenp.metered.live:80',
         username: process.env.NEXT_PUBLIC_TURN_USERNAME || 'elevarenp',
         credential: process.env.NEXT_PUBLIC_TURN_PASSWORD || 'FSOofLCSpAluGfLhxOMjQlS42WtGMQMIKHjKKW1dbiuGQIAq'
       }
@@ -80,8 +77,11 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       const isConnected = socket && socket.connected;
       setSocketReady(!!isConnected);
 
-      if (!isConnected && token) {
-        socketService.connect(token);
+      if (!isConnected) {
+        hasJoinedCallRef.current = false;
+        if (token) {
+          socketService.connect(token);
+        }
       }
     };
 
@@ -142,7 +142,7 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     const pc = new RTCPeerConnection(rtcConfig);
     const connections = isScreenShare ? screenPeerConnections : peerConnections;
 
-    // Add local stream tracks - use customStream if provided, otherwise use state
+    // Add local stream tracks - use customStream if provided, otherwise get current stream
     const stream = customStream || (isScreenShare ? screenStream : localStream);
     if (stream) {
       stream.getTracks().forEach(track => {
@@ -153,120 +153,123 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       console.warn(`⚠️ No stream available for ${isScreenShare ? 'screen share' : 'video call'}`);
     }
 
-    // Handle incoming stream
+    // Handle ICE candidates
+    pc.onicecandidate = ({ candidate }) => {
+      if (candidate) {
+        const eventName = isScreenShare ? 'screen_share_ice_candidate' : 'webrtc_ice_candidate';
+        socketService.getSocket()?.emit(eventName, {
+          callId,
+          targetUserId: participantId,
+          candidate
+        });
+      }
+    };
+
+    // Handle incoming tracks
     pc.ontrack = (event) => {
       console.log(`📺 Received ${event.track.kind} track from ${participantId}`);
-      const [remoteStream] = event.streams;
+      let [remoteStream] = event.streams;
+
+      // Some browsers don't provide the stream in the event, only the track
+      if (!remoteStream) {
+        console.log(`📡 Manually creating stream for ${participantId} track`);
+        remoteStream = new MediaStream();
+        remoteStream.addTrack(event.track);
+      }
 
       if (isScreenShare) {
         setParticipants(prev => prev.map(p =>
-          p.userId === participantId
-            ? { ...p, screenStream: remoteStream, isScreenSharing: true }
-            : p
+          p.userId === participantId ? { ...p, screenStream: remoteStream, isScreenSharing: true } : p
         ));
       } else {
         setParticipants(prev => prev.map(p =>
-          p.userId === participantId
-            ? { ...p, stream: remoteStream }
-            : p
+          p.userId === participantId ? { ...p, stream: remoteStream } : p
         ));
       }
     };
 
-    // Handle ICE candidates
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        console.log(`🧊 Sending ICE candidate to ${participantId}`);
-        const eventName = isScreenShare ? 'screen_share_ice_candidate' : 'webrtc_ice_candidate';
-        const socket = socketService.getSocket();
-        if (socket) {
-          socket.emit(eventName, {
-            callId,
-            targetUserId: participantId,
-            candidate: event.candidate
-          });
-        }
+    // Auto-negotiation logic
+    pc.onnegotiationneeded = async () => {
+      try {
+        console.log(`🔄 Negotiation needed for ${participantId}`);
+        makingOffer.current.set(participantId, true);
+        await pc.setLocalDescription();
+
+        socketService.getSocket()?.emit(isScreenShare ? 'screen_share_offer' : 'webrtc_offer', {
+          callId,
+          targetUserId: participantId,
+          offer: pc.localDescription
+        });
+      } catch (err) {
+        console.error(`❌ Negotiation error for ${participantId}:`, err);
+      } finally {
+        makingOffer.current.set(participantId, false);
       }
     };
 
-    // Handle connection state changes
-    pc.onconnectionstatechange = () => {
-      console.log(`🔄 Peer connection state for ${participantId}:`, pc.connectionState);
-      if (pc.connectionState === 'failed') {
-        console.log(`🔄 Restarting ICE for ${participantId}`);
+    pc.oniceconnectionstatechange = () => {
+      console.log(`🧊 ICE state for ${participantId}:`, pc.iceConnectionState);
+      if (pc.iceConnectionState === 'failed') {
         pc.restartIce();
       }
     };
 
     connections.current.set(participantId, pc);
     return pc;
-  }, [callId, localStream, screenStream]);
+  }, [callId, screenStream, localStream]);
 
   // Handle WebRTC offer - NO SDP MUNGING
   const handleOffer = useCallback(async (data: any) => {
     const { fromUserId, offer, targetUserId } = data;
     console.log(`📨 Received offer from ${fromUserId} to ${targetUserId}`);
 
-    if (targetUserId && targetUserId !== user?.id) {
-      return;
-    }
-
-    if (!user?.id) {
-      console.log('❌ No user ID available');
-      return;
-    }
+    if (!user?.id) return;
 
     let pc = peerConnections.current.get(fromUserId);
+    const isPolite = user.id < fromUserId;
 
-    if (pc && pc.signalingState !== 'stable') {
-      console.log(`🔄 Closing existing unstable connection for ${fromUserId}`);
-      pc.close();
-      peerConnections.current.delete(fromUserId);
-      pc = undefined;
+    // Perfect Negotiation handling
+    const offerCollision = (makingOffer.current.get(fromUserId) || pc?.signalingState !== "stable");
+    ignoreOffer.current.set(fromUserId, !isPolite && offerCollision);
+
+    if (ignoreOffer.current.get(fromUserId)) {
+      console.log(`⏭️ Ignoring glaresome offer from ${fromUserId} (Impolite)`);
+      return;
     }
 
     if (!pc) {
-      pc = createPeerConnection(fromUserId);
+      pc = createPeerConnection(fromUserId, false);
     }
 
     try {
-      if (pc.signalingState === 'stable' || pc.signalingState === 'have-local-offer') {
-        console.log(`🤝 Setting remote description and creating answer for ${fromUserId}`);
-
-        // NO SDP MUNGING - use offer directly
+      if (offerCollision) {
+        if (isPolite && pc.signalingState !== 'stable') {
+          console.log(`🔄 Rolling back local offer to accept ${fromUserId} (Polite)`);
+          await Promise.all([
+            pc.setLocalDescription({ type: "rollback" } as any),
+            pc.setRemoteDescription(offer)
+          ]);
+        } else if (isPolite) {
+          // Collision detected but we are stable, just set remote
+          console.log(`🤝 Collision detected but state is stable. Setting remote description from ${fromUserId}`);
+          await pc.setRemoteDescription(offer);
+        }
+      } else {
         await pc.setRemoteDescription(offer);
-
-        // Process any pending ICE candidates
-        const pending = pendingCandidates.current.get(fromUserId);
-        if (pending && pending.length > 0) {
-          console.log(`📦 Processing ${pending.length} pending candidates for ${fromUserId}`);
-          for (const candidate of pending) {
-            await pc.addIceCandidate(candidate);
-          }
-          pendingCandidates.current.delete(fromUserId);
-        }
-
-        const answer = await pc.createAnswer();
-
-        // NO SDP MUNGING - use answer directly
-        await pc.setLocalDescription(answer);
-
-        const socket = socketService.getSocket();
-        if (socket) {
-          socket.emit('webrtc_answer', {
-            callId,
-            targetUserId: fromUserId,
-            answer: answer
-          });
-        }
-        console.log(`📤 Sent answer to ${fromUserId}`);
       }
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      socketService.getSocket()?.emit('webrtc_answer', {
+        callId,
+        targetUserId: fromUserId,
+        answer
+      });
     } catch (err) {
-      console.error(`❌ Error handling offer from ${fromUserId}:`, err);
-      pc.close();
-      peerConnections.current.delete(fromUserId);
+      console.error(`❌ Error in handleOffer for ${fromUserId}:`, err);
     }
-  }, [callId, createPeerConnection, user?.id]);
+  }, [callId, createPeerConnection, user?.id, localStream]);
 
   // Handle WebRTC answer - NO SDP MUNGING
   const handleAnswer = useCallback(async (data: any) => {
@@ -286,24 +289,27 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       try {
         if (pc.signalingState === 'have-local-offer') {
           console.log(`🤝 Setting remote description from ${fromUserId}`);
-
-          // NO SDP MUNGING - use answer directly
           await pc.setRemoteDescription(answer);
+
+          // Clear making offer flag since the exchange is complete
+          makingOffer.current.set(fromUserId, false);
 
           // Process any pending ICE candidates
           const pending = pendingCandidates.current.get(fromUserId);
           if (pending && pending.length > 0) {
             console.log(`📦 Processing ${pending.length} pending candidates for ${fromUserId}`);
             for (const candidate of pending) {
-              await pc.addIceCandidate(candidate);
+              try {
+                await pc.addIceCandidate(candidate);
+              } catch (err) {
+                console.warn(`⚠️ Failed to add pending candidate:`, err);
+              }
             }
             pendingCandidates.current.delete(fromUserId);
           }
         }
       } catch (err) {
         console.error(`❌ Error handling answer from ${fromUserId}:`, err);
-        pc.close();
-        peerConnections.current.delete(fromUserId);
       }
     }
   }, [user?.id]);
@@ -325,8 +331,8 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     const pc = peerConnections.current.get(fromUserId);
     if (pc) {
       try {
-        // Check if remote description is set
-        if (pc.remoteDescription) {
+        // Check if remote description is set and connection is in valid state
+        if (pc.remoteDescription && pc.signalingState !== 'closed') {
           await pc.addIceCandidate(candidate);
           console.log(`✅ Added ICE candidate from ${fromUserId}`);
 
@@ -335,7 +341,11 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
           if (pending && pending.length > 0) {
             console.log(`📦 Processing ${pending.length} pending candidates for ${fromUserId}`);
             for (const pendingCandidate of pending) {
-              await pc.addIceCandidate(pendingCandidate);
+              try {
+                await pc.addIceCandidate(pendingCandidate);
+              } catch (err) {
+                console.warn(`⚠️ Failed to add pending candidate:`, err);
+              }
             }
             pendingCandidates.current.delete(fromUserId);
           }
@@ -355,9 +365,17 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
   // Create offer for new participant - NO SDP MUNGING
   const createOfferForParticipant = useCallback(async (participantId: string) => {
     console.log(`📤 Creating offer for participant: ${participantId}`);
-    const pc = createPeerConnection(participantId);
+
+    // Wait for local stream to be ready
+    if (!localStream) {
+      console.warn('⚠️ Local stream not ready yet, skipping offer creation');
+      return;
+    }
+
+    const pc = createPeerConnection(participantId, false, localStream || undefined);
 
     try {
+      makingOffer.current.set(participantId, true);
       const offer = await pc.createOffer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true
@@ -377,8 +395,10 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       console.log(`✅ Sent offer to ${participantId}`);
     } catch (err) {
       console.error(`❌ Error creating offer for ${participantId}:`, err);
+    } finally {
+      makingOffer.current.set(participantId, false);
     }
-  }, [callId, createPeerConnection]);
+  }, [callId, createPeerConnection, localStream]);
 
   // Toggle audio
   const toggleAudio = useCallback(() => {
@@ -559,13 +579,30 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
 
     console.log('🔌 Setting up socket event handlers for call:', callId);
 
-    socket.emit('join_call', { callId, groupId });
+    if (!hasJoinedCallRef.current) {
+      socket.emit('join_call', { callId, groupId });
+      hasJoinedCallRef.current = true;
+    }
 
     // Handle call events
     socket.on('call_joined', (data: any) => {
       console.log('✅ Call joined:', data);
+
+      // Show success toast
+      if (data.isStarter) {
+        toast.success('Call started successfully!', {
+          duration: 3000,
+          icon: '🎉'
+        });
+      } else {
+        toast.success('Joined the call successfully!', {
+          duration: 3000,
+          icon: '✅'
+        });
+      }
+
       const uniqueParticipants = data.participants.filter((p: any, index: number, arr: any[]) =>
-        arr.findIndex(participant => participant.userId === p.userId) === index
+        p.userId !== user?.id && arr.findIndex(participant => participant.userId === p.userId) === index
       );
 
       setParticipants(uniqueParticipants.map((p: any) => ({
@@ -582,6 +619,12 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     socket.on('user_joined_call', (data: any) => {
       console.log('👋 User joined call:', data);
       if (data.userId !== user?.id) {
+        // Show toast notification
+        toast.success(`${data.user?.name || 'Someone'} joined the call`, {
+          duration: 3000,
+          icon: '👋'
+        });
+
         // Destroy old connection if they rejoin to prevent 'Changing mid of m-sections' error
         const oldPc = peerConnections.current.get(data.userId);
         if (oldPc) {
@@ -596,12 +639,11 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
         }
 
         setParticipants(prev => {
-          const existingParticipant = prev.find(p => p.userId === data.userId);
-          if (existingParticipant) {
-            return prev;
-          }
+          // Remove any existing entry for this user first
+          const filtered = prev.filter(p => p.userId !== data.userId);
 
-          return [...prev, {
+          // Add the new entry
+          return [...filtered, {
             ...data,
             audioEnabled: true,
             videoEnabled: true
@@ -612,6 +654,13 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
 
     socket.on('user_left_call', (data: any) => {
       console.log('👋 User left call:', data);
+
+      // Show toast notification
+      toast.info(`${data.user?.name || 'Someone'} left the call`, {
+        duration: 3000,
+        icon: '👋'
+      });
+
       setParticipants(prev => prev.filter(p => p.userId !== data.userId));
 
       const pc = peerConnections.current.get(data.userId);
@@ -634,19 +683,51 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
 
     // Audio/Video state changes
     socket.on('participant_audio_change', (data: any) => {
-      setParticipants(prev => prev.map(p =>
-        p.userId === data.userId
-          ? { ...p, audioEnabled: !data.muted }
-          : p
-      ));
+      const userName = data.user?.name || 'Someone';
+      const status = data.muted ? 'muted' : 'unmuted';
+
+      // Show toast notification
+      toast.info(`${userName} ${status} their microphone`, {
+        duration: 2000,
+        icon: data.muted ? '🔇' : '🎤'
+      });
+
+      setParticipants(prev => {
+        // Deduplicate first
+        const uniqueParticipants = prev.filter((p, index, self) =>
+          index === self.findIndex((t) => t.userId === p.userId)
+        );
+
+        return uniqueParticipants.map(p =>
+          p.userId === data.userId
+            ? { ...p, audioEnabled: !data.muted }
+            : p
+        );
+      });
     });
 
     socket.on('participant_video_change', (data: any) => {
-      setParticipants(prev => prev.map(p =>
-        p.userId === data.userId
-          ? { ...p, videoEnabled: data.enabled }
-          : p
-      ));
+      const userName = data.user?.name || 'Someone';
+      const status = data.enabled ? 'turned on' : 'turned off';
+
+      // Show toast notification
+      toast.info(`${userName} ${status} their camera`, {
+        duration: 2000,
+        icon: data.enabled ? '📹' : '📷'
+      });
+
+      setParticipants(prev => {
+        // Deduplicate first
+        const uniqueParticipants = prev.filter((p, index, self) =>
+          index === self.findIndex((t) => t.userId === p.userId)
+        );
+
+        return uniqueParticipants.map(p =>
+          p.userId === data.userId
+            ? { ...p, videoEnabled: data.enabled }
+            : p
+        );
+      });
     });
 
     // Breakout rooms
@@ -663,20 +744,48 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     // Screen sharing events - NO SDP MUNGING
     socket.on('screen_share_started', (data: any) => {
       console.log('📺 Screen share started by:', data.user?.name);
-      setParticipants(prev => prev.map(p =>
-        p.userId === data.userId
-          ? { ...p, isScreenSharing: true }
-          : p
-      ));
+
+      // Show toast notification
+      toast.info(`${data.user?.name || 'Someone'} started screen sharing`, {
+        duration: 4000,
+        icon: '📺'
+      });
+
+      setParticipants(prev => {
+        // Deduplicate first
+        const uniqueParticipants = prev.filter((p, index, self) =>
+          index === self.findIndex((t) => t.userId === p.userId)
+        );
+
+        return uniqueParticipants.map(p =>
+          p.userId === data.userId
+            ? { ...p, isScreenSharing: true }
+            : p
+        );
+      });
     });
 
     socket.on('screen_share_stopped', (data: any) => {
       console.log('📺 Screen share stopped by:', data.user?.name);
-      setParticipants(prev => prev.map(p =>
-        p.userId === data.userId
-          ? { ...p, isScreenSharing: false, screenStream: undefined }
-          : p
-      ));
+
+      // Show toast notification
+      toast.info(`${data.user?.name || 'Someone'} stopped screen sharing`, {
+        duration: 3000,
+        icon: '📺'
+      });
+
+      setParticipants(prev => {
+        // Deduplicate first
+        const uniqueParticipants = prev.filter((p, index, self) =>
+          index === self.findIndex((t) => t.userId === p.userId)
+        );
+
+        return uniqueParticipants.map(p =>
+          p.userId === data.userId
+            ? { ...p, isScreenSharing: false, screenStream: undefined }
+            : p
+        );
+      });
     });
 
     socket.on('screen_share_offer', async (data: any) => {
@@ -821,12 +930,38 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     };
   }, [initializeLocalStream]);
 
-  // Ensure local video element gets the stream when view switches
+  // Sync local tracks with all peers as stream becomes ready
   useEffect(() => {
-    if (localVideoRef.current && localStream && localVideoRef.current.srcObject !== localStream) {
-      localVideoRef.current.srcObject = localStream;
+    if (!localStream) return;
+
+    const syncTracks = () => {
+      peerConnections.current.forEach((pc, participantId) => {
+        const senders = pc.getSenders();
+        const hasTracks = senders.some(s => s.track);
+
+        if (!hasTracks) {
+          console.log(`➕ Adding missing tracks to ${participantId}`);
+          localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+          });
+        }
+      });
+    };
+
+    syncTracks();
+  }, [localStream]);
+
+  // Initial connection trigger
+  useEffect(() => {
+    if (localStream && participants.length > 0) {
+      participants.forEach(p => {
+        if (!peerConnections.current.has(p.userId)) {
+          console.log(`� Initiating call with participant: ${p.userId}`);
+          createOfferForParticipant(p.userId);
+        }
+      });
     }
-  });
+  }, [localStream, participants, createOfferForParticipant]);
 
   if (!socketReady) {
     return (

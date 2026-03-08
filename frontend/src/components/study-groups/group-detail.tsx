@@ -6,7 +6,7 @@ import { StartVideoCallButtonCompact, VideoCallCard } from '@/components/video-c
 import { VideoCallInterface } from '@/components/video-call/video-call-interface';
 import { GroupChat } from './group-chat';
 import { JoinRequestManagement } from './join-request-management';
-import { WhiteboardCanvas } from '@/components/whiteboard/whiteboard-canvas';
+import WhiteboardCanvas from '@/components/whiteboard/whiteboard-canvas';
 import { GroupMembersList } from './group-members-list';
 import { useTranslations } from 'next-intl';
 import { 
@@ -318,29 +318,29 @@ export function GroupDetail({
           {group.is_member && (
             <Card>
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
-                  <TabsTrigger value="overview" className="flex items-center space-x-2">
-                    <FileText className="w-4 h-4" />
+                <TabsList className="w-full overflow-x-auto flex justify-start">
+                  <TabsTrigger value="overview" className="flex items-center gap-1.5">
+                    <FileText className="w-4 w-4" />
                     <span className="hidden sm:inline">{t('detail.about')}</span>
                   </TabsTrigger>
-                  <TabsTrigger value="chat" className="flex items-center space-x-2">
+                  <TabsTrigger value="chat" className="flex items-center gap-1.5">
                     <MessageCircle className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('chat.title')}</span>
                   </TabsTrigger>
-                  <TabsTrigger value="video-call" className="flex items-center space-x-2">
+                  <TabsTrigger value="video-call" className="flex items-center gap-1.5">
                     <Video className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('videoCall.title')}</span>
                   </TabsTrigger>
-                  <TabsTrigger value="whiteboard" className="flex items-center space-x-2">
+                  <TabsTrigger value="whiteboard" className="flex items-center gap-1.5">
                     <PenTool className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('whiteboard.title')}</span>
                   </TabsTrigger>
-                  <TabsTrigger value="members" className="flex items-center space-x-2">
+                  <TabsTrigger value="members" className="flex items-center gap-1.5">
                     <Users className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('members.title')}</span>
                   </TabsTrigger>
                   {canManageRequests && (
-                    <TabsTrigger value="requests" className="flex items-center space-x-2">
+                    <TabsTrigger value="requests" className="flex items-center gap-1.5">
                       <UserPlus className="w-4 h-4" />
                       <span className="hidden sm:inline">{t('requests.title')}</span>
                     </TabsTrigger>

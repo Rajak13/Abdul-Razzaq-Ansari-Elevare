@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   UserGroupIcon,
   PlusIcon,
   UserIcon,
@@ -52,7 +52,7 @@ export function BreakoutRooms({ callId, participants, socket }: BreakoutRoomsPro
       const newRoom: BreakoutRoom = {
         id: data.breakoutRoomId,
         name: data.roomName,
-        participants: data.participants.map((pId: string) => 
+        participants: data.participants.map((pId: string) =>
           participants.find(p => p.userId === pId)
         ).filter(Boolean)
       };
@@ -60,9 +60,14 @@ export function BreakoutRooms({ callId, participants, socket }: BreakoutRoomsPro
     });
 
     socket.on('participant_moved_to_breakout', (data: any) => {
-      setBreakoutRooms(prev => prev.map(room => 
+      setBreakoutRooms(prev => prev.map(room =>
         room.id === data.breakoutRoomId
-          ? { ...room, participants: [...room.participants, data.participant] }
+          ? {
+            ...room,
+            participants: room.participants.some(p => p.userId === data.participant.userId)
+              ? room.participants
+              : [...room.participants, data.participant]
+          }
           : room
       ));
     });
@@ -129,15 +134,15 @@ export function BreakoutRooms({ callId, participants, socket }: BreakoutRoomsPro
   };
 
   const autoAssignParticipants = (roomCount: number) => {
-    const availableParticipants = participants.filter(p => 
+    const availableParticipants = participants.filter(p =>
       !breakoutRooms.some(room => room.participants.some(rp => rp.userId === p.userId))
     );
 
     const participantsPerRoom = Math.ceil(availableParticipants.length / roomCount);
-    
+
     for (let i = 0; i < roomCount; i++) {
       const roomParticipants = availableParticipants.slice(
-        i * participantsPerRoom, 
+        i * participantsPerRoom,
         (i + 1) * participantsPerRoom
       );
 
@@ -151,7 +156,7 @@ export function BreakoutRooms({ callId, participants, socket }: BreakoutRoomsPro
     }
   };
 
-  const unassignedParticipants = participants.filter(p => 
+  const unassignedParticipants = participants.filter(p =>
     !breakoutRooms.some(room => room.participants.some(rp => rp.userId === p.userId))
   );
 
@@ -374,10 +379,10 @@ interface BreakoutRoomItemProps {
   availableRooms: BreakoutRoom[];
 }
 
-function BreakoutRoomItem({ 
-  room, 
-  isManaging, 
-  onReturnToMain, 
+function BreakoutRoomItem({
+  room,
+  isManaging,
+  onReturnToMain,
   onCloseRoom,
   onMoveParticipant,
   availableRooms

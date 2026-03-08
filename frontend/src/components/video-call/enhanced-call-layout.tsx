@@ -13,7 +13,7 @@ import {
 import { VideoCall } from './video-call';
 import { GroupChat } from '@/components/study-groups/group-chat';
 import { NoteEditor } from '@/components/notes/note-editor';
-import { WhiteboardCanvas } from '@/components/whiteboard/whiteboard-canvas';
+import WhiteboardCanvas from '@/components/whiteboard/whiteboard-canvas';
 import { socketService } from '@/services/socket-service';
 
 interface EnhancedCallLayoutProps {

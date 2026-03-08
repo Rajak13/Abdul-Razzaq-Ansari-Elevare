@@ -259,30 +259,30 @@ export function JoinRequestManagement({
           </div>
         ) : (
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="pending" className="flex items-center space-x-2">
+            <TabsList className="w-full overflow-x-auto flex justify-start">
+              <TabsTrigger value="pending" className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
-                <span>Pending</span>
+                <span className="hidden sm:inline">Pending</span>
                 {pendingCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
+                  <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
                     {pendingCount}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="approved" className="flex items-center space-x-2">
+              <TabsTrigger value="approved" className="flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4" />
-                <span>Approved</span>
+                <span className="hidden sm:inline">Approved</span>
                 {approvedCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
+                  <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
                     {approvedCount}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="rejected" className="flex items-center space-x-2">
+              <TabsTrigger value="rejected" className="flex items-center gap-1.5">
                 <UserX className="w-4 h-4" />
-                <span>Rejected</span>
+                <span className="hidden sm:inline">Rejected</span>
                 {rejectedCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
+                  <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
                     {rejectedCount}
                   </Badge>
                 )}

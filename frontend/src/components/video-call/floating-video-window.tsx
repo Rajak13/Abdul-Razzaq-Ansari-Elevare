@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  XMarkIcon, 
+import {
+  XMarkIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
   MinusIcon
@@ -73,7 +73,7 @@ export function FloatingVideoWindow({
   // Handle dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.no-drag')) return;
-    
+
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - position.x,
@@ -182,9 +182,8 @@ export function FloatingVideoWindow({
   return (
     <div
       ref={windowRef}
-      className={`fixed z-40 bg-card border-2 border-border rounded-lg shadow-2xl overflow-hidden transition-all ${
-        isDragging ? 'cursor-grabbing' : 'cursor-grab'
-      }`}
+      className={`fixed z-40 bg-card border-2 border-border rounded-lg shadow-2xl overflow-hidden transition-all ${isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -201,7 +200,7 @@ export function FloatingVideoWindow({
             {participants.length + 1} participant{participants.length + 1 !== 1 ? 's' : ''}
           </span>
         </div>
-        
+
         <div className="flex items-center space-x-1 no-drag">
           <button
             onClick={minimize}
@@ -253,8 +252,38 @@ export function FloatingVideoWindow({
           />
         )}
       </div>
+
+      {/* Sync local video stream */}
+      <LocalVideoSync
+        stream={localStream}
+        videoRef={localVideoRef}
+        isVideoEnabled={isVideoEnabled}
+        videoState={videoState}
+      />
     </div>
   );
+}
+
+// Helper component to sync local video stream
+function LocalVideoSync({
+  stream,
+  videoRef,
+  isVideoEnabled,
+  videoState
+}: {
+  stream: MediaStream | null;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isVideoEnabled: boolean;
+  videoState: string;
+}) {
+  useEffect(() => {
+    if (stream && videoRef.current && isVideoEnabled) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(err => console.warn("Local video play failed:", err));
+    }
+  }, [stream, videoRef, isVideoEnabled, videoState]);
+
+  return null;
 }
 
 // Compact grid for minimized state
@@ -281,15 +310,30 @@ function CompactParticipantGrid({
       {allParticipants.map((participant, index) => (
         <div key={index} className="relative bg-background rounded overflow-hidden">
           {'isLocal' in participant && participant.isLocal ? (
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
+            participant.videoEnabled && participant.stream ? (
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover -scale-x-100"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-muted">
+                <div className="text-center">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-1">
+                    <span className="text-xs font-semibold text-primary">You</span>
+                  </div>
+                </div>
+              </div>
+            )
           ) : (
             <VideoParticipant participant={participant as Participant} />
+          )}
+          {'isLocal' in participant && (
+            <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/70 rounded text-[10px] text-white">
+              You
+            </div>
           )}
         </div>
       ))}
@@ -315,19 +359,30 @@ function ParticipantGrid({
   const gridCols = totalParticipants <= 2 ? 1 : totalParticipants <= 4 ? 2 : 3;
 
   return (
-    <div 
+    <div
       className={`grid gap-2 p-2 h-full`}
       style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}
     >
       {/* Local video */}
       <div className="relative bg-background rounded-lg overflow-hidden">
-        <video
-          ref={localVideoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-full h-full object-cover"
-        />
+        {isVideoEnabled && localStream ? (
+          <video
+            ref={localVideoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover -scale-x-100"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <span className="text-xl font-semibold text-primary">You</span>
+              </div>
+              <p className="text-sm text-muted-foreground font-medium">Camera Off</p>
+            </div>
+          </div>
+        )}
         <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white">
           You {!isVideoEnabled && '(Camera off)'}
         </div>
