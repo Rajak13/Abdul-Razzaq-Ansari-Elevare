@@ -36,25 +36,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4 max-w-5xl">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
-            <User className="h-6 w-6" />
+      <div className="mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+          <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg flex-shrink-0">
+            <User className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('title')}</h1>
         </div>
-        <p className="text-sm text-muted-foreground ml-14">
+        <p className="text-xs sm:text-sm text-muted-foreground ml-10 sm:ml-14">
           Manage your profile settings and view your learning statistics
         </p>
       </div>
 
       {/* Single Column Layout - Edit Form Only */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-foreground">{t('editProfile')}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">{t('editProfile')}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Update your profile information and preferences
           </p>
         </div>

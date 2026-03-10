@@ -119,12 +119,12 @@ function VerifyOTPForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-gradient-to-br from-green-50 to-green-100">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12 bg-gradient-to-br from-green-50 to-green-100">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-4 sm:space-y-6">
         {/* Icon */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <svg className="w-7 h-7 sm:w-8 sm:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -132,14 +132,14 @@ function VerifyOTPForm() {
 
         {/* Heading */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('heading')}</h1>
-          <p className="text-gray-600">
-            {t('description')} <span className="font-semibold">{formData.email}</span>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{t('heading')}</h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            {t('description')} <span className="font-semibold break-all">{formData.email}</span>
           </p>
         </div>
 
         {/* Form */}
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {errors.submit}
@@ -171,9 +171,9 @@ function VerifyOTPForm() {
               maxLength={6}
               value={formData.otp}
               onChange={handleChange}
-              className={`block w-full px-4 py-3 border ${
+              className={`block w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                 errors.otp ? 'border-red-300' : 'border-gray-300'
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900 text-center text-2xl tracking-widest font-semibold`}
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900 text-center text-xl sm:text-2xl tracking-widest font-semibold`}
               placeholder={t('codePlaceholder')}
             />
             {errors.otp && <p className="mt-1 text-sm text-red-600">{errors.otp}</p>}
@@ -183,7 +183,7 @@ function VerifyOTPForm() {
           <button
             type="submit"
             disabled={isLoading || formData.otp.length !== 6}
-            className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full py-3 sm:py-3.5 px-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
           >
             {isLoading ? t('submitting') : t('submit')}
           </button>

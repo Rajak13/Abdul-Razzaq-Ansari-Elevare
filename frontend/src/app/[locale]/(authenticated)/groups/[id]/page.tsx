@@ -149,105 +149,107 @@ export default function StudyGroupDetailPage() {
     <AuthGuard>
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 w-full sm:w-auto">
-            <Button variant="ghost" size="sm" onClick={() => router.push('/groups')} className="flex-shrink-0">
-              <ArrowLeft className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
-            <div className="flex items-center space-x-3 min-w-0 flex-1">
-              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                <AvatarFallback className="bg-primary text-primary-foreground text-base sm:text-lg">
-                  {group.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-2xl font-bold truncate">{group.name}</h1>
-                <div className="flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground">
-                  {group.is_private ? (
-                    <Lock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                  ) : (
-                    <Globe className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                  )}
-                  <span className="truncate">{group.is_private ? 'Private' : 'Public'} Group</span>
-                  {isMember && (
-                    <>
-                      <span className="hidden sm:inline">•</span>
-                      <Badge variant="secondary" className="text-xs px-1.5 py-0 hidden sm:inline-flex">
-                        {group.user_role === 'owner' ? 'Owner' :
-                          group.user_role === 'admin' ? 'Admin' : 'Member'}
-                      </Badge>
-                    </>
-                  )}
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 w-full sm:w-auto min-w-0">
+              <Button variant="ghost" size="sm" onClick={() => router.push('/groups')} className="flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9 p-0 sm:px-3 sm:w-auto">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline sm:ml-2">Back</span>
+              </Button>
+              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-base sm:text-lg">
+                    {group.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg sm:text-2xl font-bold truncate">{group.name}</h1>
+                  <div className="flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground">
+                    {group.is_private ? (
+                      <Lock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    ) : (
+                      <Globe className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    )}
+                    <span className="truncate">{group.is_private ? 'Private' : 'Public'} Group</span>
+                    {isMember && (
+                      <>
+                        <span className="hidden sm:inline">•</span>
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0 hidden sm:inline-flex">
+                          {group.user_role === 'owner' ? 'Owner' :
+                            group.user_role === 'admin' ? 'Admin' : 'Member'}
+                        </Badge>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-            {canJoin && (
-              <Button onClick={handleJoinGroup} disabled={joinMutation.isPending} size="sm" className="flex-1 sm:flex-initial">
-                <UserPlus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">{group.is_private ? 'Request to Join' : 'Join Group'}</span>
-                <span className="sm:hidden">Join</span>
-              </Button>
-            )}
+            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+              {canJoin && (
+                <Button onClick={handleJoinGroup} disabled={joinMutation.isPending} size="sm" className="flex-1 sm:flex-initial">
+                  <UserPlus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{group.is_private ? 'Request to Join' : 'Join Group'}</span>
+                  <span className="sm:hidden">Join</span>
+                </Button>
+              )}
 
-            {isMember && (
-              <ReportButton
-                contentType="group"
-                contentId={groupId}
-                variant="icon"
-              />
-            )}
+              {isMember && (
+                <ReportButton
+                  contentType="group"
+                  contentId={groupId}
+                  variant="icon"
+                />
+              )}
 
-            {isOwner && (
-              <ClientOnly>
-                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Edit</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Edit Study Group</DialogTitle>
-                    </DialogHeader>
-                    <StudyGroupForm group={group} onSuccess={handleEditSuccess} />
-                  </DialogContent>
-                </Dialog>
+              {isOwner && (
+                <ClientOnly>
+                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Edit</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>Edit Study Group</DialogTitle>
+                      </DialogHeader>
+                      <StudyGroupForm group={group} onSuccess={handleEditSuccess} />
+                    </DialogContent>
+                  </Dialog>
 
-                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Delete</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Delete Study Group</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <p>Are you sure you want to delete this study group? This action cannot be undone.</p>
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={handleDeleteGroup}
-                          disabled={deleteMutation.isPending}
-                        >
-                          Delete Group
-                        </Button>
+                  <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Delete</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete Study Group</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <p>Are you sure you want to delete this study group? This action cannot be undone.</p>
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={handleDeleteGroup}
+                            disabled={deleteMutation.isPending}
+                          >
+                            Delete Group
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </ClientOnly>
-            )}
+                    </DialogContent>
+                  </Dialog>
+                </ClientOnly>
+              )}
+            </div>
           </div>
         </div>
 
@@ -255,33 +257,36 @@ export default function StudyGroupDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 min-w-0">
-            <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse mb-6" />}>
-              <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="w-full overflow-x-auto flex justify-start">
-                  <TabsTrigger value="overview" className="flex items-center gap-1.5">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Overview</span>
+            <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse mb-4 sm:mb-6" />}>
+              <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+                <TabsList className="w-full grid grid-cols-2 lg:grid-cols-5 h-auto gap-1">
+                  <TabsTrigger value="overview" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                    <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Overview</span>
                   </TabsTrigger>
                   {isMember && (
                     <>
-                      <TabsTrigger value="chat" className="flex items-center gap-1.5">
-                        <MessageCircle className="h-4 w-4" />
-                        <span className="hidden sm:inline">Chat</span>
+                      <TabsTrigger value="chat" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                        <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Chat</span>
                       </TabsTrigger>
-                      <TabsTrigger value="video-call" className="flex items-center gap-1.5">
-                        <Video className="h-4 w-4" />
+                      <TabsTrigger value="video-call" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                        <Video className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span className="hidden sm:inline">Video Call</span>
+                        <span className="sm:hidden">Video</span>
                       </TabsTrigger>
-                      <TabsTrigger value="whiteboard" className="flex items-center gap-1.5">
-                        <Palette className="h-4 w-4" />
+                      <TabsTrigger value="whiteboard" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                        <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span className="hidden sm:inline">Whiteboard</span>
+                        <span className="sm:hidden">Board</span>
                       </TabsTrigger>
                     </>
                   )}
                   {isAdmin && (
-                    <TabsTrigger value="requests" className="flex items-center gap-1.5">
-                      <UserCheck className="h-4 w-4" />
+                    <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                      <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span className="hidden sm:inline">Requests</span>
+                      <span className="sm:hidden">Req</span>
                       {joinRequests.length > 0 && (
                         <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
                           {joinRequests.length}
@@ -293,27 +298,27 @@ export default function StudyGroupDetailPage() {
 
                 <TabsContent value="overview">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>About This Group</CardTitle>
+                    <CardHeader className="pb-2 sm:pb-3">
+                      <CardTitle className="text-base sm:text-lg">About This Group</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3 sm:space-y-4">
                       {group.description ? (
-                        <p className="text-muted-foreground">{group.description}</p>
+                        <p className="text-sm sm:text-base text-muted-foreground">{group.description}</p>
                       ) : (
-                        <p className="text-muted-foreground italic">No description provided.</p>
+                        <p className="text-sm sm:text-base text-muted-foreground italic">No description provided.</p>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t">
                         <div className="flex items-center space-x-2">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">
+                          <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">
                             {group.member_count} member{group.member_count !== 1 ? 's' : ''}
                             {group.max_members && ` / ${group.max_members}`}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">
                             Created {formatDistanceToNow(new Date(group.created_at), { addSuffix: true })}
                           </span>
                         </div>
@@ -330,12 +335,12 @@ export default function StudyGroupDetailPage() {
 
                     <TabsContent value="video-call">
                       <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center space-x-2">
-                            <Video className="h-5 w-5" />
+                        <CardHeader className="pb-2 sm:pb-3">
+                          <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                            <Video className="h-4 w-4 sm:h-5 sm:w-5" />
                             <span>Video Call</span>
                           </CardTitle>
-                          <CardDescription>
+                          <CardDescription className="text-xs sm:text-sm">
                             Start or join a video call with group members
                           </CardDescription>
                         </CardHeader>
@@ -372,7 +377,7 @@ export default function StudyGroupDetailPage() {
           </div>
 
           {/* Right Column - Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <GroupMembersList
               groupId={groupId}
               members={members}

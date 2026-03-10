@@ -107,55 +107,57 @@ export default function AdminLoginPage() {
   return (
     <div className="admin-auth-container">
       {/* Form Section */}
-      <div className="admin-auth-form">
+      <div className="admin-auth-form px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto w-full">
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-              <Shield className="w-8 h-8 text-primary" />
+          <div className="mb-6 sm:mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-3 sm:mb-4">
+              <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">Elevare Admin</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Elevare Admin</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Secure administrative access
             </p>
           </div>
 
           {!showOtp ? (
             <Card>
-              <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Sign In</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
                   Enter your credentials to access the admin dashboard
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-sm">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="admin@elevare.com"
                       {...loginForm.register('email')}
                       disabled={isLoggingIn}
+                      className="h-10 sm:h-11"
                     />
                     {loginForm.formState.errors.email && (
-                      <p className="text-sm text-destructive">
+                      <p className="text-xs sm:text-sm text-destructive">
                         {loginForm.formState.errors.email.message}
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-sm">Password</Label>
                     <Input
                       id="password"
                       type="password"
                       placeholder="••••••••"
                       {...loginForm.register('password')}
                       disabled={isLoggingIn}
+                      className="h-10 sm:h-11"
                     />
                     {loginForm.formState.errors.password && (
-                      <p className="text-sm text-destructive">
+                      <p className="text-xs sm:text-sm text-destructive">
                         {loginForm.formState.errors.password.message}
                       </p>
                     )}
@@ -163,7 +165,7 @@ export default function AdminLoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-10 sm:h-11 text-sm sm:text-base"
                     disabled={isLoggingIn}
                   >
                     {isLoggingIn ? 'Signing in...' : 'Sign In'}
@@ -173,16 +175,16 @@ export default function AdminLoginPage() {
             </Card>
           ) : (
             <Card>
-              <CardHeader>
-                <CardTitle>Two-Factor Authentication</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Two-Factor Authentication</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
                   Enter the 6-digit code from your authenticator app
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-4">
+                <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="otp">Authentication Code</Label>
+                    <Label htmlFor="otp" className="text-sm">Authentication Code</Label>
                     <Input
                       id="otp"
                       type="text"
@@ -190,10 +192,10 @@ export default function AdminLoginPage() {
                       maxLength={6}
                       {...otpForm.register('otp')}
                       disabled={isVerifyingOtp}
-                      className="text-center text-2xl tracking-widest"
+                      className="text-center text-xl sm:text-2xl tracking-widest h-12 sm:h-14"
                     />
                     {otpForm.formState.errors.otp && (
-                      <p className="text-sm text-destructive">
+                      <p className="text-xs sm:text-sm text-destructive">
                         {otpForm.formState.errors.otp.message}
                       </p>
                     )}
@@ -201,7 +203,7 @@ export default function AdminLoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-10 sm:h-11 text-sm sm:text-base"
                     disabled={isVerifyingOtp}
                   >
                     {isVerifyingOtp ? 'Verifying...' : 'Verify'}
@@ -210,7 +212,7 @@ export default function AdminLoginPage() {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="w-full"
+                    className="w-full h-10 sm:h-11 text-sm sm:text-base"
                     onClick={() => {
                       setShowOtp(false);
                       otpForm.reset();
@@ -223,8 +225,8 @@ export default function AdminLoginPage() {
             </Card>
           )}
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <Lock className="inline w-4 h-4 mr-1" />
+          <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-muted-foreground">
+            <Lock className="inline w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             Secured with multi-factor authentication
           </div>
         </div>

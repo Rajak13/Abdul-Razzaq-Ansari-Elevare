@@ -98,43 +98,45 @@ export default function GroupsPage() {
 
   return (
     <AuthGuard>
-      <div className="p-6 space-y-6">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
-              <Users className="h-6 w-6" />
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">{t('title')}</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  {t('noGroupsDescription')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-              <p className="text-sm text-muted-foreground">
-                {t('noGroupsDescription')}
-              </p>
-            </div>
+            
+            <ClientOnly fallback={<Button disabled className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" />{t('newGroup')}</Button>}>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full sm:w-auto">
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span className="text-sm sm:text-base">{t('newGroup')}</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>{t('createGroup')}</DialogTitle>
+                  </DialogHeader>
+                  <StudyGroupForm onSuccess={handleCreateSuccess} />
+                </DialogContent>
+              </Dialog>
+            </ClientOnly>
           </div>
-          
-          <ClientOnly fallback={<Button disabled><Plus className="h-4 w-4 mr-2" />{t('newGroup')}</Button>}>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('newGroup')}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>{t('createGroup')}</DialogTitle>
-                </DialogHeader>
-                <StudyGroupForm onSuccess={handleCreateSuccess} />
-              </DialogContent>
-            </Dialog>
-          </ClientOnly>
         </div>
 
         {/* Search and Filters */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <form onSubmit={handleSearch} className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -142,13 +144,13 @@ export default function GroupsPage() {
                     placeholder={t('search.placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-9 sm:h-10"
                   />
                 </div>
               </form>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 <Filter className="h-4 w-4 mr-2" />
-                {t('search.filterBySubject')}
+                <span className="text-xs sm:text-sm">{t('search.filterBySubject')}</span>
               </Button>
             </div>
           </CardContent>
@@ -157,32 +159,28 @@ export default function GroupsPage() {
         {/* Tabs */}
         <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse" />}>
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="w-full overflow-x-auto flex justify-start">
-              <TabsTrigger value="discover" className="flex items-center gap-1.5">
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('search.allSubjects')}</span>
-                <span className="sm:hidden">Discover</span>
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto">
+              <TabsTrigger value="discover" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                <Search className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Discover</span>
               </TabsTrigger>
-              <TabsTrigger value="my-groups" className="flex items-center gap-1.5">
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('myGroups')}</span>
-                <span className="sm:hidden">My Groups</span>
+              <TabsTrigger value="my-groups" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>My Groups</span>
               </TabsTrigger>
-              <TabsTrigger value="owned" className="flex items-center gap-1.5">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('actions.manageMembers')}</span>
-                <span className="sm:hidden">Owned</span>
+              <TabsTrigger value="owned" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Owned</span>
               </TabsTrigger>
-              <TabsTrigger value="requests" className="flex items-center gap-1.5">
-                <UserPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('requests.title')}</span>
-                <span className="sm:hidden">Requests</span>
+              <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
+                <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Requests</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value={activeTab} className="mt-6">
+            <TabsContent value={activeTab} className="mt-4 sm:mt-6">
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <Card key={i}>
                       <CardHeader>
@@ -204,7 +202,7 @@ export default function GroupsPage() {
                 </div>
               ) : groupsData?.groups && groupsData.groups.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {groupsData.groups.map((group) => (
                       <StudyGroupCard key={group.id} group={group} />
                     ))}

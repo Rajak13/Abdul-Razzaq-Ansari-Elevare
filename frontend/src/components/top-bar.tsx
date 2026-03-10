@@ -63,18 +63,18 @@ export default function TopBar({ pathname }: TopBarProps) {
 
   return (
     <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="flex h-14 items-center gap-4 px-4 lg:px-6">
+      <div className="flex h-14 items-center gap-2 sm:gap-4 px-3 sm:px-4 lg:px-6">
         {/* Left: Breadcrumbs or Search */}
-        <div className="flex-1 flex items-center gap-3">
+        <div className="flex-1 flex items-center gap-2 sm:gap-3 min-w-0">
           {breadcrumbs && breadcrumbs.length > 0 ? (
-            <nav className="flex items-center gap-2 text-sm">
+            <nav className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide">
               {breadcrumbs.map((crumb, index) => (
-                <div key={crumb.href} className="flex items-center gap-2">
+                <div key={crumb.href} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                   {index > 0 && <span className="text-muted-foreground">/</span>}
                   {crumb.isLast ? (
-                    <span className="font-medium text-foreground">{crumb.label}</span>
+                    <span className="font-medium text-foreground truncate max-w-[120px] sm:max-w-none">{crumb.label}</span>
                   ) : (
-                    <Link href={crumb.href as any} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Link href={crumb.href as any} className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[100px] sm:max-w-none">
                       {crumb.label}
                     </Link>
                   )}
@@ -82,7 +82,7 @@ export default function TopBar({ pathname }: TopBarProps) {
               ))}
             </nav>
           ) : (
-            <form onSubmit={handleSearch} className="relative w-full max-w-md hidden md:block">
+            <form onSubmit={handleSearch} className="relative w-full max-w-md hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -96,10 +96,10 @@ export default function TopBar({ pathname }: TopBarProps) {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Language Switcher */}
           <ClientOnly>
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
               <LanguageSwitcher />
             </div>
           </ClientOnly>
@@ -109,10 +109,10 @@ export default function TopBar({ pathname }: TopBarProps) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-9 w-9 p-0 rounded-full" 
+              className="h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-full" 
               disabled
             >
-              <Palette className="h-4 w-4 text-slate-700 dark:text-slate-400" />
+              <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-700 dark:text-slate-400" />
             </Button>
           }>
             <DropdownMenu>
@@ -120,14 +120,14 @@ export default function TopBar({ pathname }: TopBarProps) {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-9 w-9 p-0 rounded-full"
+                  className="h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-full"
                 >
                   {theme === 'dark' ? (
-                    <Moon className="h-4 w-4 text-slate-700 dark:text-slate-400" />
+                    <Moon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-700 dark:text-slate-400" />
                   ) : theme === 'light2' ? (
-                    <Palette className="h-4 w-4 text-slate-700 dark:text-slate-400" />
+                    <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-700 dark:text-slate-400" />
                   ) : (
-                    <Sun className="h-4 w-4 text-slate-700 dark:text-slate-400" />
+                    <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-700 dark:text-slate-400" />
                   )}
                 </Button>
               </DropdownMenuTrigger>
@@ -166,10 +166,10 @@ export default function TopBar({ pathname }: TopBarProps) {
           <ClientOnly fallback={
             <Button 
               variant="ghost" 
-              className="flex items-center gap-2 h-9 px-2 rounded-full" 
+              className="flex items-center gap-1 sm:gap-2 h-8 sm:h-9 px-1 sm:px-2 rounded-full" 
               disabled
             >
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
+              <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
                 {user?.avatar_url ? (
                   <img 
                     src={user.avatar_url} 
@@ -177,7 +177,7 @@ export default function TopBar({ pathname }: TopBarProps) {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-white text-xs font-semibold">
+                  <span className="text-white text-[10px] sm:text-xs font-semibold">
                     {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 )}
@@ -188,9 +188,9 @@ export default function TopBar({ pathname }: TopBarProps) {
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="flex items-center gap-2 h-9 px-2 rounded-full"
+                  className="flex items-center gap-1 sm:gap-2 h-8 sm:h-9 px-1 sm:px-2 rounded-full"
                 >
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
+                  <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center overflow-hidden ${!user?.avatar_url ? avatarGradient : ''}`}>
                     {user?.avatar_url ? (
                       <img 
                         src={user.avatar_url} 
@@ -198,12 +198,12 @@ export default function TopBar({ pathname }: TopBarProps) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-white text-xs font-semibold">
+                      <span className="text-white text-[10px] sm:text-xs font-semibold">
                         {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden md:block" />
+                  <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-muted-foreground hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

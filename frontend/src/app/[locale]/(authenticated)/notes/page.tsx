@@ -142,49 +142,50 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
-              <FileText className="h-6 w-6" />
+        <div className="mb-6 sm:mb-8">
+          <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
+            <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg flex-shrink-0">
+              <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <div>
-              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold text-transparent dark:from-white dark:to-slate-300">
+            <div className="min-w-0 flex-1">
+              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl sm:text-3xl font-bold text-transparent dark:from-white dark:to-slate-300 truncate">
                 {t('myNotes')}
               </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">
                 {t('noNotesDescription')}
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
-            <Button onClick={() => setShowTemplateSelector(true)} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              {t('createNote')}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button onClick={() => setShowTemplateSelector(true)} size="default" className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">{t('createNote')}</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => handleFolderCreate()}
-              size="lg"
+              size="default"
+              className="w-full sm:w-auto"
             >
-              <FolderPlus className="mr-2 h-5 w-5" />
-              {t('folders.newFolder')}
+              <FolderPlus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">{t('folders.newFolder')}</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
           {/* Folders Section */}
           <div className="lg:col-span-1">
             <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FolderPlus className="h-5 w-5" />
-                  {t('folders.title')}
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <FolderPlus className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="truncate">{t('folders.title')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -203,17 +204,20 @@ export default function NotesPage() {
           {/* Notes Section */}
           <div className="lg:col-span-2">
             <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    {selectedFolderId ? t('folders.title') : t('allNotes')}
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                    <span className="truncate text-base sm:text-lg">
+                      {selectedFolderId ? t('folders.title') : t('allNotes')}
+                    </span>
                   </div>
                   {selectedFolderId && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedFolderId(null)}
+                      className="w-full sm:w-auto text-xs sm:text-sm"
                     >
                       {t('allNotes')}
                     </Button>

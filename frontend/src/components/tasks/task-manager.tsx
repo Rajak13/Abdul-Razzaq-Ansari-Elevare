@@ -235,26 +235,26 @@ export function TaskManager({ className }: TaskManagerProps) {
   }, [viewMode, handleSelectAll, handleClearSelection])
 
   return (
-    <div className={`p-6 space-y-6 ${className}`}>
+    <div className={`p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 ${className}`}>
       <div className="space-y-4 sm:space-y-6">
         {/* Enhanced Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8 pb-0">
+        <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 lg:p-6 pb-0">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-lg">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-primary text-primary-foreground shadow-lg flex-shrink-0">
                 <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                 Tasks
               </h1>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
               Organize and track your academic tasks and assignments
             </p>
             {tasks.length > 0 && (
-              <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 <span>{tasks.filter(t => t.status === 'completed').length} completed</span>
                 <span>{tasks.filter(t => t.status === 'pending').length} pending</span>
               </div>
@@ -265,46 +265,47 @@ export function TaskManager({ className }: TaskManagerProps) {
             <Button
               variant="outline"
               onClick={() => setShowStatisticsDialog(true)}
-              className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30"
+              className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30 text-sm"
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Statistics</span>
+              <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
+              <span>Statistics</span>
             </Button>
             
             <Button
               variant="outline"
               onClick={() => setShowCategoriesDialog(true)}
-              className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30"
+              className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30 text-sm"
             >
-              <Settings className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Categories</span>
+              <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
+              <span>Categories</span>
             </Button>
             
             <Button
               variant="outline"
               onClick={toggleSelectionMode}
               className={cn(
-                "bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30",
+                "bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30 text-sm",
                 selectionMode && "bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-600"
               )}
             >
-              {selectionMode ? <CheckSquare className="h-4 w-4 mr-2" /> : <Square className="h-4 w-4 mr-2" />}
-              <span className="hidden sm:inline">Select</span>
+              {selectionMode ? <CheckSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" /> : <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />}
+              <span>Select</span>
             </Button>
             
             <Button 
               onClick={() => setShowCreateDialog(true)}
-              className="bg-primary hover:bg-primary/90 shadow-lg"
+              className="bg-primary hover:bg-primary/90 shadow-lg text-sm"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              New Task
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
+              <span className="hidden sm:inline">New Task</span>
+              <span className="sm:hidden">New</span>
             </Button>
           </div>
         </div>
 
         {/* Enhanced Filters */}
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 rounded-xl border border-white/20 dark:border-slate-700/30 shadow-lg p-4">
+        <div className="px-3 sm:px-4 lg:px-6">
+          <div className="backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 rounded-xl border border-white/20 dark:border-slate-700/30 shadow-lg p-3 sm:p-4">
             <TaskFilters
               filters={filters}
               onFiltersChange={handleFiltersChange}

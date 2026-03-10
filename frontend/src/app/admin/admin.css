@@ -213,11 +213,23 @@
 }
 
 .admin-auth-form {
-  padding: 3rem;
+  padding: 2rem 1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   background: hsl(var(--admin-background));
+}
+
+@media (min-width: 640px) {
+  .admin-auth-form {
+    padding: 3rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-auth-form {
+    padding: 3rem;
+  }
 }
 
 .admin-auth-illustration {
@@ -271,7 +283,7 @@
       "header"
       "main";
     grid-template-columns: 1fr;
-    grid-template-rows: 80px 1fr;
+    grid-template-rows: 64px 1fr;
   }
 }
 
@@ -299,21 +311,53 @@
   font-weight: 700;
 }
 
+@media (max-width: 640px) {
+  .admin-logo {
+    height: 48px;
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+  }
+}
+
 .admin-header {
   grid-area: header;
   background: hsl(var(--admin-card));
   border-bottom: 1px solid hsl(var(--admin-border));
-  padding: 0 2rem;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+@media (min-width: 640px) {
+  .admin-header {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-header {
+    padding: 0 2rem;
+  }
+}
+
 .admin-main {
   grid-area: main;
   background: hsl(var(--admin-background));
-  padding: 2rem;
+  padding: 1rem;
   overflow-y: auto;
+}
+
+@media (min-width: 640px) {
+  .admin-main {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-main {
+    padding: 2rem;
+  }
 }
 
 /* Navigation */
@@ -391,17 +435,33 @@
 
 .admin-table th {
   background: hsl(var(--admin-muted));
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
   font-weight: 600;
   color: hsl(var(--admin-foreground));
   border-bottom: 1px solid hsl(var(--admin-border));
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .admin-table th {
+    padding: 1rem;
+    font-size: 1rem;
+  }
 }
 
 .admin-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid hsl(var(--admin-border));
   color: hsl(var(--admin-foreground));
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .admin-table td {
+    padding: 1rem;
+    font-size: 1rem;
+  }
 }
 
 .admin-table tr:last-child td {
@@ -410,6 +470,14 @@
 
 .admin-table tr:hover {
   background: hsl(var(--admin-muted) / 0.5);
+}
+
+/* Make tables scrollable on mobile */
+@media (max-width: 768px) {
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Badges */

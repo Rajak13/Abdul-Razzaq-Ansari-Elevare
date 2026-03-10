@@ -249,23 +249,23 @@ export default function ResourcesPage() {
     : resources;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-primary p-2 text-primary-foreground shadow-lg">
-            <Calendar className="h-6 w-6" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg flex-shrink-0">
+            <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-            <p className="text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">{t('title')}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {t('description')}
             </p>
           </div>
         </div>
-        <Button onClick={() => setShowUploadModal(true)}>
+        <Button onClick={() => setShowUploadModal(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
-          {t('uploadResource')}
+          <span className="text-sm sm:text-base">{t('uploadResource')}</span>
         </Button>
       </div>
 
@@ -281,42 +281,46 @@ export default function ResourcesPage() {
       </div>
 
       {/* Tabs and Controls */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'all' | 'trending')}
+          className="w-full sm:w-auto"
         >
-          <TabsList>
-            <TabsTrigger value="all">{t('allResources')}</TabsTrigger>
-            <TabsTrigger value="trending" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              {tCommon('trending')}
+          <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">{t('allResources')}</TabsTrigger>
+            <TabsTrigger value="trending" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span>{tCommon('trending')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
+            className="flex-1 sm:flex-initial"
           >
-            <Filter className="mr-2 h-4 w-4" />
-            {t('filters.title')}
+            <Filter className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="text-xs sm:text-sm">{t('filters.title')}</span>
           </Button>
           <Button
             variant={viewMode === 'grid' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('grid')}
+            className="px-2 sm:px-3"
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('list')}
+            className="px-2 sm:px-3"
           >
-            <List className="h-4 w-4" />
+            <List className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
@@ -448,8 +452,8 @@ export default function ResourcesPage() {
           <>
             <div className={
               viewMode === 'grid'
-                ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'
-                : 'space-y-4'
+                ? 'grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3'
+                : 'space-y-3 sm:space-y-4'
             }>
               {currentResources.map((resource) => (
                 <Card
