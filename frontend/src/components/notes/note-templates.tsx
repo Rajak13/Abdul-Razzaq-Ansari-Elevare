@@ -10,8 +10,8 @@ export function useNoteTemplates(): NoteTemplate[] {
     {
       id: 'basic',
       name: t('blank'),
-      description: t('meetingDescription'),
-      preview: t('meetingDescription'),
+      description: t('blank'),
+      preview: t('blank'),
       content: `# ${t('blank')}
 
 Start writing your thoughts here...
@@ -228,20 +228,18 @@ Brief description of what this project aims to achieve.
   ];
 }
 
-export function getTemplateById(id: string): NoteTemplate | undefined {
-  // This needs to be called within a component that has access to translations
-  // For now, return undefined and handle in the component
-  return undefined;
+// Helper function to get template by ID from a templates array
+export function getTemplateById(templates: NoteTemplate[], id: string): NoteTemplate | undefined {
+  return templates.find(t => t.id === id);
 }
 
-export function getDefaultTemplate(): NoteTemplate {
-  // This needs to be called within a component that has access to translations
-  // For now, return a basic template structure
-  return {
+// Helper function to get the default template (first one, which is 'basic')
+export function getDefaultTemplate(templates: NoteTemplate[]): NoteTemplate {
+  return templates[0] || {
     id: 'basic',
-    name: 'Basic Note',
+    name: 'Blank Note',
     description: 'A simple note with title and content',
     preview: 'Simple text editor for general note-taking',
-    content: '# My Note\n\nStart writing...',
+    content: '# Blank Note\n\nStart writing your thoughts here...',
   };
 }

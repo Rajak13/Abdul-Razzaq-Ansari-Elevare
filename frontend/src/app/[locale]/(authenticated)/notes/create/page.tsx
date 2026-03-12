@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { NoteEditor } from '@/components/notes/note-editor';
-import { getTemplateById, getDefaultTemplate } from '@/components/notes/note-templates';
+import { getTemplateById, getDefaultTemplate, useNoteTemplates } from '@/components/notes/note-templates';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useRouter } from '@/navigation';
@@ -18,7 +18,8 @@ function CreateNoteContent() {
   const templateId = searchParams.get('template');
   const folderId = searchParams.get('folder');
 
-  const template = templateId ? getTemplateById(templateId) : getDefaultTemplate();
+  const templates = useNoteTemplates();
+  const template = templateId ? getTemplateById(templates, templateId) : getDefaultTemplate(templates);
 
   const handleSave = (note: any) => {
     router.push(`/notes/${note.id}`);

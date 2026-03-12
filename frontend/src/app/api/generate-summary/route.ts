@@ -5,6 +5,7 @@ import {
   validateSummarizationRequest,
   type ErrorCode 
 } from '@/lib/summarization-errors'
+import { stripMarkdown } from '@/lib/strip-markdown'
 
 // Types for the summarization API
 interface SummarizationRequest {
@@ -47,7 +48,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare request for FastAPI service
-    const sanitizedText = body.text.trim()
+    // Strip markdown formatting to get clean plain text for summarization
+    const plainText = stripMarkdown(body.text.trim())
+    const sanitizedText = plainText.trim()
+    
     const fastApiRequest: SummarizationRequest = {
       text: sanitizedText,
       maxLength: Math.min(body.maxLength || 150, 300), // Cap max length

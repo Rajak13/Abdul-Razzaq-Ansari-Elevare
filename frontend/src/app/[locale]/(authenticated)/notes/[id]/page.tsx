@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SummaryDisplay } from '@/components/notes/summary-display';
+import { MarkdownRenderer } from '@/components/notes/markdown-renderer';
 import { useNote, useDeleteNote, useExportNote } from '@/hooks/use-notes';
 import { useUpdateNoteSummary } from '@/hooks/use-summary';
 import { useNoteFolders } from '@/hooks/use-note-folders';
@@ -276,25 +277,10 @@ export default function NotePage() {
                 </CardHeader>
                 
                 <CardContent className="p-6 lg:p-8">
-                  <div className="prose prose-gray max-w-none dark:prose-invert">
-                    <div 
-                      className="text-gray-900 dark:text-gray-100 leading-relaxed"
-                      dangerouslySetInnerHTML={{ 
-                        __html: (typeof note.content === 'string' ? note.content : extractTextFromContent(note.content))
-                          .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">$1</h1>')
-                          .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-200">$1</h2>')
-                          .replace(/^### (.*$)/gim, '<h3 class="text-xl font-medium mb-2 text-gray-700 dark:text-gray-300">$1</h3>')
-                          .replace(/^\* (.*$)/gim, '<li class="ml-4">$1</li>')
-                          .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
-                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-                          .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                          .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
-                          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
-                          .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto"><code class="text-sm font-mono">$2</code></pre>')
-                          .replace(/\n/g, '<br>')
-                      }}
-                    />
-                  </div>
+                  <MarkdownRenderer 
+                    content={typeof note.content === 'string' ? note.content : extractTextFromContent(note.content)}
+                    className="text-gray-900 dark:text-gray-100"
+                  />
                 </CardContent>
               </Card>
             </div>

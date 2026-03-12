@@ -267,7 +267,7 @@ export function SummaryDisplay({
             </div>
           ) : (
             <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words overflow-hidden">
-              <p className="whitespace-pre-wrap">
+              <p className="whitespace-pre-wrap" style={{ wordBreak: 'break-word' }}>
                 {summary}
               </p>
             </div>
