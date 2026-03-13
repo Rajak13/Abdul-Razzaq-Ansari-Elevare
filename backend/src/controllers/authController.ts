@@ -672,3 +672,85 @@ export async function updateLanguagePreference(
     });
   }
 }
+
+/**
+ * Mark walkthrough as completed
+ * PATCH /api/auth/walkthrough
+ */
+export async function completeWalkthrough(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req.user!.userId;
+
+    const user = await authService.completeWalkthrough(userId);
+
+    res.status(200).json({
+      message: 'Walkthrough marked as completed',
+      user,
+    });
+  } catch (error: any) {
+    logger.error('Complete walkthrough error', { error: error.message });
+
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: error.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    res.status(500).json({
+      error: {
+        code: 'COMPLETE_WALKTHROUGH_FAILED',
+        message: 'Failed to complete walkthrough',
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+}
+
+/**
+ * Reset walkthrough status (allow user to retake tutorial)
+ * POST /api/auth/walkthrough/reset
+ */
+export async function resetWalkthrough(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req.user!.userId;
+
+    const user = await authService.resetWalkthrough(userId);
+
+    res.status(200).json({
+      message: 'Walkthrough reset successfully. You can now retake the tutorial.',
+      user,
+    });
+  } catch (error: any) {
+    logger.error('Reset walkthrough error', { error: error.message });
+
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: error.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      return;
+    }
+
+    res.status(500).json({
+      error: {
+        code: 'RESET_WALKTHROUGH_FAILED',
+        message: 'Failed to reset walkthrough',
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+}

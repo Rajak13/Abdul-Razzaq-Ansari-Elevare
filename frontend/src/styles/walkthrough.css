@@ -1,0 +1,54 @@
+/* Custom Walkthrough Styles */
+
+/* Smooth animations for tour elements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Ensure tour elements are above everything */
+.walkthrough-overlay {
+  z-index: 9998;
+}
+
+.walkthrough-spotlight {
+  z-index: 9999;
+}
+
+.walkthrough-popover {
+  z-index: 10000;
+}
+
+/* Smooth transitions for highlighted elements */
+.walkthrough-highlight {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent body scroll when tour is active */
+body.walkthrough-active {
+  overflow: hidden;
+}

@@ -164,7 +164,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
 
           {/* Priority and Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div id="tour-task-priority" className="space-y-2">
               <Label className="text-sm font-medium">{t('form.priority')}</Label>
               <Select
                 value={watch('priority')}
@@ -329,6 +329,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, className }: Tas
           {/* Actions */}
           <div className="flex gap-3 pt-6 border-t">
             <Button 
+              id="tour-task-submit"
               type="submit" 
               disabled={isLoading} 
               className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-200"

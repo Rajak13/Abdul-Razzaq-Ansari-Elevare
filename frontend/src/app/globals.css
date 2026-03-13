@@ -1,6 +1,9 @@
 /* Rich Text Editor Styles */
 @import '../styles/rich-text-editor.css';
 
+/* Walkthrough Styles */
+@import '../styles/walkthrough.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

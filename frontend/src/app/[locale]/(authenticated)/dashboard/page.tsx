@@ -13,7 +13,7 @@ function DashboardContent() {
   usePageMetadata('dashboard');
   
   return (
-    <div className="bg-background">
+    <div id="dashboard-area" className="bg-background">
       <Dashboard />
     </div>
   )

@@ -11,6 +11,7 @@ export interface User {
   email_verified: boolean;
   created_at: string;
   updated_at: string;
+
   // Additional profile fields
   phone?: string;
   date_of_birth?: string;
@@ -21,6 +22,7 @@ export interface User {
   timezone?: string;
   account_status?: 'active' | 'suspended' | 'deleted' | 'pending';
   last_login?: string;
+  walkthrough_completed?: boolean;
 }
 
 export interface AuthState {

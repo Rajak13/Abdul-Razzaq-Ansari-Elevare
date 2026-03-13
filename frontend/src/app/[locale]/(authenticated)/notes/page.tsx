@@ -162,11 +162,12 @@ export default function NotesPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button onClick={() => setShowTemplateSelector(true)} size="default" className="w-full sm:w-auto">
+            <Button id="tour-notes-create" onClick={() => setShowTemplateSelector(true)} size="default" className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-sm sm:text-base">{t('createNote')}</span>
             </Button>
             <Button
+              id="tour-notes-folder"
               variant="outline"
               onClick={() => handleFolderCreate()}
               size="default"

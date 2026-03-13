@@ -275,6 +275,7 @@ export default function SearchPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
+                  id="tour-search-input"
                   placeholder="Search resources, groups, tasks, notes..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -286,7 +287,7 @@ export default function SearchPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button id="tour-search-filter" variant="outline" size="sm">
                       <Filter className="mr-2 h-4 w-4" />
                       Content Types
                       {filters.types.length < 4 && (

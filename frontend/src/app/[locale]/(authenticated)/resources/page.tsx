@@ -263,7 +263,7 @@ export default function ResourcesPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => setShowUploadModal(true)} className="w-full sm:w-auto">
+        <Button id="tour-resources-upload" onClick={() => setShowUploadModal(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           <span className="text-sm sm:text-base">{t('uploadResource')}</span>
         </Button>
@@ -287,7 +287,7 @@ export default function ResourcesPage() {
           onValueChange={(value) => setActiveTab(value as 'all' | 'trending')}
           className="w-full sm:w-auto"
         >
-          <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex">
+          <TabsList id="tour-resources-tabs" className="w-full sm:w-auto grid grid-cols-2 sm:flex">
             <TabsTrigger value="all" className="text-xs sm:text-sm">{t('allResources')}</TabsTrigger>
             <TabsTrigger value="trending" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />

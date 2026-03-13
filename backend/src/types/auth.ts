@@ -32,6 +32,7 @@ export interface User {
   timezone?: string;
   account_status?: 'active' | 'suspended' | 'deleted' | 'pending';
   last_login?: Date;
+  walkthrough_completed?: boolean;
 }
 
 export interface UserWithPassword extends User {

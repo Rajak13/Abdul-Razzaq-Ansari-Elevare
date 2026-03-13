@@ -1,54 +1,10 @@
 import sgMail from '@sendgrid/mail';
-import nodemailer from 'nodemailer';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Determine which email service to use based on environment
-const USE_SMTP = process.env.NODE_ENV === 'development' || process.env.USE_SMTP === 'true';
-
-// Initialize SendGrid (for production)
-if (!USE_SMTP) {
-  sgMail.setApiKey(config.email.password);
-}
-
-// Initialize Nodemailer SMTP transporter (for development)
-const smtpTransporter = USE_SMTP ? nodemailer.createTransport({
-  host: config.email.host,
-  port: config.email.port,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: config.email.user,
-    pass: config.email.password,
-  },
-  tls: {
-    rejectUnauthorized: false // For development only
-  }
-}) : null;
-
-// Log which email service is being used
-logger.info(`Email service initialized: ${USE_SMTP ? 'SMTP (Nodemailer)' : 'SendGrid'}`, {
-  host: USE_SMTP ? config.email.host : 'SendGrid API',
-  port: USE_SMTP ? config.email.port : 'N/A',
-  user: USE_SMTP ? config.email.user : 'API Key'
-});
-
-/**
- * Unified email sending function that works with both SMTP and SendGrid
- */
-async function sendEmail(msg: { to: string; from: string; subject: string; html: string }) {
-  if (USE_SMTP && smtpTransporter) {
-    // Use SMTP (Nodemailer)
-    await smtpTransporter.sendMail({
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-    });
-  } else {
-    // Use SendGrid
-    await sendEmail(msg);
-  }
-}
+// Initialize SendGrid with API key from SMTP_PASSWORD env var
+// (We reuse SMTP_PASSWORD to avoid changing environment variables)
+sgMail.setApiKey(config.email.password);
 
 // Enterprise Email Template Base
 const getEmailTemplate = (content: string) => `
@@ -239,7 +195,7 @@ export async function sendOTPEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('OTP email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send OTP email', { email, locale, error });
@@ -345,7 +301,7 @@ export async function sendVerificationEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Verification email sent', { email });
   } catch (error) {
     logger.error('Failed to send verification email', { email, error });
@@ -484,7 +440,7 @@ export async function sendPasswordResetEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Password reset email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send password reset email', { email, locale, error });
@@ -656,7 +612,7 @@ export async function sendSuspensionEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Suspension email sent', { email, suspensionType, locale });
   } catch (error) {
     logger.error('Failed to send suspension email', { email, suspensionType, locale, error });
@@ -783,7 +739,7 @@ export async function sendUnsuspensionEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Unsuspension email sent', { email, locale });
   } catch (error) {
     logger.error('Failed to send unsuspension email', { email, locale, error });
@@ -809,7 +765,7 @@ export async function sendNotificationEmail(options: {
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Notification email sent', { to: options.to, subject: options.subject });
   } catch (error) {
     logger.error('Failed to send notification email', { to: options.to, subject: options.subject, error });
@@ -944,7 +900,7 @@ export async function sendReportSubmittedEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Report submitted email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report submitted email', { email, reportId, locale, error });
@@ -1068,7 +1024,7 @@ export async function sendReportUnderReviewEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Report under review email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report under review email', { email, reportId, locale, error });
@@ -1196,7 +1152,7 @@ export async function sendReportResolvedEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Report resolved email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report resolved email', { email, reportId, locale, error });
@@ -1335,7 +1291,7 @@ export async function sendReportDismissedEmail(
   };
 
   try {
-    await sendEmail(msg);
+    await sgMail.send(msg);
     logger.info('Report dismissed email sent', { email, reportId, locale });
   } catch (error) {
     logger.error('Failed to send report dismissed email', { email, reportId, locale, error });

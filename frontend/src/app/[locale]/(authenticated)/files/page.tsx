@@ -224,11 +224,12 @@ export default function FilesPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button onClick={() => setShowUploadModal(true)} size="default" className="w-full sm:w-auto">
+            <Button id="tour-files-upload" onClick={() => setShowUploadModal(true)} size="default" className="w-full sm:w-auto">
               <Upload className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-sm sm:text-base">{t('upload.button')}</span>
             </Button>
             <Button
+              id="tour-files-new-folder"
               variant="outline"
               onClick={() => handleFolderCreate()}
               size="default"

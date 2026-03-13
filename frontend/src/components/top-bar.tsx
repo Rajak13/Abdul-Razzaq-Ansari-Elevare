@@ -187,6 +187,7 @@ export default function TopBar({ pathname }: TopBarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
+                  id="profile-menu"
                   variant="ghost" 
                   className="flex items-center gap-1 sm:gap-2 h-8 sm:h-9 px-1 sm:px-2 rounded-full"
                 >

@@ -377,6 +377,7 @@ export function NoteEditor({
           <div className="flex items-center justify-between">
             <div className="mr-4 flex-1">
               <Input
+                id="tour-note-title"
                 placeholder={t('editor.titlePlaceholder')}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}

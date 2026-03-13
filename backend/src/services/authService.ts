@@ -198,7 +198,7 @@ export async function findById(userId: string): Promise<User | null> {
   const result = await query<User>(
     `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
             phone, date_of_birth, gender, age, account_type, institution, timezone, 
-            university, major, graduation_date, account_status, last_login
+            university, major, graduation_date, account_status, last_login, walkthrough_completed
      FROM users WHERE id = $1`,
     [userId]
   );
@@ -213,7 +213,7 @@ export async function findByEmail(email: string): Promise<User | null> {
   const result = await query<User>(
     `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
             phone, date_of_birth, gender, age, account_type, institution, timezone,
-            university, major, graduation_date, account_status, last_login
+            university, major, graduation_date, account_status, last_login, walkthrough_completed
      FROM users WHERE email = $1`,
     [email]
   );
@@ -543,6 +543,52 @@ export async function updateLanguagePreference(
   }
 
   logger.info('User language preference updated', { userId, language });
+
+  return result.rows[0];
+}
+
+/**
+ * Mark walkthrough as completed for a user
+ */
+export async function completeWalkthrough(userId: string): Promise<User> {
+  const result = await query<User>(
+    `UPDATE users SET walkthrough_completed = TRUE, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $1
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, 
+               preferred_language, email_verified, created_at, updated_at,
+               phone, date_of_birth, gender, age, account_type, institution, 
+               timezone, account_status, last_login, walkthrough_completed`,
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error('User not found');
+  }
+
+  logger.info('Walkthrough marked as completed', { userId });
+
+  return result.rows[0];
+}
+
+/**
+ * Reset walkthrough status for a user (allow retaking tutorial)
+ */
+export async function resetWalkthrough(userId: string): Promise<User> {
+  const result = await query<User>(
+    `UPDATE users SET walkthrough_completed = FALSE, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $1
+     RETURNING id, email, name, bio, avatar_url, university, major, graduation_date, 
+               preferred_language, email_verified, created_at, updated_at,
+               phone, date_of_birth, gender, age, account_type, institution, 
+               timezone, account_status, last_login, walkthrough_completed`,
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error('User not found');
+  }
+
+  logger.info('Walkthrough reset successfully', { userId });
 
   return result.rows[0];
 }

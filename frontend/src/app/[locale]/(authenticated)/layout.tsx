@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context'
 import TopBar from '@/components/top-bar'
 import { usePathname } from '@/navigation'
 import { Toaster } from 'sonner'
+import { WalkthroughProvider } from '@/components/walkthrough'
 
 // Lazy load heavy components
 const Sidebar = React.lazy(() => import('@/components/sidebar').then(mod => ({ default: mod.Sidebar })))
@@ -84,20 +85,22 @@ export default function AuthenticatedLayout({
   }, [])
 
   return (
-    <AppLayout showSidebar={true}>
-      <div className="flex flex-col h-full">
-        <TopBar pathname={pathname} />
-        <div className="flex-1 overflow-auto pb-20 xl:pb-0">
-          {children}
+    <WalkthroughProvider>
+      <AppLayout showSidebar={true}>
+        <div className="flex flex-col h-full">
+          <TopBar pathname={pathname} />
+          <div className="flex-1 overflow-auto pb-20 xl:pb-0">
+            {children}
+          </div>
         </div>
-      </div>
-      {mounted && (
-        <React.Suspense fallback={null}>
-          <MobileNav />
-        </React.Suspense>
-      )}
-      <Toaster richColors position="top-right" />
-    </AppLayout>
+        {mounted && (
+          <React.Suspense fallback={null}>
+            <MobileNav />
+          </React.Suspense>
+        )}
+        <Toaster richColors position="top-right" />
+      </AppLayout>
+    </WalkthroughProvider>
   );
 }
 

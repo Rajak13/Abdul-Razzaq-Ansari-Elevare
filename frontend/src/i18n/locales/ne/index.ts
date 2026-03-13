@@ -15,4 +15,5 @@ export default {
   suspension: require('./suspension.json'),
   maintenance: require('./maintenance.json'),
   reports: require('./reports.json'),
+  walkthrough: require('./walkthrough.json'),
 };

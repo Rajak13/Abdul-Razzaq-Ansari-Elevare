@@ -37,7 +37,7 @@ export function TemplateSelector({
           <DialogTitle>{t('selectTemplate')}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div id="tour-note-templates-grid" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {noteTemplates.map((template) => {
             const Icon = templateIcons[template.id as keyof typeof templateIcons] || FileText;
             

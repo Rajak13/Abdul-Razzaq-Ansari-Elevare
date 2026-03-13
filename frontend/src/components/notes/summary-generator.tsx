@@ -213,6 +213,7 @@ export function SummaryGenerator({
       {/* Main Generate Button */}
       <div className="flex items-center gap-2">
         <Button
+          id="tour-note-summary"
           onClick={generateSummary}
           disabled={isButtonDisabled}
           variant={getButtonVariant()}

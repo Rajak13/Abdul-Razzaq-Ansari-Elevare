@@ -1,0 +1,52 @@
+{
+  "welcome": {
+    "title": "Welcome to Elevare, {name}!",
+    "description": "Let's take a quick tour to help you get started with the platform. We'll show you the key features to make your learning journey easier.",
+    "startButton": "Start Tour",
+    "skipButton": "Skip Tutorial"
+  },
+  "steps": {
+    "dashboard": {
+      "title": "Your Dashboard",
+      "description": "This is your command center. Customize widgets by dragging and resizing them to fit your workflow."
+    },
+    "tasks": {
+      "title": "Task Management",
+      "description": "Manage your assignments and deadlines. Set priorities, add tags, and track your progress."
+    },
+    "notes": {
+      "title": "Smart Notes",
+      "description": "Take rich-text notes with AI-powered summarization. Organize notes into color-coded folders."
+    },
+    "groups": {
+      "title": "Study Groups",
+      "description": "Collaborate with classmates in real-time. Chat, use whiteboards, and video call together."
+    },
+    "resources": {
+      "title": "Resource Library",
+      "description": "Share and discover study materials. Upload files and browse resources from others."
+    },
+    "notifications": {
+      "title": "Stay Updated",
+      "description": "Get real-time notifications for messages, tasks, and group activities."
+    },
+    "profile": {
+      "title": "Profile & Settings",
+      "description": "Customize your profile and preferences. Switch between English, Nepali, and Korean."
+    }
+  },
+  "completion": {
+    "title": "You're All Set!",
+    "description": "You've completed the tour and are ready to start using Elevare to organize your academic life.",
+    "summary": "You learned about: Dashboard, Tasks, Notes, Study Groups, Resources, Notifications, and Profile settings.",
+    "button": "Start Exploring"
+  },
+  "controls": {
+    "next": "Next",
+    "previous": "Previous",
+    "skipStep": "Skip This Step",
+    "skipTutorial": "Skip Tutorial",
+    "finish": "Finish Tour",
+    "tourSkipped": "Tutorial skipped. You can always access help from the menu."
+  }
+}

@@ -137,7 +137,7 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
             {t('cancel')}
           </Button>
         )}
-        <Button type="submit" disabled={isLoading}>
+        <Button id="tour-group-submit" type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isEditing ? t('update') : t('submit')}
         </Button>

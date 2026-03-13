@@ -243,6 +243,7 @@ export function ResourceUploadModal({ isOpen, onClose, onUploadSuccess }: Resour
           <div className="space-y-2">
             <Label>{t('selectFile')}</Label>
             <div
+              id="tour-resource-dropzone"
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                 dragActive 
                   ? 'border-primary bg-primary/5' 

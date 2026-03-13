@@ -47,6 +47,7 @@ export function NotificationBell() {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
+          id="notifications-button"
           variant="ghost"
           size="sm"
           className="relative h-9 w-9 p-0"

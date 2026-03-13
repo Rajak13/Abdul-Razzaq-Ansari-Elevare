@@ -1,6 +1,7 @@
 'use client'
 
 import { ProfileForm } from '@/components/profile/profile-form'
+import { RestartTutorialButton } from '@/components/profile/restart-tutorial-button'
 import { useAuth } from '@/hooks/use-auth'
 import { useTranslations } from 'next-intl'
 import { usePageMetadata } from '@/hooks/use-page-metadata'
@@ -59,6 +60,17 @@ export default function ProfilePage() {
           </p>
         </div>
         <ProfileForm avatarColor={avatarColor} />
+      </div>
+
+      {/* Tutorial Section */}
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 mt-4">
+        <div className="mb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">Tutorial & Help</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Need a refresher? Restart the guided tutorial to learn about all features again.
+          </p>
+        </div>
+        <RestartTutorialButton />
       </div>
     </div>
   )

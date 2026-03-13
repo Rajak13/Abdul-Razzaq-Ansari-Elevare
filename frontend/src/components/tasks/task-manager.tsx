@@ -281,6 +281,7 @@ export function TaskManager({ className }: TaskManagerProps) {
             </Button>
             
             <Button
+              id="tour-tasks-select"
               variant="outline"
               onClick={toggleSelectionMode}
               className={cn(
@@ -293,6 +294,7 @@ export function TaskManager({ className }: TaskManagerProps) {
             </Button>
             
             <Button 
+              id="tour-tasks-new"
               onClick={() => setShowCreateDialog(true)}
               className="bg-primary hover:bg-primary/90 shadow-lg text-sm"
             >

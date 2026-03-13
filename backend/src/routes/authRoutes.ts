@@ -79,4 +79,16 @@ router.patch(
   authController.updateLanguagePreference
 );
 
+router.patch(
+  '/walkthrough',
+  authenticate,
+  authController.completeWalkthrough
+);
+
+router.post(
+  '/walkthrough/reset',
+  authenticate,
+  authController.resetWalkthrough
+);
+
 export default router;

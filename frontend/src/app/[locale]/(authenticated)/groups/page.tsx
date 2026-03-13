@@ -117,7 +117,7 @@ export default function GroupsPage() {
             <ClientOnly fallback={<Button disabled className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" />{t('newGroup')}</Button>}>
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full sm:w-auto">
+                  <Button id="tour-groups-create" className="w-full sm:w-auto">
                     <Plus className="h-4 w-4 mr-2" />
                     <span className="text-sm sm:text-base">{t('newGroup')}</span>
                   </Button>
@@ -159,7 +159,7 @@ export default function GroupsPage() {
         {/* Tabs */}
         <ClientOnly fallback={<div className="h-10 bg-muted rounded animate-pulse" />}>
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto">
+            <TabsList id="tour-groups-tabs" className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto">
               <TabsTrigger value="discover" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm py-2">
                 <Search className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>Discover</span>
