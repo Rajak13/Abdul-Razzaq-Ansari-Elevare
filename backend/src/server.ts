@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 import { createServer } from 'http';
 import app from './app';
 import config from './config';

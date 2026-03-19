@@ -3,17 +3,6 @@ import { verifyToken } from '../services/authService';
 import { query } from '../db/connection';
 import logger from '../utils/logger';
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        email: string;
-      };
-    }
-  }
-}
 
 /**
  * Middleware to authenticate JWT tokens
@@ -111,7 +100,7 @@ export async function checkSuspension(
          AND us.is_active = TRUE 
          AND (us.expires_at IS NULL OR us.expires_at > CURRENT_TIMESTAMP)
        LIMIT 1`,
-      [req.user.userId]
+      [(req.user as any).userId]
     );
 
     if (suspensionCheck.rows.length > 0) {
@@ -121,7 +110,7 @@ export async function checkSuspension(
         : ' permanently';
       
       logger.warn('Suspended user attempted access', { 
-        userId: req.user.userId, 
+        userId: (req.user as any).userId, 
         suspension: suspension.reason 
       });
 
@@ -138,7 +127,7 @@ export async function checkSuspension(
     // Check account status
     const userCheck = await query(
       'SELECT account_status FROM users WHERE id = $1',
-      [req.user.userId]
+      [(req.user as any).userId]
     );
 
     if (userCheck.rows.length === 0) {

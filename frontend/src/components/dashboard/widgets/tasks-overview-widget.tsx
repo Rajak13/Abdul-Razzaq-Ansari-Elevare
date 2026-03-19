@@ -155,7 +155,10 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
                                   : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           }`}
                         >
-                          {task.priority}
+                          {task.priority === 'urgent' ? t('priorityUrgent')
+                            : task.priority === 'high' ? t('priorityHigh')
+                            : task.priority === 'medium' ? t('priorityMedium')
+                            : t('priorityLow')}
                         </Badge>
 
                         {task.due_date && (

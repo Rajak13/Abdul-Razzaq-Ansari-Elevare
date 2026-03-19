@@ -8,6 +8,7 @@
   "addWidget": "Add Widget",
   "removeWidget": "Remove Widget",
   "editMode": "Edit Mode",
+  "editModeHint": "Drag widgets to reorder, use controls to add/remove widgets, or click \"{cancel}\" when finished.",
   "saveLayout": "Save Layout",
   "cancelEdit": "Cancel",
   "widgets": {
@@ -33,12 +34,17 @@
       "createTask": "Create Task",
       "dueToday": "Due Today",
       "dueTomorrow": "Due Tomorrow",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "priorityUrgent": "Urgent",
+      "priorityHigh": "High",
+      "priorityMedium": "Medium",
+      "priorityLow": "Low"
     },
     "recentNotes": {
       "title": "Recent Notes",
       "description": "Your recently edited notes",
       "noNotes": "No notes yet",
+      "noPreview": "No preview available",
       "viewAll": "View All Notes",
       "createNote": "Create Note",
       "lastEdited": "Last edited {time}"
@@ -58,15 +64,22 @@
       "noEvents": "No events scheduled",
       "today": "Today",
       "thisWeek": "This Week",
-      "thisMonth": "This Month"
+      "thisMonth": "This Month",
+      "scheduleTask": "Schedule a task",
+      "noTasksDueToday": "No tasks due today",
+      "noDueDate": "No due date",
+      "viewAllTasks": "View All Tasks"
     },
     "activity": {
       "title": "Recent Activity",
       "description": "Your recent actions",
       "noActivity": "No recent activity",
+      "noActivityHint": "Start creating notes and tasks to see activity here",
       "viewAll": "View All Activity",
       "taskCompleted": "Completed task: {task}",
+      "taskCreated": "Created task: {task}",
       "noteCreated": "Created note: {note}",
+      "noteUpdated": "Updated note: {note}",
       "groupJoined": "Joined group: {group}",
       "resourceUploaded": "Uploaded resource: {resource}"
     },
@@ -78,16 +91,41 @@
       "studyTime": "Study Time",
       "thisWeek": "This Week",
       "lastWeek": "Last Week",
-      "thisMonth": "This Month"
+      "thisMonth": "This Month",
+      "dailyAvg": "Daily Avg",
+      "keepUpGreatWork": "Keep up the great work!"
     },
     "progress": {
       "title": "Progress Stats",
       "description": "Your progress overview",
+      "weeklyGoal": "Weekly Goal",
       "completionRate": "Completion Rate",
+      "notesCreated": "Notes Created",
+      "totalTasksDone": "Total Tasks Done",
+      "goalAchieved": "Goal achieved!",
       "streak": "Current Streak",
       "days": "{count} days",
       "totalPoints": "Total Points",
-      "level": "Level {level}"
+      "level": "Level {level}",
+      "motivationHigh": "You're on fire! Keep up the excellent work!",
+      "motivationGood": "Great progress! You're doing well this week.",
+      "motivationMedium": "Good start! Keep pushing towards your goals.",
+      "motivationLow": "Let's get started! Every task completed counts."
+    },
+    "studyGroups": {
+      "title": "Study Groups",
+      "description": "Your active study groups",
+      "noGroups": "No study groups yet",
+      "noGroupsHint": "Join or create study groups to collaborate with your peers.",
+      "viewAll": "View All Groups",
+      "createGroup": "Create Group",
+      "members": "{count} members",
+      "joinGroup": "Join Group",
+      "roleOwner": "Owner",
+      "roleAdmin": "Admin",
+      "roleMember": "Member",
+      "myGroups": "My Groups",
+      "allGroups": "All Groups"
     }
   },
   "settings": {
@@ -109,5 +147,10 @@
     "print": "Print",
     "export": "Export",
     "share": "Share"
+  },
+  "widgetActions": {
+    "duplicate": "Duplicate",
+    "settings": "Settings",
+    "remove": "Remove"
   }
 }

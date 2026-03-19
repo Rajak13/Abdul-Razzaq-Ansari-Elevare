@@ -11,6 +11,7 @@ import {
   UserWithPassword,
   TokenPayload,
   ProfileUpdateRequest,
+  OAuthProfile,
 } from '../types/auth';
 
 const SALT_ROUNDS = 10;
@@ -591,4 +592,140 @@ export async function resetWalkthrough(userId: string): Promise<User> {
   logger.info('Walkthrough reset successfully', { userId });
 
   return result.rows[0];
+}
+
+/**
+ * Find or create user from OAuth profile
+ */
+export async function findOrCreateOAuthUser(
+  oauthProfile: OAuthProfile
+): Promise<{ user: User; token: string; isNewUser: boolean }> {
+  const client = await getClient();
+
+  try {
+    await client.query('BEGIN');
+
+    // Check if user exists with this OAuth provider and ID
+    let result = await client.query<User>(
+      `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+              phone, date_of_birth, gender, age, account_type, institution, timezone,
+              university, major, graduation_date, account_status, last_login, walkthrough_completed,
+              oauth_provider, oauth_id
+       FROM users 
+       WHERE oauth_provider = $1 AND oauth_id = $2`,
+      [oauthProfile.provider, oauthProfile.id]
+    );
+
+    let user: User;
+    let isNewUser = false;
+
+    if (result.rows.length > 0) {
+      // User exists with this OAuth account
+      user = result.rows[0];
+      
+      // Update last login and profile info if changed
+      const updateResult = await client.query<User>(
+        `UPDATE users 
+         SET last_login = CURRENT_TIMESTAMP,
+             name = COALESCE($1, name),
+             avatar_url = COALESCE($2, avatar_url),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $3
+         RETURNING id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+                   phone, date_of_birth, gender, age, account_type, institution, timezone,
+                   university, major, graduation_date, account_status, last_login, walkthrough_completed`,
+        [oauthProfile.name, oauthProfile.avatar_url, user.id]
+      );
+      
+      user = updateResult.rows[0];
+      logger.info('Existing OAuth user logged in', { 
+        userId: user.id, 
+        provider: oauthProfile.provider 
+      });
+    } else {
+      // Check if user exists with this email (account linking)
+      result = await client.query<User>(
+        `SELECT id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+                phone, date_of_birth, gender, age, account_type, institution, timezone,
+                university, major, graduation_date, account_status, last_login, walkthrough_completed
+         FROM users 
+         WHERE email = $1`,
+        [oauthProfile.email]
+      );
+
+      if (result.rows.length > 0) {
+        // Link OAuth account to existing user
+        user = result.rows[0];
+        
+        const updateResult = await client.query<User>(
+          `UPDATE users 
+           SET oauth_provider = $1,
+               oauth_id = $2,
+               oauth_profile = $3,
+               email_verified = true,
+               avatar_url = COALESCE(avatar_url, $4),
+               last_login = CURRENT_TIMESTAMP,
+               updated_at = CURRENT_TIMESTAMP
+           WHERE id = $5
+           RETURNING id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+                     phone, date_of_birth, gender, age, account_type, institution, timezone,
+                     university, major, graduation_date, account_status, last_login, walkthrough_completed`,
+          [
+            oauthProfile.provider,
+            oauthProfile.id,
+            JSON.stringify(oauthProfile.raw),
+            oauthProfile.avatar_url,
+            user.id,
+          ]
+        );
+        
+        user = updateResult.rows[0];
+        logger.info('OAuth account linked to existing user', { 
+          userId: user.id, 
+          provider: oauthProfile.provider 
+        });
+      } else {
+        // Create new user
+        const insertResult = await client.query<User>(
+          `INSERT INTO users (
+             email, name, avatar_url, email_verified, 
+             oauth_provider, oauth_id, oauth_profile,
+             last_login
+           )
+           VALUES ($1, $2, $3, true, $4, $5, $6, CURRENT_TIMESTAMP)
+           RETURNING id, email, name, bio, avatar_url, preferred_language, email_verified, created_at, updated_at,
+                     phone, date_of_birth, gender, age, account_type, institution, timezone,
+                     university, major, graduation_date, account_status, last_login, walkthrough_completed`,
+          [
+            oauthProfile.email,
+            oauthProfile.name,
+            oauthProfile.avatar_url,
+            oauthProfile.provider,
+            oauthProfile.id,
+            JSON.stringify(oauthProfile.raw),
+          ]
+        );
+        
+        user = insertResult.rows[0];
+        isNewUser = true;
+        logger.info('New OAuth user created', { 
+          userId: user.id, 
+          provider: oauthProfile.provider 
+        });
+      }
+    }
+
+    await client.query('COMMIT');
+
+    // Generate JWT token
+    const token = generateToken(user.id, user.email);
+
+    return { user, token, isNewUser };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    logger.error('OAuth user creation/login error', { error });
+    throw error;
+  } finally {
+    client.release();
+  }
 }

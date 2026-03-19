@@ -24,6 +24,7 @@ const localeMap: Record<string, Locale> = {
 
 export function CalendarWidget({ className }: CalendarWidgetProps) {
   const t = useTranslations('dashboard.widgets.calendar')
+  const tTasks = useTranslations('dashboard.widgets.tasks')
   const locale = useLocale()
   const dateLocale = localeMap[locale] || enUS
   const today = new Date()
@@ -63,7 +64,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
         <Link href="/tasks">
           <Button size="sm" variant="outline" className="h-8">
             <Plus className="mr-1 h-3 w-3" />
-            {t('noEvents')}
+            {t('scheduleTask')}
           </Button>
         </Link>
       </CardHeader>
@@ -109,7 +110,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                         isToday(parseISO(task.due_date)) 
                           ? t('today')
                           : `Due ${format(parseISO(task.due_date), 'MMM d', { locale: dateLocale })}`
-                      ) : 'No due date'}
+                      ) : t('noDueDate')}
                     </p>
                   </div>
                   <Badge 
@@ -124,7 +125,10 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                     }`}
                   >
-                    {task.priority}
+                    {task.priority === 'urgent' ? tTasks('priorityUrgent')
+                      : task.priority === 'high' ? tTasks('priorityHigh')
+                      : task.priority === 'medium' ? tTasks('priorityMedium')
+                      : tTasks('priorityLow')}
                   </Badge>
                 </div>
               ))
@@ -134,13 +138,13 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                 <p className="text-sm text-muted-foreground mb-2">
                   {todaysTasks.length === 0 && upcomingTasks.length === 0 
                     ? t('noEvents')
-                    : 'No tasks due today'
+                    : t('noTasksDueToday')
                   }
                 </p>
                 <Link href="/tasks">
                   <Button size="sm" variant="outline">
                     <Plus className="mr-1 h-3 w-3" />
-                    Schedule a task
+                    {t('scheduleTask')}
                   </Button>
                 </Link>
               </div>
@@ -150,7 +154,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
           {displayTasks.length > 0 && (
             <Link href="/tasks">
               <Button variant="ghost" size="sm" className="w-full text-xs">
-                View All Tasks
+                {t('viewAllTasks')}
               </Button>
             </Link>
           )}

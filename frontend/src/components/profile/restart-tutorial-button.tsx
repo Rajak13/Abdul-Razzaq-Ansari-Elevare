@@ -41,10 +41,8 @@ export function RestartTutorialButton() {
 
       toast.success('Tutorial reset successfully! Redirecting to dashboard...');
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1500);
+      // Redirect to dashboard immediately
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error resetting tutorial:', error);
       toast.error('Failed to reset tutorial. Please try again.');

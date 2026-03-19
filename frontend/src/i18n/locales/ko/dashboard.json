@@ -8,6 +8,7 @@
   "addWidget": "위젯 추가",
   "removeWidget": "위젯 제거",
   "editMode": "편집 모드",
+  "editModeHint": "위젯을 드래그하여 순서를 변경하거나, 컨트롤을 사용하여 위젯을 추가/제거하거나, 완료되면 \"{cancel}\"을 클릭하세요.",
   "saveLayout": "레이아웃 저장",
   "cancelEdit": "취소",
   "widgets": {
@@ -33,12 +34,17 @@
       "createTask": "작업 생성",
       "dueToday": "오늘 마감",
       "dueTomorrow": "내일 마감",
-      "overdue": "기한 초과"
+      "overdue": "기한 초과",
+      "priorityUrgent": "긴급",
+      "priorityHigh": "높음",
+      "priorityMedium": "보통",
+      "priorityLow": "낮음"
     },
     "recentNotes": {
       "title": "최근 노트",
       "description": "최근 편집한 노트",
       "noNotes": "노트가 없습니다",
+      "noPreview": "미리보기 없음",
       "viewAll": "모든 노트 보기",
       "createNote": "노트 생성",
       "lastEdited": "{time}에 마지막 편집"
@@ -47,10 +53,16 @@
       "title": "스터디 그룹",
       "description": "활성 스터디 그룹",
       "noGroups": "스터디 그룹이 없습니다",
+      "noGroupsHint": "스터디 그룹에 참여하거나 만들어 동료들과 협력하세요.",
       "viewAll": "모든 그룹 보기",
       "createGroup": "그룹 생성",
       "members": "{count}명의 멤버",
-      "joinGroup": "그룹 가입"
+      "joinGroup": "그룹 가입",
+      "roleOwner": "소유자",
+      "roleAdmin": "관리자",
+      "roleMember": "멤버",
+      "myGroups": "내 그룹",
+      "allGroups": "모든 그룹"
     },
     "calendar": {
       "title": "캘린더",
@@ -58,15 +70,22 @@
       "noEvents": "예정된 이벤트가 없습니다",
       "today": "오늘",
       "thisWeek": "이번 주",
-      "thisMonth": "이번 달"
+      "thisMonth": "이번 달",
+      "scheduleTask": "작업 예약",
+      "noTasksDueToday": "오늘 마감 작업이 없습니다",
+      "noDueDate": "마감일 없음",
+      "viewAllTasks": "모든 작업 보기"
     },
     "activity": {
       "title": "최근 활동",
       "description": "최근 작업",
       "noActivity": "최근 활동이 없습니다",
+      "noActivityHint": "노트와 작업을 만들어 여기서 활동을 확인하세요",
       "viewAll": "모든 활동 보기",
       "taskCompleted": "작업 완료: {task}",
+      "taskCreated": "작업 생성: {task}",
       "noteCreated": "노트 생성: {note}",
+      "noteUpdated": "노트 업데이트: {note}",
       "groupJoined": "그룹 가입: {group}",
       "resourceUploaded": "자료 업로드: {resource}"
     },
@@ -78,16 +97,26 @@
       "studyTime": "학습 시간",
       "thisWeek": "이번 주",
       "lastWeek": "지난 주",
-      "thisMonth": "이번 달"
+      "thisMonth": "이번 달",
+      "dailyAvg": "일일 평균",
+      "keepUpGreatWork": "계속 잘 하고 있어요!"
     },
     "progress": {
       "title": "진행 통계",
       "description": "진행 상황 개요",
+      "weeklyGoal": "주간 목표",
       "completionRate": "완료율",
+      "notesCreated": "생성된 노트",
+      "totalTasksDone": "완료된 총 작업",
+      "goalAchieved": "목표 달성!",
       "streak": "현재 연속 기록",
       "days": "{count}일",
       "totalPoints": "총 포인트",
-      "level": "레벨 {level}"
+      "level": "레벨 {level}",
+      "motivationHigh": "대단해요! 훌륭한 작업을 계속하세요!",
+      "motivationGood": "좋은 진행입니다! 이번 주 잘 하고 있어요.",
+      "motivationMedium": "좋은 시작! 목표를 향해 계속 나아가세요.",
+      "motivationLow": "시작해봐요! 완료된 모든 작업이 중요합니다."
     }
   },
   "settings": {
@@ -109,5 +138,10 @@
     "print": "인쇄",
     "export": "내보내기",
     "share": "공유"
+  },
+  "widgetActions": {
+    "duplicate": "복제",
+    "settings": "설정",
+    "remove": "제거"
   }
 }

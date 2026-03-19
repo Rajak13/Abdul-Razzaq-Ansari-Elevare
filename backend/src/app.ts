@@ -3,6 +3,7 @@ import cors from 'cors';
 import compression from 'compression';
 import morgan from 'morgan';
 import path from 'path';
+import passport from './config/passport';
 import config from './config';
 import logger from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -78,6 +79,9 @@ app.use(checkMaintenanceMode);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Initialize Passport for OAuth
+app.use(passport.initialize());
 
 // Input sanitization and SQL injection prevention
 app.use(sanitizeInput);

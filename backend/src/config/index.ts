@@ -49,6 +49,7 @@ interface Config {
   nodeEnv: string;
   apiUrl: string;
   corsOrigin: string | boolean | string[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void);
+  frontendUrl: string;
   jwtSecret: string;
   jwtExpiresIn: string;
   jwtRefreshSecret: string;
@@ -81,6 +82,18 @@ interface Config {
     level: string;
     file: string;
   };
+  oauth: {
+    google: {
+      clientId: string;
+      clientSecret: string;
+      callbackURL: string;
+    };
+    facebook: {
+      appId: string;
+      appSecret: string;
+      callbackURL: string;
+    };
+  };
 }
 
 const config: Config = {
@@ -88,6 +101,7 @@ const config: Config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   apiUrl: process.env.API_URL || 'http://localhost:5001',
   corsOrigin: getCorsOrigin(),
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3001',
   jwtSecret: process.env.JWT_SECRET || 'your_jwt_secret_change_in_production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_change_in_production',
@@ -119,6 +133,18 @@ const config: Config = {
   logging: {
     level: process.env.LOG_LEVEL || 'info',
     file: process.env.LOG_FILE || './logs/app.log',
+  },
+  oauth: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5001/api/auth/google/callback',
+    },
+    facebook: {
+      appId: process.env.FACEBOOK_APP_ID || '',
+      appSecret: process.env.FACEBOOK_APP_SECRET || '',
+      callbackURL: process.env.FACEBOOK_CALLBACK_URL || 'http://localhost:5001/api/auth/facebook/callback',
+    },
   },
 };
 

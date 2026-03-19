@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Copy, Eye, EyeOff, GripVertical, MoreVertical, Settings, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { WidgetSizeControls } from './widget-size-controls'
 
 interface DraggableWidgetProps {
@@ -27,6 +28,7 @@ export function DraggableWidget({
   isEditing,
 }: DraggableWidgetProps) {
   const { removeWidget, toggleWidget, duplicateWidget } = useDashboardStore()
+  const t = useTranslations('dashboard.widgetActions')
 
   const {
     attributes,
@@ -96,16 +98,16 @@ export function DraggableWidget({
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleDuplicate}>
                 <Copy className="h-3 w-3 mr-2" />
-                Duplicate
+                {t('duplicate')}
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <Settings className="h-3 w-3 mr-2" />
-                Settings
+                {t('settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleRemove} className="text-destructive">
                 <X className="h-3 w-3 mr-2" />
-                Remove
+                {t('remove')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

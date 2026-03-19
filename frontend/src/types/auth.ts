@@ -23,6 +23,10 @@ export interface User {
   account_status?: 'active' | 'suspended' | 'deleted' | 'pending';
   last_login?: string;
   walkthrough_completed?: boolean;
+  
+  // OAuth fields
+  oauth_provider?: 'google' | 'facebook' | null;
+  oauth_id?: string;
 }
 
 export interface AuthState {

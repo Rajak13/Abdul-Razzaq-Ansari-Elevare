@@ -90,11 +90,11 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{studyGroups.length}</div>
-              <div className="text-xs text-muted-foreground">{t('noGroups')}</div>
+              <div className="text-xs text-muted-foreground">{t('myGroups')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{totalGroups}</div>
-              <div className="text-xs text-muted-foreground">{t('viewAll')}</div>
+              <div className="text-xs text-muted-foreground">{t('allGroups')}</div>
             </div>
           </div>
 
@@ -127,8 +127,8 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
                         </div>
                         {group.user_role && (
                           <Badge variant="secondary" className="mt-1 text-xs">
-                            {group.user_role === 'owner' ? 'Owner' : 
-                             group.user_role === 'admin' ? 'Admin' : 'Member'}
+                            {group.user_role === 'owner' ? t('roleOwner') : 
+                             group.user_role === 'admin' ? t('roleAdmin') : t('roleMember')}
                           </Badge>
                         )}
                       </div>
@@ -147,7 +147,7 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
                 <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground mb-2">{t('noGroups')}</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Join or create study groups to collaborate with your peers.
+                  {t('noGroupsHint')}
                 </p>
                 <Link href="/groups">
                   <Button size="sm" variant="outline">

@@ -234,25 +234,26 @@ export function WalkthroughProvider({ children }: WalkthroughProviderProps) {
 
   const [showWelcome, setShowWelcome] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
-  const hasCheckedWelcome = useRef(false);
 
   // Memoize tour steps to prevent unnecessary re-renders of GuidedTour
   const tourSteps = useMemo(() => getTourSteps(t), [t]);
 
   // Check if user should see walkthrough
   useEffect(() => {
-    if (hasCheckedWelcome.current) return;
-    
-    if (user && !user.walkthrough_completed && !hasCompleted && !hasSeenWelcome) {
-      hasCheckedWelcome.current = true;
-      // Small delay to ensure page is fully loaded
+    // Only run this if we're not already showing the welcome modal
+    // and the user hasn't seen it yet in this session/state
+    if (user && !user.walkthrough_completed && !hasCompleted && !hasSeenWelcome && !showWelcome) {
+      // Small delay to ensure page is fully loaded and any transitions are done
       const timer = setTimeout(() => {
-        setHasSeenWelcome(true);
-        setShowWelcome(true);
+        // Double check conditions before showing
+        if (!hasSeenWelcome && !showWelcome) {
+          setHasSeenWelcome(true);
+          setShowWelcome(true);
+        }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, hasCompleted, hasSeenWelcome, setHasSeenWelcome]);
+  }, [user?.walkthrough_completed, hasCompleted, hasSeenWelcome, showWelcome, setHasSeenWelcome]);
 
   // Mark walkthrough as completed in backend
   const markCompleted = useCallback(async () => {

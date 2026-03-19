@@ -26,6 +26,11 @@ export const getClientIp = (req: Request): string => {
 export const checkBlockedIP = (req: Request, _res: Response, next: NextFunction) => {
   const ip = getClientIp(req);
 
+  // Skip block check for localhost in development
+  if (process.env.NODE_ENV === 'development' && (ip === '::1' || ip === '127.0.0.1' || ip === 'localhost')) {
+    return next();
+  }
+
   if (blockedIPs.has(ip)) {
     logger.warn('Blocked IP attempted access', { ip, path: req.path });
     throw new AppError('Access denied', 403, 'IP_BLOCKED');
@@ -55,7 +60,8 @@ export const trackSuspiciousActivity = (ip: string): void => {
     existing.lastSeen = new Date();
 
     // Block if too many suspicious activities
-    if (existing.count > 10) {
+    const limit = process.env.NODE_ENV === 'development' ? 50 : 10;
+    if (existing.count > limit) {
       blockIP(ip, 3600000); // Block for 1 hour
       suspiciousIPs.delete(ip);
     }
@@ -259,7 +265,15 @@ export const ddosProtection = (req: Request, _res: Response, next: NextFunction)
 
   // Check if too many requests in short time (potential DDoS)
   // Increased limit for development/dashboard usage
-  if (timestamps.length > 500) {
+  const threshold = process.env.NODE_ENV === 'development' ? 2000 : 500;
+  
+  if (timestamps.length > threshold) {
+    // Skip blocking for localhost in development
+    if (process.env.NODE_ENV === 'development' && (ip === '::1' || ip === '127.0.0.1' || ip === 'localhost')) {
+      logger.warn('DDoS threshold reached but skipping block for localhost', { ip, count: timestamps.length });
+      return next();
+    }
+
     logger.error('Potential DDoS attack detected', { ip, requestCount: timestamps.length });
     blockIP(ip, 3600000); // Block for 1 hour
     throw new AppError('Too many requests', 429, 'DDOS_DETECTED');

@@ -33,6 +33,10 @@ export interface User {
   account_status?: 'active' | 'suspended' | 'deleted' | 'pending';
   last_login?: Date;
   walkthrough_completed?: boolean;
+  // OAuth fields
+  oauth_provider?: 'google' | 'facebook' | null;
+  oauth_id?: string;
+  oauth_profile?: any;
 }
 
 export interface UserWithPassword extends User {
@@ -73,4 +77,13 @@ export interface ProfileUpdateRequest {
   account_type?: 'student' | 'educator' | 'professional' | 'researcher' | 'other';
   institution?: string;
   timezone?: string;
+}
+
+export interface OAuthProfile {
+  provider: 'google' | 'facebook';
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+  raw?: any;
 }

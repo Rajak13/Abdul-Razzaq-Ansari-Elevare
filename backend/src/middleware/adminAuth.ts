@@ -2,19 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
 import adminAuthService from '../services/adminAuthService';
 
-// Extend Express Request interface to include admin user
-declare global {
-  namespace Express {
-    interface Request {
-      admin?: {
-        id: string;
-        email: string;
-        role: 'owner' | 'administrator' | 'moderator';
-        mfa_enabled: boolean;
-      };
-    }
-  }
-}
 
 /**
  * Admin authentication middleware

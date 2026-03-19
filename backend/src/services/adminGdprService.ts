@@ -464,7 +464,7 @@ export class AdminGdprService {
         this.getDataCategoryInfo(userId, 'notes', 'notes'),
         this.getDataCategoryInfo(userId, 'files', 'files'),
         this.getDataCategoryInfo(userId, 'resources', 'resources'),
-        this.getDataCategoryInfo(userId, 'study_groups', 'study_group_members'),
+        this.getDataCategoryInfo(userId, 'study_groups', 'group_members'),
         this.getDataCategoryInfo(userId, 'notifications', 'notifications')
       ]);
 
@@ -711,11 +711,9 @@ export class AdminGdprService {
     // Define tables to delete from (in dependency order)
     const tablesToDelete = [
       'notifications',
-      'study_group_members',
-      'task_comments',
-      'note_comments',
+      'group_members',
       'resource_comments',
-      'whiteboard_collaborators',
+      'whiteboard_permissions',
       'files',
       'resources',
       'notes',

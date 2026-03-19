@@ -170,6 +170,11 @@ class AdminApiClient {
     return response.data.data || response.data;
   }
 
+  async getUserStats(userId: string) {
+    const response = await this.client.get(`/users/${userId}/stats`);
+    return response.data.data || response.data;
+  }
+
   async suspendUser(userId: string, reason: string, duration?: number) {
     console.log('🚫 Admin: Suspending user', { userId, reason, duration });
     try {

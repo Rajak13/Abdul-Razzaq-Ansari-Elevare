@@ -61,6 +61,21 @@
   color: rgb(17 24 39);
 }
 
+.rich-text-editor-wrapper .custom-html-style code {
+  background: #1A1A1A;
+  color: #F3F4F6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rich-text-editor-wrapper .custom-html-style pre {
+  background: #1A1A1A;
+  color: #F3F4F6;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
 /* Dark theme styles */
 .dark .rich-text-editor-wrapper .rc-md-navigation {
   background: rgb(31 41 55);

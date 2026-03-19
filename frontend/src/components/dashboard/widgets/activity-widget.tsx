@@ -61,7 +61,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
     activities.push({
       id: `note-${note.id}`,
       type: isRecentlyCreated ? 'note_created' : 'note_updated',
-      message: isRecentlyCreated ? t('noteCreated', { note: note.title }) : `Updated note "${note.title}"`,
+      message: isRecentlyCreated ? t('noteCreated', { note: note.title }) : t('noteUpdated', { note: note.title }),
       time: formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: dateLocale }),
       icon: FileText,
       color: 'text-blue-500'
@@ -83,7 +83,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
       activities.push({
         id: `task-created-${task.id}`,
         type: 'task_created',
-        message: `Created task "${task.title}"`,
+        message: t('taskCreated', { task: task.title }),
         time: formatDistanceToNow(new Date(task.created_at), { addSuffix: true, locale: dateLocale }),
         icon: Plus,
         color: 'text-orange-500'
@@ -143,7 +143,7 @@ export function ActivityWidget({ className }: ActivityWidgetProps) {
             <div className="text-center py-6">
               <Activity className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">{t('noActivity')}</p>
-              <p className="text-xs text-muted-foreground">Start creating notes and tasks to see activity here</p>
+              <p className="text-xs text-muted-foreground">{t('noActivityHint')}</p>
             </div>
           )}
         </div>

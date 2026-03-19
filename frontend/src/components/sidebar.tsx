@@ -124,12 +124,19 @@ export function Sidebar({
     >
       {/* Sidebar Header */}
       <div className="flex h-16 items-center justify-between border-b px-4 bg-card">
-        {isOpen && (
-          <Link href={"/dashboard" as any} className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <span className="font-bold">E</span>
+        {!isOpen && (
+          <Link href={"/dashboard" as any} className="flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center flex-shrink-0">
+              <img src="/logo.svg" alt="Elevare Logo" className="h-6 w-6" />
             </div>
-            <span className="font-bold">Elevare</span>
+          </Link>
+        )}
+        {isOpen && (
+          <Link href={"/dashboard" as any} className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center flex-shrink-0">
+              <img src="/logo.svg" alt="Elevare Logo" className="h-6 w-6" />
+            </div>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">Elevare</span>
           </Link>
         )}
         <Button

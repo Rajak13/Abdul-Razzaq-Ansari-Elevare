@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pagination } from '@/components/ui/pagination';
@@ -20,8 +21,9 @@ import {
   useMoveFileFolder,
   useDownloadFile,
 } from '@/hooks/use-files';
+import { fileService } from '@/services/file-service';
 import { FileFolder, UserFile } from '@/types/file';
-import { File, FolderPlus, Upload, ChevronRight, Home } from 'lucide-react';
+import { File, FolderPlus, Upload, ChevronRight, Home, Grid, List } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
@@ -130,9 +132,14 @@ export default function FilesPage() {
     }
   };
 
-  const handleFileSelect = (file: UserFile) => {
-    // Could open a preview or details panel
-    console.log('Selected file:', file);
+  const handleFileSelect = async (file: UserFile) => {
+    try {
+      const blob = await fileService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch {
+      toast.error(t('view.error') || 'Error viewing file');
+    }
   };
 
   const handleFileDownload = async (file: UserFile) => {
@@ -204,122 +211,132 @@ export default function FilesPage() {
   };
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
-            <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg">
-              <File className="h-5 w-5 sm:h-6 sm:w-6" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+              <File className="w-6 h-6" />
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl sm:text-3xl font-bold text-transparent dark:from-white dark:to-slate-300 truncate">
-                {t('title')}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">
-                {t('description')}
-              </p>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('title')}</h1>
+              <p className="text-sm font-medium text-muted-foreground">{t('description')}</p>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button id="tour-files-upload" onClick={() => setShowUploadModal(true)} size="default" className="w-full sm:w-auto">
-              <Upload className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-sm sm:text-base">{t('upload.button')}</span>
+          <div className="flex items-center gap-3">
+            <Button 
+               id="tour-files-upload" 
+               onClick={() => setShowUploadModal(true)}
+               className="bg-muted hover:bg-card text-foreground border border-border font-bold h-10 px-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:scale-[1.02]"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {t('upload.button')}
             </Button>
             <Button
               id="tour-files-new-folder"
               variant="outline"
               onClick={() => handleFolderCreate()}
-              size="default"
-              className="w-full sm:w-auto"
+              className="bg-card hover:bg-secondary text-foreground font-bold h-10 px-6 rounded-xl border-border shadow-sm transition-all hover:scale-[1.02]"
             >
-              <FolderPlus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-sm sm:text-base">{t('folders.newFolder')}</span>
+              <FolderPlus className="w-4 h-4 mr-2" />
+              {t('folders.newFolder')}
             </Button>
           </div>
         </div>
 
-        {/* Breadcrumb */}
-        {breadcrumbPath.length > 0 && (
-          <div className="mb-3 sm:mb-4 flex items-center gap-1 text-xs sm:text-sm overflow-x-auto scrollbar-hide">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 sm:h-7 px-1.5 sm:px-2 flex-shrink-0"
-              onClick={() => setSelectedFolderId(null)}
-            >
-              <Home className="h-3 w-3 sm:h-4 sm:w-4" />
-            </Button>
-            {breadcrumbPath.map((folder) => (
-              <div key={folder.id} className="flex items-center flex-shrink-0">
-                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 sm:h-7 px-1.5 sm:px-2 text-xs sm:text-sm"
-                  onClick={() => setSelectedFolderId(folder.id)}
-                >
-                  {folder.name}
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-4">
-          {/* Folders Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50 lg:sticky lg:top-4">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                  <FolderPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="truncate">{t('folders.title')}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FileFolderTree
-                  selectedFolderId={selectedFolderId}
-                  onFolderSelect={setSelectedFolderId}
-                  onFolderCreate={handleFolderCreate}
-                  onFolderEdit={handleFolderEdit}
-                  onFolderDelete={handleFolderDelete}
-                  onFolderMove={handleFolderMove}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Files Section */}
-          <div className="lg:col-span-3">
-            <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <File className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                    <span className="truncate text-base sm:text-lg">
-                      {selectedFolderId
-                        ? folders.find((f) => f.id === selectedFolderId)?.name || t('files')
-                        : t('allFiles')}
-                    </span>
-                  </div>
-                  {selectedFolderId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedFolderId(null)}
-                      className="w-full sm:w-auto text-xs sm:text-sm"
-                    >
-                      {t('viewAll')}
+        <div className={cn("grid gap-8", viewMode === 'list' ? "grid-cols-1 lg:grid-cols-4" : "grid-cols-1")}>
+          {/* Folders Sidebar - Only in List Mode */}
+          {viewMode === 'list' && (
+            <div className="lg:col-span-1">
+              <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card">
+                <CardHeader className="p-6 pb-0">
+                  <div className="flex items-center justify-between mb-4">
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{t('folders.title')}</CardTitle>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleFolderCreate()}>
+                      <FolderPlus className="w-4 h-4 text-primary" />
                     </Button>
-                  )}
-                </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <FileFolderTree
+                    selectedFolderId={selectedFolderId}
+                    onFolderSelect={setSelectedFolderId}
+                    onFolderCreate={handleFolderCreate}
+                    onFolderEdit={handleFolderEdit}
+                    onFolderDelete={handleFolderDelete}
+                    onFolderMove={handleFolderMove}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Main Content Area */}
+          <div className={cn(viewMode === 'list' ? "lg:col-span-3" : "")}>
+            <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card min-h-[600px] flex flex-col">
+              <CardHeader className="p-6 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => setSelectedFolderId(null)}
+                      >
+                        <Home className="h-4 w-4" />
+                      </Button>
+                      {breadcrumbPath.length > 0 && breadcrumbPath.map((folder) => (
+                        <div key={folder.id} className="flex items-center">
+                          <ChevronRight className="h-4 w-4 text-muted-foreground mr-1" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 font-bold text-foreground"
+                            onClick={() => setSelectedFolderId(folder.id)}
+                          >
+                            {folder.name}
+                          </Button>
+                        </div>
+                      ))}
+                      {breadcrumbPath.length === 0 && (
+                         <span className="font-bold text-foreground ml-2">{t('allFiles')}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center p-1 bg-muted rounded-xl border border-border shadow-sm">
+                      <Button
+                        variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setViewMode('grid')}
+                        className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'grid' ? "bg-card shadow-sm" : "text-muted-foreground")}
+                      >
+                        <Grid className="w-4 h-4 mr-2" />
+                        Cards
+                      </Button>
+                      <Button
+                        variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setViewMode('list')}
+                        className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'list' ? "bg-card shadow-sm" : "text-muted-foreground")}
+                      >
+                        <List className="w-4 h-4 mr-2" />
+                        List
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <FileList
                   files={filteredFiles}
                   folders={folders}
+                  currentFolderId={selectedFolderId}
+                  onFolderSelect={setSelectedFolderId}
                   isLoading={filesLoading}
                   viewMode={viewMode}
                   onViewModeChange={setViewMode}

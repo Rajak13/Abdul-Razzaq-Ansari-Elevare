@@ -25,7 +25,6 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
   const t = useTranslations('dashboard.widgets.recentNotes')
   const locale = useLocale() as 'en' | 'ko' | 'ne'
   const dateLocale = localeMap[locale] || enUS
-
   const { data: notesResponse, isLoading, error } = useNotes({
     limit: 3,
     sort_by: 'updated_at',
@@ -50,7 +49,7 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
         .trim()
         .substring(0, 100) + (content.length > 100 ? '...' : '')
     }
-    return 'No preview available'
+    return t('noPreview')
   }
 
   return (

@@ -620,6 +620,59 @@ router.get('/users/:userId',
   }
 );
 
+// Get user statistics by ID
+router.get('/users/:userId/stats',
+  adminOrOwner,
+  allAdmins,
+  [
+    param('userId').isUUID()
+  ],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid user ID',
+            details: errors.array()
+          }
+        });
+      }
+
+      const userManagementService = new AdminUserManagementService(
+        pool,
+        adminAuditService
+      );
+
+      const stats = await userManagementService.getUserStats(req.params.userId);
+
+      if (!stats) {
+        return res.status(404).json({
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: 'User not found'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        data: stats
+      });
+
+    } catch (error) {
+      logger.error('Get user stats error', { userId: req.params.userId, error });
+      res.status(500).json({
+        error: {
+          code: 'GET_USER_STATS_ERROR',
+          message: 'Failed to retrieve user statistics'
+        }
+      });
+    }
+  }
+);
+
 // Suspend user account
 router.put('/users/:userId/suspend',
   adminOrOwner,

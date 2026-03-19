@@ -80,7 +80,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{avgPerDay}</div>
-              <div className="text-xs text-muted-foreground">Daily Avg</div>
+              <div className="text-xs text-muted-foreground">{t('dailyAvg')}</div>
             </div>
           </div>
 
@@ -131,7 +131,7 @@ export function ProductivityChartWidget({ className }: ProductivityChartWidgetPr
           {totalThisWeek > 0 && (
             <div className="flex items-center justify-center text-xs text-green-600">
               <TrendingUp className="h-3 w-3 mr-1" />
-              Keep up the great work!
+              {t('keepUpGreatWork')}
             </div>
           )}
         </div>

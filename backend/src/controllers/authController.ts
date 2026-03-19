@@ -167,7 +167,7 @@ export async function getCurrentUser(
   res: Response
 ): Promise<void> {
   try {
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
 
     const user = await authService.findById(userId);
 
@@ -219,7 +219,7 @@ export async function updateProfile(
       return;
     }
 
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
     const { 
       name, 
       bio, 
@@ -580,7 +580,7 @@ export async function uploadAvatar(
       return;
     }
 
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
     // Update user's avatar URL in database
@@ -629,7 +629,7 @@ export async function updateLanguagePreference(
       return;
     }
 
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
     const { preferred_language } = req.body;
 
     const user = await authService.updateLanguagePreference(userId, preferred_language);
@@ -682,7 +682,7 @@ export async function completeWalkthrough(
   res: Response
 ): Promise<void> {
   try {
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
 
     const user = await authService.completeWalkthrough(userId);
 
@@ -723,7 +723,7 @@ export async function resetWalkthrough(
   res: Response
 ): Promise<void> {
   try {
-    const userId = req.user!.userId;
+    const userId = (req.user as any).userId;
 
     const user = await authService.resetWalkthrough(userId);
 
@@ -752,5 +752,44 @@ export async function resetWalkthrough(
         timestamp: new Date().toISOString(),
       },
     });
+  }
+}
+
+/**
+ * OAuth callback handler (Google & Facebook)
+ * GET /api/auth/google/callback
+ * GET /api/auth/facebook/callback
+ */
+export async function oauthCallback(req: Request, res: Response): Promise<void> {
+  try {
+    const oauthProfile = req.user as any;
+    
+    if (!oauthProfile) {
+      logger.error('OAuth callback: No user profile found');
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/en/login?error=oauth_failed`);
+      return;
+    }
+
+    // Find or create user
+    const { user, token, isNewUser } = await authService.findOrCreateOAuthUser(oauthProfile);
+
+    // Redirect to frontend with token (include locale in path)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const locale = user.preferred_language || 'en';
+    const redirectUrl = `${frontendUrl}/${locale}/oauth-callback?token=${token}&isNewUser=${isNewUser}`;
+    
+    logger.info('OAuth callback successful', { 
+      userId: user.id, 
+      provider: oauthProfile.provider,
+      isNewUser,
+      locale
+    });
+
+    res.redirect(redirectUrl);
+  } catch (error: any) {
+    logger.error('OAuth callback error', { error: error.message });
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/en/login?error=oauth_failed`);
   }
 }

@@ -145,8 +145,8 @@ export class AdminIntegrationService {
         'notes',
         'files',
         'resources',
-        'whiteboard_sessions',
-        'study_group_memberships',
+        'whiteboards',
+        'group_members',
         'notifications'
       ];
 

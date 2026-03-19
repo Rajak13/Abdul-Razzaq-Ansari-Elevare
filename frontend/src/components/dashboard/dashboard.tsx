@@ -32,7 +32,7 @@ export function Dashboard({ className }: DashboardProps) {
               </p>
             </div>
             <p className="text-[10px] sm:text-xs text-primary/80 mt-2">
-              Drag widgets to reorder, use controls to add/remove widgets, or click &quot;{t('cancelEdit')}&quot; when finished.
+              {t('editModeHint', { cancel: t('cancelEdit') })}
             </p>
           </div>
         )}

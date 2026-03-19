@@ -27,6 +27,7 @@ import {
 import { Users, Search, MoreVertical, Ban, RotateCcw, Trash2, Eye, X, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
+import { UserDetailsModal } from '@/components/admin/user-details-modal';
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
@@ -40,6 +41,7 @@ export default function AdminUsersPage() {
   const [deleteReason, setDeleteReason] = useState('');
   const [suspendDuration, setSuspendDuration] = useState<number | null>(null);
   const [suspendDurationType, setSuspendDurationType] = useState<'hours' | 'days' | 'permanent'>('permanent');
+  const [viewUserId, setViewUserId] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -119,11 +121,7 @@ export default function AdminUsersPage() {
 
   const handleAction = (user: any, action: 'suspend' | 'unsuspend' | 'delete' | 'view') => {
     if (action === 'view') {
-      // Navigate to user details (implement later)
-      toast({
-        title: 'Info',
-        description: 'User details view coming soon',
-      });
+      setViewUserId(user.id);
       return;
     }
     
@@ -723,6 +721,13 @@ export default function AdminUsersPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* User Details Modal */}
+        <UserDetailsModal
+          userId={viewUserId || ''}
+          isOpen={!!viewUserId}
+          onClose={() => setViewUserId(null)}
+        />
       </AdminLayout>
     </AdminRouteGuard>
   );

@@ -43,7 +43,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
 
   const stats = [
     {
-      title: 'Weekly Goal',
+      title: t('weeklyGoal'),
       value: completedThisWeek,
       target: 10,
       icon: Target,
@@ -60,7 +60,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
       suffix: '%'
     },
     {
-      title: 'Notes Created',
+      title: t('notesCreated'),
       value: notesThisWeek,
       target: 5,
       icon: Zap,
@@ -68,7 +68,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
       bgColor: 'bg-purple-100',
     },
     {
-      title: 'Total Tasks Done',
+      title: t('totalTasksDone'),
       value: totalCompleted,
       target: null,
       icon: Calendar,
@@ -119,7 +119,7 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
                 
                 {stat.target && progress >= 100 && (
                   <div className="text-xs text-green-600 font-medium">
-                    Goal achieved!
+                    {t('goalAchieved')}
                   </div>
                 )}
               </div>
@@ -130,12 +130,12 @@ export function ProgressStatsWidget({ className }: ProgressStatsWidgetProps) {
           <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
             <div className="text-sm font-medium text-blue-900">
               {completionRate >= 80 
-                ? "You're on fire! Keep up the excellent work!"
+                ? t('motivationHigh')
                 : completionRate >= 60
-                ? "Great progress! You're doing well this week."
+                ? t('motivationGood')
                 : completionRate >= 40
-                ? "Good start! Keep pushing towards your goals."
-                : "Let's get started! Every task completed counts."
+                ? t('motivationMedium')
+                : t('motivationLow')
               }
             </div>
           </div>

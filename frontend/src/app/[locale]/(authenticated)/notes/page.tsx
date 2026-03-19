@@ -12,12 +12,36 @@ import { useDeleteNoteFolder, useMoveNoteFolder, useNoteFolders } from '@/hooks/
 import { useNotes, useDeleteNote } from '@/hooks/use-notes';
 import { NoteFolder, NoteTemplate } from '@/types/note';
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, Eye, FileText, FolderPlus, Plus } from 'lucide-react';
+import {
+  Calendar,
+  Eye,
+  FileText,
+  FolderPlus,
+  Plus,
+  LayoutGrid,
+  List,
+  MoreHorizontal,
+  ChevronRight,
+  Folder,
+  ArrowLeft,
+  MoreVertical,
+  Search,
+  Hash,
+  Share2,
+  Settings
+} from 'lucide-react';
 import { Link, useRouter } from '@/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { usePageMetadata } from '@/hooks/use-page-metadata';
+import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 // Disable static generation for this page since it requires authentication
 export const dynamic = 'force-dynamic'
@@ -35,6 +59,7 @@ export default function NotesPage() {
   const [pageSize, setPageSize] = useState(20);
   const [sortBy, setSortBy] = useState('updated_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   const router = useRouter();
   const { data: notesData, isLoading: notesLoading } = useNotes({
@@ -57,18 +82,23 @@ export default function NotesPage() {
     totalPages: notesData.totalPages,
   } : null;
 
-  // Debug logging
-  console.log('Notes Data:', {
-    notesCount: notes.length,
-    pagination,
-    rawData: notesData
-  });
-
   // Filter notes based on selected folder - now handled by API
-  const displayNotes = notes.sort(
-    (a, b) =>
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  const displayNotes = useMemo(() => {
+    return [...notes].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
+  }, [notes]);
+
+  const currentFolder = useMemo(() =>
+    folders.find(f => f.id === selectedFolderId),
+    [folders, selectedFolderId]
   );
+
+  // Subfolders for grid navigation
+  const currentSubfolders = useMemo(() => {
+    if (viewMode === 'list') return [];
+    return folders.filter(f => f.parent_id === (selectedFolderId || undefined));
+  }, [folders, selectedFolderId, viewMode]);
 
   const handleTemplateSelect = (template: NoteTemplate) => {
     // Navigate to create page with template
@@ -140,186 +170,428 @@ export default function NotesPage() {
       }
     }
   };
-
   return (
-    <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
-            <div className="rounded-xl bg-primary p-1.5 sm:p-2 text-primary-foreground shadow-lg flex-shrink-0">
-              <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+              <FileText className="w-6 h-6" />
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl sm:text-3xl font-bold text-transparent dark:from-white dark:to-slate-300 truncate">
-                {t('myNotes')}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">
-                {t('noNotesDescription')}
-              </p>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('myNotes')}</h1>
+              <p className="text-sm font-medium text-muted-foreground">{t('noNotesDescription')}</p>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button id="tour-notes-create" onClick={() => setShowTemplateSelector(true)} size="default" className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-sm sm:text-base">{t('createNote')}</span>
-            </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center p-1 bg-muted rounded-xl border border-border shadow-sm">
+              <Button
+                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'grid' ? "bg-card shadow-sm" : "text-muted-foreground")}
+              >
+                <LayoutGrid className="w-4 h-4 mr-2" />
+                Cards
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'list' ? "bg-card shadow-sm" : "text-muted-foreground")}
+              >
+                <List className="w-4 h-4 mr-2" />
+                List
+              </Button>
+            </div>
+
             <Button
-              id="tour-notes-folder"
-              variant="outline"
-              onClick={() => handleFolderCreate()}
-              size="default"
-              className="w-full sm:w-auto"
+              id="tour-notes-create"
+              onClick={() => setShowTemplateSelector(true)}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-10 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
             >
-              <FolderPlus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-sm sm:text-base">{t('folders.newFolder')}</span>
+              <Plus className="w-4 h-4 mr-2" />
+              {t('createNote')}
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-          {/* Folders Section */}
-          <div className="lg:col-span-1">
-            <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                  <FolderPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="truncate">{t('folders.title')}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FolderTree
-                  selectedFolderId={selectedFolderId}
-                  onFolderSelect={handleFolderSelect}
-                  onFolderCreate={handleFolderCreate}
-                  onFolderEdit={handleFolderEdit}
-                  onFolderDelete={handleFolderDelete}
-                  onFolderMove={handleFolderMove}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Notes Section */}
-          <div className="lg:col-span-2">
-            <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                    <span className="truncate text-base sm:text-lg">
-                      {selectedFolderId ? t('folders.title') : t('allNotes')}
-                    </span>
-                  </div>
-                  {selectedFolderId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedFolderId(null)}
-                      className="w-full sm:w-auto text-xs sm:text-sm"
-                    >
-                      {t('allNotes')}
+        {/* View Layout */}
+        <div className={cn("grid gap-8", viewMode === 'list' ? "grid-cols-1 lg:grid-cols-4" : "grid-cols-1")}>
+          {/* Folders Sidebar - Only in List Mode or Small Devices */}
+          {viewMode === 'list' && (
+            <div className="lg:col-span-1">
+              <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card">
+                <CardHeader className="p-6 pb-0">
+                  <div className="flex items-center justify-between mb-4">
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Folders</CardTitle>
+                    <Button id="tour-notes-folder" variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleFolderCreate()}>
+                      <FolderPlus className="w-4 h-4 text-primary" />
                     </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {notesLoading ? (
-                  <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="animate-pulse">
-                        <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
-                        <div className="h-3 w-1/2 rounded bg-gray-200"></div>
-                      </div>
-                    ))}
                   </div>
-                ) : displayNotes.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                    <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
-                      {t('noNotes')}
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      {t('noNotesDescription')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {displayNotes.map((note) => (
-                      <div
-                        key={note.id}
-                        className="block rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 cursor-pointer"
-                        onClick={() => handleNoteSelect(note)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="min-w-0 flex-1">
-                            <h3 className="truncate font-medium text-gray-900 dark:text-gray-100">
-                              {note.title}
-                            </h3>
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                              {note.summary || t('summary.noSummary')}
-                            </p>
-                            <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {formatDistanceToNow(new Date(note.updated_at), {
-                                  addSuffix: true,
-                                })}
-                              </span>
-                              {note.folder_id && (
-                                <span className="flex items-center gap-1">
-                                  <div
-                                    className="h-2 w-2 rounded-full"
-                                    style={{
-                                      backgroundColor: folders.find(f => f.id === note.folder_id)?.color || '#6b7280',
-                                    }}
-                                  />
-                                  {folders.find(f => f.id === note.folder_id)?.name || t('folders.uncategorized')}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <Eye className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Pagination */}
-                {pagination && pagination.total > 0 && (
-                  <div className="mt-6 pt-4 border-t">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={pagination.totalPages}
-                      totalItems={pagination.total}
-                      pageSize={pageSize}
-                      onPageChange={handlePageChange}
-                      onPageSizeChange={handlePageSizeChange}
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search notes..."
+                      className="w-full bg-muted border-none rounded-xl py-2 pl-10 pr-4 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div
+                    onClick={() => handleFolderSelect(null)}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all mb-1",
+                      !selectedFolderId ? "bg-secondary text-primary font-bold" : "text-foreground font-medium hover:bg-secondary"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Folder className="w-4 h-4" />
+                      <span className="text-sm">All Notes</span>
+                    </div>
+                    {notesData && <span className="text-[10px] font-bold bg-card px-2 py-0.5 rounded-full border border-border shadow-sm">{notesData.total}</span>}
+                  </div>
+                  <FolderTree
+                    selectedFolderId={selectedFolderId}
+                    onFolderSelect={handleFolderSelect}
+                    onFolderCreate={handleFolderCreate}
+                    onFolderEdit={handleFolderEdit}
+                    onFolderDelete={handleFolderDelete}
+                    onFolderMove={handleFolderMove}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Main Content Area */}
+          <div className={cn(viewMode === 'list' ? "lg:col-span-3" : "")}>
+            <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card min-h-[600px] flex flex-col">
+              <CardHeader className="p-6 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {viewMode === 'grid' && selectedFolderId && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg mr-2" onClick={() => setSelectedFolderId(null)}>
+                        <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <CardTitle className="text-lg font-bold text-foreground">
+                      {selectedFolderId ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground font-medium">Folders</span>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          <span>{currentFolder?.name}</span>
+                        </div>
+                      ) : t('allNotes')}
+                    </CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6 flex-grow">
+                {notesLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-40 bg-secondary rounded-2xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {/* Grid Mode Root View: SHOW FOLDERS AS CARDS FIRST */}
+                    {viewMode === 'grid' && !selectedFolderId && (
+                      <div className="space-y-8">
+                        <div>
+                          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Collections</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {folders.filter(f => !f.parent_id).map((folder) => (
+                              <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
+                            ))}
+                            {/* Detailed List Access */}
+                            <div
+                              onClick={() => { setViewMode('list'); setSelectedFolderId(null); }}
+                              className="group relative cursor-pointer"
+                            >
+                              <div className="absolute -top-[10px] left-0 h-[20px] w-24 bg-muted group-hover:bg-secondary rounded-t-xl border-l border-t border-r border-border transition-all z-0"></div>
+                              <div className="relative bg-muted group-hover:bg-secondary p-6 rounded-2xl border border-border shadow-sm transition-all group-hover:shadow-md z-10 border-dashed">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-card shadow-inner">
+                                  <List className="w-6 h-6 text-foreground" />
+                                </div>
+                                <h4 className="font-bold text-foreground truncate mb-1">Detailed List</h4>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Expanded View</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Uncategorized Notes */}
+                        {displayNotes.filter(n => !n.folder_id).length > 0 && (
+                          <div>
+                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Uncategorized Notes</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                              {displayNotes.filter(n => !n.folder_id).map((note) => (
+                                <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Grid Mode Folder View: SHOW NOTES */}
+                    {viewMode === 'grid' && selectedFolderId && (
+                      <div className="space-y-8">
+                        {currentSubfolders.length > 0 && (
+                          <div>
+                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Sub-folders</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                              {currentSubfolders.map((folder) => (
+                                <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Notes in this folder</h3>
+                          {displayNotes.length === 0 ? (
+                            <div className="py-20 text-center bg-muted rounded-3xl border border-dashed border-border">
+                              <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                              <p className="text-sm font-bold text-muted-foreground">This folder is empty</p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                              {displayNotes.map((note) => (
+                                <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* List Mode View */}
+                    {viewMode === 'list' && (
+                      <>
+                        {displayNotes.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center h-full py-20 grayscale opacity-50">
+                            <FileText className="w-16 h-16 mb-4 text-muted-foreground/50" />
+                            <h3 className="text-xl font-bold text-foreground mb-2">{t('noNotes')}</h3>
+                            <p className="text-sm text-muted-foreground">{t('noNotesDescription')}</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {displayNotes.map((note) => (
+                              <div
+                                key={note.id}
+                                className="group flex items-center justify-between p-4 bg-card border border-border rounded-2xl transition-all hover:bg-secondary hover:shadow-sm cursor-pointer"
+                                onClick={() => handleNoteSelect(note)}
+                              >
+                                <div className="flex items-center gap-4 flex-grow">
+                                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary border border-border">
+                                    <FileText className="w-5 h-5" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h4 className="font-bold text-foreground truncate">{note.title}</h4>
+                                    <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase py-1">
+                                      <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}</span>
+                                      {note.folder_id && (
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: folders.find(f => f.id === note.folder_id)?.color || '#gray' }}></div>
+                                          {folders.find(f => f.id === note.folder_id)?.name}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{note.summary || t('summary.noSummary')}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                                    <Settings className="w-4 h-4 text-muted-foreground" />
+                                  </Button>
+                                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 ml-2" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
+
+            {pagination && pagination.totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.total}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Template Selector Dialog */}
-        <TemplateSelector
-          open={showTemplateSelector}
-          onOpenChange={setShowTemplateSelector}
-          onTemplateSelect={handleTemplateSelect}
-        />
+        {/* Dialogs */}
+        <TemplateSelector open={showTemplateSelector} onOpenChange={setShowTemplateSelector} onTemplateSelect={handleTemplateSelect} />
+        <FolderDialog open={showFolderDialog} onOpenChange={setShowFolderDialog} folder={editingFolder} parentId={parentFolderId} />
+      </div>
+    </div>
+  );
+}
 
-        {/* Folder Dialog */}
-        <FolderDialog
-          open={showFolderDialog}
-          onOpenChange={setShowFolderDialog}
-          folder={editingFolder}
-          parentId={parentFolderId}
-        />
+// Subordinate components for cleaner main render
+function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) => void; folders: NoteFolder[] }) {
+  // Get folder color if note belongs to a folder
+  const folderColor = note.folder_id 
+    ? folders.find(f => f.id === note.folder_id)?.color || 'hsl(142,71%,45%)'
+    : 'hsl(142,71%,45%)';
+
+  return (
+    <div onClick={() => onSelect(note)} className="relative group cursor-pointer">
+      {/* Folder shape with colored outline */}
+      <div className="relative">
+        {/* Folder tab */}
+        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
+          <path
+            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
+            style={{ fill: "hsl(var(--muted))" }}
+            stroke="none"
+          />
+        </svg>
+        
+        {/* Main card body with folder-shaped outline */}
+        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
+          {/* Colored outline following folder shape */}
+          <path
+            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
+            style={{ fill: "hsl(var(--card))" }}
+            stroke={folderColor}
+            strokeWidth="2"
+            opacity="0.3"
+          />
+          {/* Inner fill */}
+          <path
+            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
+            style={{ fill: "hsl(var(--muted))" }}
+          />
+        </svg>
+        
+        {/* Content overlay */}
+        <div className="absolute inset-0 top-8 p-5 flex flex-col">
+          {/* Icon and Title */}
+          <div className="flex items-center gap-3 mb-8">
+            <div 
+              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: folderColor }}
+            >
+              <FileText className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h4 className="text-lg font-normal text-foreground truncate">{note.title}</h4>
+          </div>
+
+          {/* Footer with date and menu */}
+          <div className="flex items-center justify-between mt-auto">
+            <span className="text-foreground/70 text-sm font-normal">
+              {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                <DropdownMenuItem className="rounded-lg">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FolderTabCard({ folder, onSelect }: { folder: any; onSelect: (id: string) => void }) {
+  const folderColor = folder.color || 'hsl(142,71%,45%)';
+  return (
+    <div onClick={() => onSelect(folder.id)} className="relative group cursor-pointer">
+      {/* Folder shape with colored outline */}
+      <div className="relative">
+        {/* Folder tab */}
+        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
+          <path
+            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
+            style={{ fill: "hsl(var(--muted))" }}
+            stroke="none"
+          />
+        </svg>
+        
+        {/* Main card body with folder-shaped outline */}
+        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
+          {/* Colored outline following folder shape */}
+          <path
+            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
+            style={{ fill: "hsl(var(--card))" }}
+            stroke={folderColor}
+            strokeWidth="2"
+            opacity="0.3"
+          />
+          {/* Inner fill */}
+          <path
+            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
+            style={{ fill: "hsl(var(--muted))" }}
+          />
+        </svg>
+        
+        {/* Content overlay */}
+        <div className="absolute inset-0 top-8 p-5 flex flex-col">
+          {/* Icon and Title */}
+          <div className="flex items-center gap-3 mb-8">
+            <div 
+              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: folderColor }}
+            >
+              <Folder className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h4 className="text-lg font-normal text-foreground truncate">{folder.name}</h4>
+          </div>
+
+          {/* Footer with date and menu */}
+          <div className="flex items-center justify-between mt-auto">
+            <span className="text-foreground/70 text-sm font-normal">Apr 2, 2023</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                <DropdownMenuItem className="rounded-lg">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </div>
     </div>
   );

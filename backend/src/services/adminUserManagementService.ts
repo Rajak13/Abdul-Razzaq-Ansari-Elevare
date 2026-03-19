@@ -273,6 +273,74 @@ export class AdminUserManagementService {
   }
 
   /**
+   * Get user activity statistics
+   */
+  async getUserStats(userId: string): Promise<any | null> {
+    // First check if user exists
+    const userCheck = await this.db.query(
+      'SELECT id FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userCheck.rows.length === 0) {
+      return null;
+    }
+
+    const query = `
+      SELECT 
+        -- Task statistics
+        (SELECT COUNT(*) FROM tasks WHERE user_id = $1) as total_tasks,
+        (SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND status = 'completed') as completed_tasks,
+        (SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND status = 'pending') as pending_tasks,
+        
+        -- Note statistics
+        (SELECT COUNT(*) FROM notes WHERE user_id = $1) as total_notes,
+        
+        -- File statistics
+        (SELECT COUNT(*) FROM files WHERE user_id = $1) as total_files,
+        (SELECT COALESCE(SUM(size), 0) FROM files WHERE user_id = $1) as total_storage,
+        
+        -- Group statistics
+        (SELECT COUNT(DISTINCT group_id) FROM group_members WHERE user_id = $1) as total_groups,
+        
+        -- Activity statistics
+        (SELECT MAX(created_at) FROM tasks WHERE user_id = $1) as last_task_created,
+        (SELECT MAX(created_at) FROM notes WHERE user_id = $1) as last_note_created,
+        (SELECT MAX(created_at) FROM files WHERE user_id = $1) as last_file_uploaded,
+        
+        -- Recent activity (last 7 days)
+        (SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND created_at > NOW() - INTERVAL '7 days') as tasks_last_7_days,
+        (SELECT COUNT(*) FROM notes WHERE user_id = $1 AND created_at > NOW() - INTERVAL '7 days') as notes_last_7_days
+    `;
+
+    const result = await this.db.query(query, [userId]);
+    const row = result.rows[0];
+
+    // Get most recent activity timestamp
+    const lastActivity = [
+      row.last_task_created,
+      row.last_note_created,
+      row.last_file_uploaded
+    ].filter(Boolean).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+
+    return {
+      total_tasks: parseInt(row.total_tasks) || 0,
+      completed_tasks: parseInt(row.completed_tasks) || 0,
+      pending_tasks: parseInt(row.pending_tasks) || 0,
+      total_notes: parseInt(row.total_notes) || 0,
+      total_files: parseInt(row.total_files) || 0,
+      total_storage: parseInt(row.total_storage) || 0,
+      total_groups: parseInt(row.total_groups) || 0,
+      last_activity: lastActivity,
+      last_task_created: row.last_task_created,
+      last_note_created: row.last_note_created,
+      last_file_uploaded: row.last_file_uploaded,
+      tasks_last_7_days: parseInt(row.tasks_last_7_days) || 0,
+      notes_last_7_days: parseInt(row.notes_last_7_days) || 0
+    };
+  }
+
+  /**
    * Reset user password (admin action)
    */
   async resetUserPassword(
@@ -592,18 +660,18 @@ export class AdminUserManagementService {
         description: 'whiteboard permissions'
       },
       {
-        name: 'study_group_memberships',
-        query: 'DELETE FROM study_group_memberships WHERE user_id = $1',
+        name: 'group_members',
+        query: 'DELETE FROM group_members WHERE user_id = $1',
         description: 'study group memberships'
       },
       {
-        name: 'study_group_invitations',
-        query: 'DELETE FROM study_group_invitations WHERE user_id = $1',
+        name: 'group_join_requests',
+        query: 'DELETE FROM group_join_requests WHERE user_id = $1',
         description: 'study group invitations'
       },
       {
-        name: 'study_group_messages',
-        query: 'DELETE FROM study_group_messages WHERE user_id = $1',
+        name: 'group_messages',
+        query: 'DELETE FROM group_messages WHERE user_id = $1',
         description: 'study group messages'
       },
       {
@@ -632,8 +700,8 @@ export class AdminUserManagementService {
         description: 'file shares'
       },
       {
-        name: 'file_activity_logs',
-        query: 'DELETE FROM file_activity_logs WHERE user_id = $1',
+        name: 'file_access_logs',
+        query: 'DELETE FROM file_access_logs WHERE user_id = $1',
         description: 'file activity logs'
       },
       {
