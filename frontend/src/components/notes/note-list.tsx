@@ -178,94 +178,117 @@ export function NoteList({
           )}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {filteredNotes.map((note) => (
-            <Card
-              key={note.id}
-              className="cursor-pointer transition-shadow hover:shadow-md"
-              onClick={() => onNoteSelect?.(note)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="line-clamp-1 text-lg">
-                    {note.title}
-                  </CardTitle>
+        <div className="grid gap-3 sm:gap-4">
+          {filteredNotes.map((note) => {
+            // Get folder color from note if available
+            const folderColor = note.folder?.color || '#6b7280';
+            
+            return (
+              <Card
+                key={note.id}
+                className="group relative cursor-pointer transition-all hover:shadow-lg overflow-hidden border-l-4"
+                style={{ 
+                  borderLeftColor: folderColor,
+                  borderTopLeftRadius: '0.75rem',
+                  borderBottomLeftRadius: '0.75rem'
+                }}
+                onClick={() => onNoteSelect?.(note)}
+              >
+                {/* Folder color accent bar */}
+                <div 
+                  className="absolute top-0 left-0 w-1 h-full opacity-20"
+                  style={{ backgroundColor: folderColor }}
+                />
+                
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      {/* Folder color indicator dot */}
+                      <div 
+                        className="w-2 h-2 rounded-full mt-1.5 shrink-0"
+                        style={{ backgroundColor: folderColor }}
+                      />
+                      <CardTitle className="line-clamp-1 text-base sm:text-lg font-semibold">
+                        {note.title}
+                      </CardTitle>
+                    </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onNoteSelect?.(note);
-                        }}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        {t('viewNote')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onNoteEdit?.(note);
-                        }}
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        {t('editNote')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onNoteDelete?.(note);
-                        }}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('deleteNote')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">
-                  {note.summary || getContentPreview(note.content)}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-wrap gap-1">
-                    {note.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        <Hash className="mr-1 h-2 w-2" />
-                        {tag}
-                      </Badge>
-                    ))}
-                    {note.tags.length > 3 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{note.tags.length - 3}
-                      </Badge>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onNoteSelect?.(note);
+                          }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          {t('viewNote')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onNoteEdit?.(note);
+                          }}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t('editNote')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onNoteDelete?.(note);
+                          }}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('deleteNote')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
+                </CardHeader>
 
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="mr-1 h-3 w-3" />
-                    {formatDistanceToNow(new Date(note.updated_at), {
-                      addSuffix: true,
-                    })}
+                <CardContent className="pt-0 pb-3 px-4">
+                  <p className="mb-2 line-clamp-2 text-xs sm:text-sm text-muted-foreground pl-4">
+                    {note.summary || getContentPreview(note.content)}
+                  </p>
+
+                  <div className="flex items-center justify-between gap-2 pl-4">
+                    <div className="flex flex-wrap gap-1">
+                      {note.tags.slice(0, 2).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-[10px] sm:text-xs px-1.5 py-0 h-5">
+                          <Hash className="mr-0.5 h-2 w-2" />
+                          {tag}
+                        </Badge>
+                      ))}
+                      {note.tags.length > 2 && (
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 py-0 h-5">
+                          +{note.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex items-center text-[10px] sm:text-xs text-muted-foreground shrink-0">
+                      <Calendar className="mr-1 h-3 w-3" />
+                      {formatDistanceToNow(new Date(note.updated_at), {
+                        addSuffix: true,
+                      })}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

@@ -37,7 +37,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4 max-w-5xl">
+    <div className="py-4 sm:py-6 px-3 sm:px-4 lg:px-6">
       {/* Page Header */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-2">

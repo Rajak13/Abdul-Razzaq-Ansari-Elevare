@@ -236,81 +236,81 @@ export function FileList({
                     <div 
                       key={file.id} 
                       onClick={() => onFileSelect(file)}
-                      className="relative group cursor-pointer"
+                      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
+                      style={{ aspectRatio: '1.4 / 1' }}
                     >
-                      {/* Folder shape with colored outline */}
-                      <div className="relative">
-                        {/* Folder tab */}
-                        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
-                          <path
-            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
-            style={{ fill: selectedFiles.has(file.id) ? "hsl(var(--primary) / 0.1)" : "hsl(var(--muted))" }}
-                            stroke="none"
-                          />
-                        </svg>
+                      {/* Rectangular file card with unique design */}
+                      <div className="relative h-full bg-card rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
+                        style={{ 
+                          borderColor: selectedFiles.has(file.id) ? '#3b82f6' : folderColor,
+                        }}
+                      >
+                        {/* Top color bar */}
+                        <div 
+                          className="absolute top-0 left-0 right-0 h-1.5"
+                          style={{ backgroundColor: selectedFiles.has(file.id) ? '#3b82f6' : folderColor }}
+                        />
                         
-                        {/* Main card body with folder-shaped outline */}
-                        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
-                          {/* Colored outline following folder shape */}
-                          <path
-            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
-            style={{ fill: selectedFiles.has(file.id) ? "hsl(var(--primary) / 0.1)" : "hsl(var(--card))" }}
-                            stroke={selectedFiles.has(file.id) ? '#3b82f6' : folderColor}
-                            strokeWidth="2"
-                            opacity="0.3"
-                          />
-                          {/* Inner fill */}
-                          <path
-            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
-            style={{ fill: selectedFiles.has(file.id) ? "hsl(var(--primary) / 0.1)" : "hsl(var(--muted))" }}
-                          />
-                        </svg>
+                        {/* Corner accent */}
+                        <div 
+                          className="absolute top-0 right-0 w-12 h-12 opacity-10"
+                          style={{ 
+                            backgroundColor: selectedFiles.has(file.id) ? '#3b82f6' : folderColor,
+                            clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
+                          }}
+                        />
                         
-                        {/* Content overlay */}
-                        <div className="absolute inset-0 top-8 p-5 flex flex-col">
-                          {/* Icon and Title */}
-                          <div className="flex items-center gap-3 mb-8">
-                            <div className="w-11 h-11 rounded-xl bg-muted/60 flex items-center justify-center flex-shrink-0">
-                              {getFileIcon(file.mime_type, 'sm')}
-                            </div>
-                            <h4 className="text-lg font-normal text-foreground truncate">{file.name}</h4>
+                        {/* Content */}
+                        <div className="relative h-full p-3 sm:p-4 flex flex-col">
+                          {/* File icon */}
+                          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-muted/60 flex items-center justify-center flex-shrink-0 mb-2 shadow-sm">
+                            {getFileIcon(file.mime_type, 'lg')}
                           </div>
+                          
+                          {/* File name */}
+                          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
+                            {file.name}
+                          </h4>
+                          
+                          {/* File size */}
+                          <p className="text-[10px] sm:text-xs text-muted-foreground mb-2">
+                            {formatFileSize(file.size)}
+                          </p>
 
-                          {/* Footer with date and menu */}
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-foreground/70 text-sm font-normal">
-                                {formatDistanceToNow(new Date(file.updated_at), { addSuffix: true })}
-                              </span>
-                              <span className="text-muted-foreground text-xs font-normal">
-                                {formatFileSize(file.size)}
-                              </span>
-                            </div>
+                          {/* Footer */}
+                          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
+                            <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">
+                              {formatDistanceToNow(new Date(file.updated_at), { addSuffix: true })}
+                            </span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                                >
+                                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="rounded-xl">
-                                <DropdownMenuItem onClick={() => onFileDownload(file)} className="rounded-lg">
-                                  <Download className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => onFileDownload(file)} className="rounded-lg text-xs">
+                                  <Download className="mr-2 h-3.5 w-3.5" />
                                   {tCommon('download')}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onFileRename(file)} className="rounded-lg">
-                                  <Edit className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => onFileRename(file)} className="rounded-lg text-xs">
+                                  <Edit className="mr-2 h-3.5 w-3.5" />
                                   {tCommon('rename')}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onFileMove(file)} className="rounded-lg">
-                                  <FolderInput className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => onFileMove(file)} className="rounded-lg text-xs">
+                                  <FolderInput className="mr-2 h-3.5 w-3.5" />
                                   {tCommon('move')}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={() => onFileDelete(file)}
-                                  className="text-destructive rounded-lg"
+                                  className="text-destructive rounded-lg text-xs"
                                 >
-                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  <Trash2 className="mr-2 h-3.5 w-3.5" />
                                   {tCommon('delete')}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -409,60 +409,74 @@ function FolderCard({ folder, onSelect }: { folder: FileFolder; onSelect: (id: s
   const folderColor = folder.color || 'hsl(217, 91%, 60%)'; // Default blue if no color
   
   return (
-    <div onClick={() => onSelect(folder.id)} className="relative group cursor-pointer">
-      {/* Folder shape with colored outline */}
-      <div className="relative">
-        {/* Folder tab */}
-        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
-          <path
-            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
-            style={{ fill: "hsl(var(--muted))" }}
-            stroke="none"
-          />
-        </svg>
+    <div 
+      onClick={() => onSelect(folder.id)} 
+      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
+      style={{ aspectRatio: '1.4 / 1' }}
+    >
+      {/* Rectangular folder card with unique design */}
+      <div className="relative h-full bg-gradient-to-br from-card to-muted rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
+        style={{ 
+          borderColor: folderColor,
+        }}
+      >
+        {/* Folder tab accent at top */}
+        <div 
+          className="absolute top-0 left-0 w-20 h-6 rounded-br-2xl shadow-md"
+          style={{ 
+            backgroundColor: folderColor,
+          }}
+        />
         
-        {/* Main card body with folder-shaped outline */}
-        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
-          {/* Colored outline following folder shape */}
-          <path
-            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
-            style={{ fill: "hsl(var(--card))" }}
-            stroke={folderColor}
-            strokeWidth="2"
-            opacity="0.3"
-          />
-          {/* Inner fill */}
-          <path
-            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
-            style={{ fill: "hsl(var(--muted))" }}
-          />
-        </svg>
+        {/* Decorative circle pattern */}
+        <div 
+          className="absolute bottom-0 right-0 w-24 h-24 rounded-full opacity-5"
+          style={{ 
+            backgroundColor: folderColor,
+            transform: 'translate(30%, 30%)'
+          }}
+        />
         
-        {/* Content overlay */}
-        <div className="absolute inset-0 top-8 p-5 flex flex-col">
-          {/* Icon and Title */}
-          <div className="flex items-center gap-3 mb-8">
-            <div 
-              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: folderColor }}
-            >
-              <Folder className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h4 className="text-lg font-normal text-foreground truncate">{folder.name}</h4>
+        {/* Content */}
+        <div className="relative h-full p-3 sm:p-4 flex flex-col">
+          {/* Large folder icon */}
+          <div 
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg mb-2 mt-1"
+            style={{ backgroundColor: folderColor }}
+          >
+            <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </div>
+          
+          {/* Folder name */}
+          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
+            {folder.name}
+          </h4>
+          
+          {/* Stats */}
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-2">
+            <File className="w-3 h-3" />
+            <span className="font-medium">Files</span>
           </div>
 
-          {/* Footer with date and menu */}
-          <div className="flex items-center justify-between mt-auto">
-            <span className="text-foreground/70 text-sm font-normal">Apr 2, 2023</span>
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
+            <div 
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: folderColor }}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                >
+                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg">
-                  <Edit className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs">
+                  <Edit className="mr-2 h-3.5 w-3.5" />
                   Edit
                 </DropdownMenuItem>
               </DropdownMenuContent>

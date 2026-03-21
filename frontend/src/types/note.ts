@@ -4,6 +4,7 @@ export interface Note {
   title: string;
   content: string; // Markdown content as string
   folder_id?: string;
+  folder?: NoteFolder; // Populated folder data
   tags: string[];
   is_collaborative: boolean;
   created_at: string;

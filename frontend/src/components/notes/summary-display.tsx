@@ -144,7 +144,7 @@ export function SummaryDisplay({
   console.log('🎨 SummaryDisplay: Rendering summary display with summary:', summary.substring(0, 50) + '...');
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-3 w-full ${className}`}>
       {/* Staleness Indicator */}
       <SummaryStalnessIndicator
         note={note}
@@ -154,27 +154,27 @@ export function SummaryDisplay({
       />
 
       {/* Summary Card */}
-      <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
+      <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50 w-full overflow-hidden">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold flex items-center text-gray-900 dark:text-white">
-              <Bot className="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
-              AI Summary
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold flex items-center text-gray-900 dark:text-white truncate">
+              <Bot className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400 shrink-0" />
+              <span className="truncate">AI Summary</span>
             </CardTitle>
             
             {/* Action Buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleCopy}
-                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                 title="Copy summary"
               >
                 {isCopied ? (
-                  <Check className="h-4 w-4" />
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                 ) : (
-                  <Copy className="h-4 w-4" />
+                  <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                 )}
               </Button>
 
@@ -184,10 +184,10 @@ export function SummaryDisplay({
                   size="sm"
                   onClick={onRegenerateClick}
                   disabled={isRegenerating}
-                  className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   title="Regenerate summary"
                 >
-                  <RefreshCw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
                 </Button>
               )}
 
@@ -196,10 +196,10 @@ export function SummaryDisplay({
                   variant="ghost"
                   size="sm"
                   onClick={handleStartEdit}
-                  className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   title="Edit summary"
                 >
-                  <Edit3 className="h-4 w-4" />
+                  <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               )}
 
@@ -209,19 +209,19 @@ export function SummaryDisplay({
                     variant="ghost"
                     size="sm"
                     onClick={handleSaveEdit}
-                    className="h-8 w-8 p-0 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                     title="Save changes"
                   >
-                    <Save className="h-4 w-4" />
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleCancelEdit}
-                    className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                     title="Cancel editing"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </>
               )}
@@ -230,17 +230,17 @@ export function SummaryDisplay({
 
           {/* Generation Timestamp */}
           {note.summary_generated_at && note.id !== 'temp-note' && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>{formatGeneratedDate(note.summary_generated_at)}</span>
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
+              <Clock className="h-3 w-3 shrink-0" />
+              <span className="truncate">{formatGeneratedDate(note.summary_generated_at)}</span>
             </div>
           )}
           
           {/* For unsaved notes, show a different indicator */}
           {note.id === 'temp-note' && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>Generated just now (unsaved)</span>
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
+              <Clock className="h-3 w-3 shrink-0" />
+              <span className="truncate">Generated just now (unsaved)</span>
             </div>
           )}
         </CardHeader>
@@ -252,22 +252,22 @@ export function SummaryDisplay({
                 value={editedSummary}
                 onChange={(e) => setEditedSummary(e.target.value)}
                 placeholder="Edit your summary..."
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none text-xs sm:text-sm"
                 autoFocus
               />
               
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
                 <span>
                   {editedSummary.length} characters
                 </span>
-                <span>
+                <span className="hidden sm:inline">
                   Press Ctrl+Enter to save
                 </span>
               </div>
             </div>
           ) : (
-            <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words overflow-hidden">
-              <p className="whitespace-pre-wrap" style={{ wordBreak: 'break-word' }}>
+            <div className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words overflow-hidden">
+              <p className="whitespace-pre-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                 {summary}
               </p>
             </div>
@@ -277,7 +277,7 @@ export function SummaryDisplay({
 
       {/* Editing Instructions */}
       {isEditing && (
-        <div className="text-xs text-muted-foreground bg-gray-50 dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-700">
+        <div className="text-[10px] sm:text-xs text-muted-foreground bg-gray-50 dark:bg-gray-900 p-2 sm:p-3 rounded-lg border border-gray-200 dark:border-gray-700">
           <p>
             <strong>Tip:</strong> You can edit the AI-generated summary to better match your needs. 
             {note.id === 'temp-note' 
@@ -290,7 +290,7 @@ export function SummaryDisplay({
 
       {/* Unsaved note warning */}
       {note.id === 'temp-note' && !isEditing && (
-        <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 p-2 rounded border border-amber-200 dark:border-amber-800">
+        <div className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 p-2 sm:p-3 rounded-lg border border-amber-200 dark:border-amber-800">
           <p>
             <strong>Note:</strong> This summary will be saved when you save the note. 
             You can edit it now or regenerate it later.

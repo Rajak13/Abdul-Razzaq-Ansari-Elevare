@@ -26,13 +26,18 @@ const REQUEST_TIMEOUT = parseInt(process.env.SUMMARIZATION_TIMEOUT || '30000')
 const MAX_RETRIES = parseInt(process.env.SUMMARIZATION_MAX_RETRIES || '3')
 const HEALTH_CHECK_TIMEOUT = 5000
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+const NODE_ENV = process.env.NODE_ENV
+
+// In development, prefer FastAPI even if Gemini key is set (for testing)
+// In production, use Gemini if available
+const USE_GEMINI = GEMINI_API_KEY && NODE_ENV === 'production'
 
 // ─── Gemini summarization ────────────────────────────────────────────────────
 
 async function summarizeWithGemini(text: string): Promise<SummarizationResponse> {
   console.log('[Gemini] Starting summarization, text length:', text.length)
   console.log('[Gemini] API key available:', !!GEMINI_API_KEY)
-  console.log('[Gemini] API key prefix:', GEMINI_API_KEY?.substring(0, 10) + '...')
+  console.log('[Gemini] API key prefix:', GEMINI_API_KEY?.substring(0, 20) + '...')
   
   if (!GEMINI_API_KEY) {
     throw new Error('GEMINI_API_KEY is not configured')
@@ -40,7 +45,10 @@ async function summarizeWithGemini(text: string): Promise<SummarizationResponse>
 
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+    console.log('[Gemini] GoogleGenerativeAI instance created')
+    
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    console.log('[Gemini] Model instance created')
 
     const prompt = `Summarize the following text concisely in 2-4 sentences. 
 Return only the summary, no preamble or explanation.
@@ -49,10 +57,18 @@ Text:
 ${text}`
 
     console.log('[Gemini] Calling generateContent...')
+    const startTime = Date.now()
     const result = await model.generateContent(prompt)
-    console.log('[Gemini] Got response from Gemini')
+    const duration = Date.now() - startTime
+    console.log('[Gemini] Got response from Gemini in', duration, 'ms')
     
-    const summary = result.response.text().trim()
+    const response = result.response
+    console.log('[Gemini] Response object:', {
+      candidates: response.candidates?.length,
+      promptFeedback: response.promptFeedback
+    })
+    
+    const summary = response.text().trim()
     console.log('[Gemini] Summary generated, length:', summary.length)
 
     return {
@@ -66,8 +82,22 @@ ${text}`
       message: error.message,
       name: error.name,
       stack: error.stack,
-      response: error.response
+      response: error.response,
+      status: error.status,
+      statusText: error.statusText
     })
+    
+    // Check for specific error types
+    if (error.message?.includes('API key')) {
+      throw new Error('Invalid or missing Gemini API key')
+    }
+    if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+      throw new Error('Gemini API rate limit exceeded. Please try again later.')
+    }
+    if (error.message?.includes('SAFETY')) {
+      throw new Error('Content was blocked by safety filters')
+    }
+    
     throw error
   }
 }
@@ -165,7 +195,7 @@ export async function POST(request: NextRequest) {
     const authToken = request.headers.get('authorization')
 
     // ── Production: use Gemini ──
-    if (GEMINI_API_KEY) {
+    if (USE_GEMINI) {
       try {
         console.log('[API] Using Gemini for summarization')
         console.log('[API] Environment:', process.env.NODE_ENV)
@@ -247,7 +277,7 @@ export async function POST(request: NextRequest) {
 // ─── GET health check ─────────────────────────────────────────────────────────
 
 export async function GET() {
-  if (GEMINI_API_KEY) {
+  if (USE_GEMINI) {
     return NextResponse.json({
       status: 'healthy',
       service: 'gemini',

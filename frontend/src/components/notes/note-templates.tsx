@@ -10,8 +10,8 @@ export function useNoteTemplates(): NoteTemplate[] {
     {
       id: 'basic',
       name: t('blank'),
-      description: t('blank'),
-      preview: t('blank'),
+      description: 'A simple note with title and content',
+      preview: 'Simple text editor for general note-taking',
       content: `# ${t('blank')}
 
 Start writing your thoughts here...

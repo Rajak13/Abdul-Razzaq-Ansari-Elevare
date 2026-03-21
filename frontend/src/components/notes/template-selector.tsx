@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNoteTemplates } from './note-templates';
 import { NoteTemplate } from '@/types/note';
 import { FileText, BookOpen, Users } from 'lucide-react';
@@ -35,6 +35,9 @@ export function TemplateSelector({
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>{t('selectTemplate')}</DialogTitle>
+          <DialogDescription>
+            Choose a template to start your note with pre-formatted content
+          </DialogDescription>
         </DialogHeader>
         
         <div id="tour-note-templates-grid" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

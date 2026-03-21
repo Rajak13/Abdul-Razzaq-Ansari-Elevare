@@ -528,9 +528,9 @@ export function NoteEditor({
               </div>
             </div>
           ) : (
-            <div className="flex h-full">
+            <div className="flex h-full flex-col lg:flex-row overflow-hidden">
               {/* Main content area */}
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col min-h-[300px] lg:min-h-0 overflow-hidden">
                 <RichTextEditor
                   value={content}
                   onChange={handleContentChange}
@@ -540,11 +540,11 @@ export function NoteEditor({
                 />
               </div>
 
-              {/* Summary sidebar */}
-              <div className="w-80 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex flex-col">
-                <div className="p-4 flex-1 overflow-auto">
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              {/* Summary sidebar - Fully responsive with proper scrolling */}
+              <div className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex flex-col shrink-0">
+                <div className="p-3 sm:p-4 lg:p-5 overflow-y-auto overflow-x-hidden h-full max-h-[60vh] lg:max-h-full">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white sticky top-0 bg-gray-50 dark:bg-gray-900 pb-2 z-10">
                       {t('summary.title')}
                     </h3>
 
@@ -559,13 +559,13 @@ export function NoteEditor({
                     {/* Summary Display */}
                     {summary && (
                       <SummaryDisplay
-                        key={`summary-${summary.length}`} // Stable key based on content
+                        key={`summary-${summary.length}`}
                         note={note || {
                           id: 'temp-note',
                           title: title || 'Untitled Note',
                           content,
                           summary,
-                          summary_generated_at: new Date().toISOString(), // Use current time for unsaved notes
+                          summary_generated_at: new Date().toISOString(),
                           summary_model: 'PEGASUS',
                           created_at: new Date().toISOString(),
                           updated_at: new Date().toISOString(),
@@ -585,7 +585,7 @@ export function NoteEditor({
 
                     {/* Helpful tips when no summary exists */}
                     {!summary && (
-                      <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800">
+                      <div className="text-xs sm:text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <p className="font-medium mb-2">💡 AI Summary Tips:</p>
                         <ul className="space-y-1">
                           <li>• Write at least a few sentences</li>

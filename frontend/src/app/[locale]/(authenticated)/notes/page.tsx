@@ -172,7 +172,7 @@ export default function NotesPage() {
   };
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-background min-h-screen">
-      <div className="container mx-auto max-w-7xl">
+      <div>
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -458,66 +458,74 @@ function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) =
     : 'hsl(142,71%,45%)';
 
   return (
-    <div onClick={() => onSelect(note)} className="relative group cursor-pointer">
-      {/* Folder shape with colored outline */}
-      <div className="relative">
-        {/* Folder tab */}
-        <svg viewBox="0 0 300 40" className="w-full h-6 sm:h-8" preserveAspectRatio="none">
-          <path
-            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
-            style={{ fill: "hsl(var(--muted))" }}
-            stroke="none"
-          />
-        </svg>
+    <div 
+      onClick={() => onSelect(note)} 
+      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
+      style={{ aspectRatio: '1.4 / 1' }}
+    >
+      {/* Rectangular card with folder color accent */}
+      <div className="relative h-full bg-card rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
+        style={{ 
+          borderColor: folderColor,
+        }}
+      >
+        {/* Diagonal accent stripe */}
+        <div 
+          className="absolute top-0 right-0 w-16 h-16 opacity-10"
+          style={{ 
+            backgroundColor: folderColor,
+            clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
+          }}
+        />
         
-        {/* Main card body with folder-shaped outline */}
-        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
-          {/* Colored outline following folder shape */}
-          <path
-            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
-            style={{ fill: "hsl(var(--card))" }}
-            stroke={folderColor}
-            strokeWidth="2"
-            opacity="0.3"
-          />
-          {/* Inner fill */}
-          <path
-            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
-            style={{ fill: "hsl(var(--muted))" }}
-          />
-        </svg>
+        {/* Top color bar */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-1.5"
+          style={{ backgroundColor: folderColor }}
+        />
         
-        {/* Content overlay */}
-        <div className="absolute inset-0 top-6 sm:top-8 p-3 sm:p-5 flex flex-col">
-          {/* Icon and Title */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
-            <div 
-              className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: folderColor }}
-            >
-              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-            </div>
-            <h4 className="text-base sm:text-lg font-normal text-foreground truncate">{note.title}</h4>
+        {/* Content */}
+        <div className="relative h-full p-3 sm:p-4 flex flex-col">
+          {/* Icon */}
+          <div 
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md mb-2"
+            style={{ backgroundColor: folderColor }}
+          >
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
+          
+          {/* Title */}
+          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
+            {note.title}
+          </h4>
+          
+          {/* Summary */}
+          <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1 mb-2">
+            {note.summary || 'No summary available'}
+          </p>
 
-          {/* Footer with date and menu */}
-          <div className="flex items-center justify-between mt-auto">
-            <span className="text-foreground/70 text-xs sm:text-sm font-normal truncate">
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">
               {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                  <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 rounded-lg"
+                >
+                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
-                  <Share2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs">
+                  <Share2 className="mr-2 h-3.5 w-3.5" />
                   Share
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
-                  <Settings className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs">
+                  <Settings className="mr-2 h-3.5 w-3.5" />
                   Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -532,60 +540,74 @@ function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) =
 function FolderTabCard({ folder, onSelect }: { folder: any; onSelect: (id: string) => void }) {
   const folderColor = folder.color || 'hsl(142,71%,45%)';
   return (
-    <div onClick={() => onSelect(folder.id)} className="relative group cursor-pointer">
-      {/* Folder shape with colored outline */}
-      <div className="relative">
-        {/* Folder tab */}
-        <svg viewBox="0 0 300 40" className="w-full h-6 sm:h-8" preserveAspectRatio="none">
-          <path
-            d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
-            style={{ fill: "hsl(var(--muted))" }}
-            stroke="none"
-          />
-        </svg>
+    <div 
+      onClick={() => onSelect(folder.id)} 
+      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
+      style={{ aspectRatio: '1.4 / 1' }}
+    >
+      {/* Rectangular folder card with unique design */}
+      <div className="relative h-full bg-gradient-to-br from-card to-muted rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
+        style={{ 
+          borderColor: folderColor,
+        }}
+      >
+        {/* Folder tab accent at top */}
+        <div 
+          className="absolute top-0 left-0 w-20 h-6 rounded-br-2xl shadow-md"
+          style={{ 
+            backgroundColor: folderColor,
+          }}
+        />
         
-        {/* Main card body with folder-shaped outline */}
-        <svg viewBox="0 0 300 160" className="w-full" preserveAspectRatio="none" style={{ marginTop: '-1px' }}>
-          {/* Colored outline following folder shape */}
-          <path
-            d="M 0 0 L 0 150 Q 0 160 10 160 L 290 160 Q 300 160 300 150 L 300 10 Q 300 0 290 0 L 150 0 L 0 0 Z"
-            style={{ fill: "hsl(var(--card))" }}
-            stroke={folderColor}
-            strokeWidth="2"
-            opacity="0.3"
-          />
-          {/* Inner fill */}
-          <path
-            d="M 2 2 L 2 150 Q 2 158 10 158 L 290 158 Q 298 158 298 150 L 298 10 Q 298 2 290 2 L 150 2 L 2 2 Z"
-            style={{ fill: "hsl(var(--muted))" }}
-          />
-        </svg>
+        {/* Decorative circle pattern */}
+        <div 
+          className="absolute bottom-0 right-0 w-24 h-24 rounded-full opacity-5"
+          style={{ 
+            backgroundColor: folderColor,
+            transform: 'translate(30%, 30%)'
+          }}
+        />
         
-        {/* Content overlay */}
-        <div className="absolute inset-0 top-6 sm:top-8 p-3 sm:p-5 flex flex-col">
-          {/* Icon and Title */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
-            <div 
-              className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: folderColor }}
-            >
-              <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-            </div>
-            <h4 className="text-base sm:text-lg font-normal text-foreground truncate">{folder.name}</h4>
+        {/* Content */}
+        <div className="relative h-full p-3 sm:p-4 flex flex-col">
+          {/* Large folder icon */}
+          <div 
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg mb-2 mt-1"
+            style={{ backgroundColor: folderColor }}
+          >
+            <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </div>
+          
+          {/* Folder name */}
+          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
+            {folder.name}
+          </h4>
+          
+          {/* Stats */}
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-2">
+            <FileText className="w-3 h-3" />
+            <span className="font-medium">Notes</span>
           </div>
 
-          {/* Footer with date and menu */}
-          <div className="flex items-center justify-between mt-auto">
-            <span className="text-foreground/70 text-xs sm:text-sm font-normal">Apr 2, 2023</span>
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
+            <div 
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: folderColor }}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                  <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 rounded-lg"
+                >
+                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
-                  <Settings className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs">
+                  <Settings className="mr-2 h-3.5 w-3.5" />
                   Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
