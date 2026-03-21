@@ -59,7 +59,7 @@ export async function GET() {
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        model: 'nousresearch/hermes-3-llama-3.1-405b:free',
+        model: 'meta-llama/llama-3.1-8b-instruct',
         messages: [{
           role: 'user',
           content: 'Say "Hello, OpenRouter API is working!" in one sentence.'
@@ -87,7 +87,7 @@ export async function GET() {
       success: true,
       message: 'OpenRouter API is working correctly',
       response: text,
-      model: 'nousresearch/hermes-3-llama-3.1-405b:free',
+      model: 'meta-llama/llama-3.1-8b-instruct',
       diagnostics: {
         ...diagnostics,
         responseTime: duration,

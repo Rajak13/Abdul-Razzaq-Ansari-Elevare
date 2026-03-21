@@ -45,6 +45,27 @@ console.log('[Config] Environment detection:', {
   USE_OPENROUTER
 })
 
+// ─── Helper: Fetch with retry for rate limits ────────────────────────────────
+
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const response = await fetch(url, options)
+    
+    if (response.status !== 429) {
+      return response
+    }
+    
+    // Rate limited - wait before retrying
+    if (i < retries - 1) {
+      const waitTime = Math.pow(2, i) * 2000 // Exponential backoff: 2s, 4s, 8s
+      console.log(`[OpenRouter] Rate limited (429), retrying in ${waitTime}ms... (attempt ${i + 1}/${retries})`)
+      await new Promise(resolve => setTimeout(resolve, waitTime))
+    }
+  }
+  
+  throw new Error('Rate limit exceeded after multiple retries')
+}
+
 // ─── OpenRouter summarization ────────────────────────────────────────────────────
 
 async function summarizeWithOpenRouter(text: string): Promise<SummarizationResponse> {
@@ -69,7 +90,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
     
     const startTime = Date.now()
     
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
@@ -78,7 +99,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        model: 'nousresearch/hermes-3-llama-3.1-405b:free',
+        model: 'meta-llama/llama-3.1-8b-instruct',
         messages: [{
           role: 'user',
           content: prompt
@@ -86,7 +107,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         temperature: 0.7,
         max_tokens: 500
       })
-    })
+    }, 3) // 3 retries with exponential backoff
     
     const duration = Date.now() - startTime
     console.log(`[OpenRouter:${requestId}] ✓ Got response in ${duration}ms`)
@@ -124,7 +145,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'hermes-3-405b'
+      model: 'llama-3.1-8b'
     }
   } catch (error: any) {
     console.error(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL FAILED ==========`)
@@ -378,7 +399,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       service: 'openrouter',
-      model: 'hermes-3-405b',
+      model: 'llama-3.1-8b',
       hasApiKey: !!OPENROUTER_API_KEY,
       apiKeyLength: OPENROUTER_API_KEY?.length || 0,
       environment: {
