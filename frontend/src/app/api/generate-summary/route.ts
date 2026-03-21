@@ -6,7 +6,6 @@ import {
   type ErrorCode
 } from '@/lib/summarization-errors'
 import { stripMarkdown } from '@/lib/strip-markdown'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
 interface SummarizationRequest {
   text: string
@@ -64,14 +63,6 @@ async function summarizeWithGemini(text: string): Promise<SummarizationResponse>
   }
 
   try {
-    console.log(`[Gemini:${geminiRequestId}] Creating GoogleGenerativeAI instance...`)
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    console.log(`[Gemini:${geminiRequestId}] ✓ GoogleGenerativeAI instance created`)
-    
-    console.log(`[Gemini:${geminiRequestId}] Getting generative model (gemini-1.5-flash-latest)...`)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
-    console.log(`[Gemini:${geminiRequestId}] ✓ Model instance created`)
-
     const prompt = `Summarize the following text concisely in 2-4 sentences. 
 Return only the summary, no preamble or explanation.
 
@@ -79,22 +70,60 @@ Text:
 ${text}`
 
     console.log(`[Gemini:${geminiRequestId}] Prompt length:`, prompt.length)
-    console.log(`[Gemini:${geminiRequestId}] Calling generateContent...`)
+    console.log(`[Gemini:${geminiRequestId}] Calling Gemini REST API (v1)...`)
     
     const startTime = Date.now()
-    const result = await model.generateContent(prompt)
+    
+    // Use direct REST API call with v1 endpoint (not v1beta)
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 500,
+        }
+      })
+    })
+    
     const duration = Date.now() - startTime
-    
     console.log(`[Gemini:${geminiRequestId}] ✓ Got response from Gemini in ${duration}ms`)
-    console.log(`[Gemini:${geminiRequestId}] Result object type:`, typeof result)
-    console.log(`[Gemini:${geminiRequestId}] Result has response:`, !!result.response)
+    console.log(`[Gemini:${geminiRequestId}] Response status:`, response.status)
     
-    const response = result.response
-    console.log(`[Gemini:${geminiRequestId}] Response candidates:`, response.candidates?.length || 0)
-    console.log(`[Gemini:${geminiRequestId}] Response promptFeedback:`, JSON.stringify(response.promptFeedback))
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[Gemini:${geminiRequestId}] ❌ API error:`, errorText)
+      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+    }
     
-    console.log(`[Gemini:${geminiRequestId}] Extracting text from response...`)
-    const summary = response.text().trim()
+    const data = await response.json()
+    console.log(`[Gemini:${geminiRequestId}] Response data structure:`, {
+      hasCandidates: !!data.candidates,
+      candidatesLength: data.candidates?.length || 0
+    })
+    
+    if (!data.candidates || data.candidates.length === 0) {
+      console.error(`[Gemini:${geminiRequestId}] ❌ No candidates in response`)
+      throw new Error('No response generated from Gemini')
+    }
+    
+    const candidate = data.candidates[0]
+    const summary = candidate.content?.parts?.[0]?.text?.trim()
+    
+    if (!summary) {
+      console.error(`[Gemini:${geminiRequestId}] ❌ No text in candidate`)
+      throw new Error('Empty response from Gemini')
+    }
+    
     console.log(`[Gemini:${geminiRequestId}] ✓ Summary generated, length:`, summary.length)
     console.log(`[Gemini:${geminiRequestId}] Summary preview:`, summary.substring(0, 100) + '...')
 
@@ -103,7 +132,7 @@ ${text}`
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'gemini-1.5-flash-latest'
+      model: 'gemini-1.5-flash'
     }
   } catch (error: any) {
     console.error(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL FAILED ==========`)
@@ -111,18 +140,13 @@ ${text}`
     console.error(`[Gemini:${geminiRequestId}] Error name:`, error.name)
     console.error(`[Gemini:${geminiRequestId}] Error message:`, error.message)
     console.error(`[Gemini:${geminiRequestId}] Error stack:`, error.stack)
-    console.error(`[Gemini:${geminiRequestId}] Error response:`, error.response)
-    console.error(`[Gemini:${geminiRequestId}] Error status:`, error.status)
-    console.error(`[Gemini:${geminiRequestId}] Error statusText:`, error.statusText)
-    console.error(`[Gemini:${geminiRequestId}] Error code:`, error.code)
-    console.error(`[Gemini:${geminiRequestId}] Full error:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
     
     // Check for specific error types
-    if (error.message?.includes('API key')) {
+    if (error.message?.includes('API key') || error.message?.includes('403')) {
       console.error(`[Gemini:${geminiRequestId}] ❌ API key error detected`)
       throw new Error('Invalid or missing Gemini API key')
     }
-    if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+    if (error.message?.includes('quota') || error.message?.includes('rate limit') || error.message?.includes('429')) {
       console.error(`[Gemini:${geminiRequestId}] ❌ Rate limit error detected`)
       throw new Error('Gemini API rate limit exceeded. Please try again later.')
     }
@@ -367,7 +391,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       service: 'gemini',
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-1.5-flash',
       hasApiKey: !!GEMINI_API_KEY,
       apiKeyLength: GEMINI_API_KEY?.length || 0,
       environment: {

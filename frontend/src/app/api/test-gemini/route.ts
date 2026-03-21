@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const NODE_ENV = process.env.NODE_ENV
@@ -49,24 +48,39 @@ export async function GET() {
   }
 
   try {
-    console.log(`[Test:${testId}] Creating GoogleGenerativeAI instance...`)
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    console.log(`[Test:${testId}] ✓ Instance created`)
-
-    console.log(`[Test:${testId}] Getting model...`)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
-    console.log(`[Test:${testId}] ✓ Model obtained`)
-
-    console.log(`[Test:${testId}] Generating test content...`)
+    console.log(`[Test:${testId}] Calling Gemini REST API (v1)...`)
     const startTime = Date.now()
-    const result = await model.generateContent('Say "Hello, Gemini API is working!" in one sentence.')
+    
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: 'Say "Hello, Gemini API is working!" in one sentence.'
+          }]
+        }]
+      })
+    })
+    
     const duration = Date.now() - startTime
-    console.log(`[Test:${testId}] ✓ Content generated in ${duration}ms`)
-
-    const response = result.response
-    const text = response.text()
+    console.log(`[Test:${testId}] ✓ Response received in ${duration}ms`)
+    console.log(`[Test:${testId}] Response status:`, response.status)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[Test:${testId}] ❌ API error:`, errorText)
+      throw new Error(`API returned ${response.status}: ${errorText}`)
+    }
+    
+    const data = await response.json()
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response'
+    
     console.log(`[Test:${testId}] ✓ Response text:`, text)
-
     console.log(`[Test:${testId}] ========== TEST SUCCESSFUL ==========`)
 
     return NextResponse.json({
@@ -76,7 +90,7 @@ export async function GET() {
       diagnostics: {
         ...diagnostics,
         responseTime: duration,
-        candidatesCount: response.candidates?.length || 0
+        candidatesCount: data.candidates?.length || 0
       }
     })
 
@@ -86,7 +100,6 @@ export async function GET() {
     console.error(`[Test:${testId}] Error name:`, error.name)
     console.error(`[Test:${testId}] Error message:`, error.message)
     console.error(`[Test:${testId}] Error stack:`, error.stack)
-    console.error(`[Test:${testId}] Full error:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
 
     return NextResponse.json({
       success: false,
@@ -96,10 +109,7 @@ export async function GET() {
         ...diagnostics,
         errorDetails: {
           message: error.message,
-          name: error.name,
-          code: error.code,
-          status: error.status,
-          statusText: error.statusText
+          name: error.name
         }
       }
     }, { status: 500 })
