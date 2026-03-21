@@ -24,16 +24,16 @@ const SUMMARIZATION_SERVICE_URL = process.env.SUMMARIZATION_SERVICE_URL || 'http
 const REQUEST_TIMEOUT = parseInt(process.env.SUMMARIZATION_TIMEOUT || '30000')
 const MAX_RETRIES = parseInt(process.env.SUMMARIZATION_MAX_RETRIES || '3')
 const HEALTH_CHECK_TIMEOUT = 5000
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const NODE_ENV = process.env.NODE_ENV
 
 // Vercel sets NODE_ENV automatically, but we also check for Vercel-specific env vars
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'production'
 const IS_PRODUCTION = NODE_ENV === 'production' || IS_VERCEL
 
-// In development, prefer FastAPI even if Gemini key is set (for testing)
-// In production/Vercel, use Gemini if available
-const USE_GEMINI = !!GEMINI_API_KEY && IS_PRODUCTION
+// In development, prefer FastAPI even if OpenRouter key is set (for testing)
+// In production/Vercel, use OpenRouter if available
+const USE_OPENROUTER = !!OPENROUTER_API_KEY && IS_PRODUCTION
 
 console.log('[Config] Environment detection:', {
   NODE_ENV,
@@ -41,121 +41,109 @@ console.log('[Config] Environment detection:', {
   VERCEL_ENV: process.env.VERCEL_ENV,
   IS_VERCEL,
   IS_PRODUCTION,
-  HAS_GEMINI_KEY: !!GEMINI_API_KEY,
-  USE_GEMINI
+  HAS_OPENROUTER_KEY: !!OPENROUTER_API_KEY,
+  USE_OPENROUTER
 })
 
-// ─── Gemini summarization ────────────────────────────────────────────────────
+// ─── OpenRouter summarization ────────────────────────────────────────────────────
 
-async function summarizeWithGemini(text: string): Promise<SummarizationResponse> {
-  const geminiRequestId = crypto.randomUUID().substring(0, 8)
+async function summarizeWithOpenRouter(text: string): Promise<SummarizationResponse> {
+  const requestId = crypto.randomUUID().substring(0, 8)
   
-  console.log(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL START ==========`)
-  console.log(`[Gemini:${geminiRequestId}] Text length:`, text.length)
-  console.log(`[Gemini:${geminiRequestId}] Text preview:`, text.substring(0, 100) + '...')
-  console.log(`[Gemini:${geminiRequestId}] API key available:`, !!GEMINI_API_KEY)
-  console.log(`[Gemini:${geminiRequestId}] API key length:`, GEMINI_API_KEY?.length || 0)
-  console.log(`[Gemini:${geminiRequestId}] API key prefix:`, GEMINI_API_KEY?.substring(0, 20) + '...')
+  console.log(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL START ==========`)
+  console.log(`[OpenRouter:${requestId}] Text length:`, text.length)
+  console.log(`[OpenRouter:${requestId}] Text preview:`, text.substring(0, 100) + '...')
+  console.log(`[OpenRouter:${requestId}] API key available:`, !!OPENROUTER_API_KEY)
+  console.log(`[OpenRouter:${requestId}] API key length:`, OPENROUTER_API_KEY?.length || 0)
   
-  if (!GEMINI_API_KEY) {
-    console.error(`[Gemini:${geminiRequestId}] ❌ GEMINI_API_KEY is not configured`)
-    throw new Error('GEMINI_API_KEY is not configured')
+  if (!OPENROUTER_API_KEY) {
+    console.error(`[OpenRouter:${requestId}] ❌ OPENROUTER_API_KEY is not configured`)
+    throw new Error('OPENROUTER_API_KEY is not configured')
   }
 
   try {
-    const prompt = `Summarize the following text concisely in 2-4 sentences. 
-Return only the summary, no preamble or explanation.
+    const prompt = `Summarize the following text concisely in 2-4 sentences. Return only the summary, no preamble or explanation.\n\nText:\n${text}`
 
-Text:
-${text}`
-
-    console.log(`[Gemini:${geminiRequestId}] Prompt length:`, prompt.length)
-    console.log(`[Gemini:${geminiRequestId}] Calling Gemini REST API (v1)...`)
+    console.log(`[OpenRouter:${requestId}] Prompt length:`, prompt.length)
+    console.log(`[OpenRouter:${requestId}] Calling OpenRouter API...`)
     
     const startTime = Date.now()
     
-    // Use direct REST API call with v1 endpoint
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
-    
-    const response = await fetch(apiUrl, {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://elevarelearning.vercel.app',
+        'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
+        model: 'google/gemini-2.0-flash-exp:free',
+        messages: [{
+          role: 'user',
+          content: prompt
         }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        }
+        temperature: 0.7,
+        max_tokens: 500
       })
     })
     
     const duration = Date.now() - startTime
-    console.log(`[Gemini:${geminiRequestId}] ✓ Got response from Gemini in ${duration}ms`)
-    console.log(`[Gemini:${geminiRequestId}] Response status:`, response.status)
+    console.log(`[OpenRouter:${requestId}] ✓ Got response in ${duration}ms`)
+    console.log(`[OpenRouter:${requestId}] Response status:`, response.status)
     
     if (!response.ok) {
       const errorText = await response.text()
-      console.error(`[Gemini:${geminiRequestId}] ❌ API error:`, errorText)
-      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+      console.error(`[OpenRouter:${requestId}] ❌ API error:`, errorText)
+      throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`)
     }
     
     const data = await response.json()
-    console.log(`[Gemini:${geminiRequestId}] Response data structure:`, {
-      hasCandidates: !!data.candidates,
-      candidatesLength: data.candidates?.length || 0
+    console.log(`[OpenRouter:${requestId}] Response data structure:`, {
+      hasChoices: !!data.choices,
+      choicesLength: data.choices?.length || 0
     })
     
-    if (!data.candidates || data.candidates.length === 0) {
-      console.error(`[Gemini:${geminiRequestId}] ❌ No candidates in response`)
-      throw new Error('No response generated from Gemini')
+    if (!data.choices || data.choices.length === 0) {
+      console.error(`[OpenRouter:${requestId}] ❌ No choices in response`)
+      throw new Error('No response generated from OpenRouter')
     }
     
-    const candidate = data.candidates[0]
-    const summary = candidate.content?.parts?.[0]?.text?.trim()
+    const summary = data.choices[0]?.message?.content?.trim()
     
     if (!summary) {
-      console.error(`[Gemini:${geminiRequestId}] ❌ No text in candidate`)
-      throw new Error('Empty response from Gemini')
+      console.error(`[OpenRouter:${requestId}] ❌ No content in choice`)
+      throw new Error('Empty response from OpenRouter')
     }
     
-    console.log(`[Gemini:${geminiRequestId}] ✓ Summary generated, length:`, summary.length)
-    console.log(`[Gemini:${geminiRequestId}] Summary preview:`, summary.substring(0, 100) + '...')
+    console.log(`[OpenRouter:${requestId}] ✓ Summary generated, length:`, summary.length)
+    console.log(`[OpenRouter:${requestId}] Summary preview:`, summary.substring(0, 100) + '...')
 
-    console.log(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL SUCCESS ==========`)
+    console.log(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL SUCCESS ==========`)
     return {
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'gemini-2.0-flash'
+      model: 'gemini-2.0-flash-exp'
     }
   } catch (error: any) {
-    console.error(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL FAILED ==========`)
-    console.error(`[Gemini:${geminiRequestId}] Error type:`, typeof error)
-    console.error(`[Gemini:${geminiRequestId}] Error name:`, error.name)
-    console.error(`[Gemini:${geminiRequestId}] Error message:`, error.message)
-    console.error(`[Gemini:${geminiRequestId}] Error stack:`, error.stack)
+    console.error(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL FAILED ==========`)
+    console.error(`[OpenRouter:${requestId}] Error type:`, typeof error)
+    console.error(`[OpenRouter:${requestId}] Error name:`, error.name)
+    console.error(`[OpenRouter:${requestId}] Error message:`, error.message)
+    console.error(`[OpenRouter:${requestId}] Error stack:`, error.stack)
     
     // Check for specific error types
-    if (error.message?.includes('API key') || error.message?.includes('403')) {
-      console.error(`[Gemini:${geminiRequestId}] ❌ API key error detected`)
-      throw new Error('Invalid or missing Gemini API key')
+    if (error.message?.includes('API key') || error.message?.includes('401') || error.message?.includes('403')) {
+      console.error(`[OpenRouter:${requestId}] ❌ API key error detected`)
+      throw new Error('Invalid or missing OpenRouter API key')
     }
     if (error.message?.includes('quota') || error.message?.includes('rate limit') || error.message?.includes('429')) {
-      console.error(`[Gemini:${geminiRequestId}] ❌ Rate limit error detected`)
-      throw new Error('Gemini API rate limit exceeded. Please try again later.')
-    }
-    if (error.message?.includes('SAFETY')) {
-      console.error(`[Gemini:${geminiRequestId}] ❌ Safety filter error detected`)
-      throw new Error('Content was blocked by safety filters')
+      console.error(`[OpenRouter:${requestId}] ❌ Rate limit error detected`)
+      throw new Error('OpenRouter API rate limit exceeded. Please try again later.')
     }
     
-    console.error(`[Gemini:${geminiRequestId}] ❌ Rethrowing original error`)
+    console.error(`[OpenRouter:${requestId}] ❌ Rethrowing original error`)
     throw error
   }
 }
@@ -267,17 +255,17 @@ export async function POST(request: NextRequest) {
     console.log(`[${requestId}] Note ID:`, noteId || 'none')
     console.log(`[${requestId}] Auth token present:`, !!authToken)
 
-    // ── Production: use Gemini ──
-    if (USE_GEMINI) {
-      console.log(`[${requestId}] ========== USING GEMINI API ==========`)
-      console.log(`[${requestId}] API Key prefix:`, GEMINI_API_KEY?.substring(0, 10) + '...')
+    // ── Production: use OpenRouter ──
+    if (USE_OPENROUTER) {
+      console.log(`[${requestId}] ========== USING OPENROUTER API ==========`)
+      console.log(`[${requestId}] API Key prefix:`, OPENROUTER_API_KEY?.substring(0, 10) + '...')
       
       try {
-        console.log(`[${requestId}] Calling summarizeWithGemini...`)
-        const result = await summarizeWithGemini(plainText)
+        console.log(`[${requestId}] Calling summarizeWithOpenRouter...`)
+        const result = await summarizeWithOpenRouter(plainText)
         result.processingTime = Date.now() - startTime
 
-        console.log(`[${requestId}] ✅ Gemini summarization successful`)
+        console.log(`[${requestId}] ✅ OpenRouter summarization successful`)
         console.log(`[${requestId}] Summary length:`, result.summary.length)
         console.log(`[${requestId}] Processing time:`, result.processingTime, 'ms')
 
@@ -289,12 +277,11 @@ export async function POST(request: NextRequest) {
         console.log(`[${requestId}] ========== REQUEST COMPLETE ==========`)
         return NextResponse.json(result)
       } catch (err: any) {
-        console.error(`[${requestId}] ❌ Gemini summarization FAILED`)
+        console.error(`[${requestId}] ❌ OpenRouter summarization FAILED`)
         console.error(`[${requestId}] Error name:`, err.name)
         console.error(`[${requestId}] Error message:`, err.message)
         console.error(`[${requestId}] Error stack:`, err.stack)
         console.error(`[${requestId}] Error cause:`, err.cause)
-        console.error(`[${requestId}] Full error object:`, JSON.stringify(err, Object.getOwnPropertyNames(err)))
         
         // Return more detailed error for debugging
         return NextResponse.json({
@@ -303,10 +290,10 @@ export async function POST(request: NextRequest) {
             requestId,
             error: err.message,
             type: err.name,
-            hasApiKey: !!GEMINI_API_KEY,
-            apiKeyLength: GEMINI_API_KEY?.length || 0,
+            hasApiKey: !!OPENROUTER_API_KEY,
+            apiKeyLength: OPENROUTER_API_KEY?.length || 0,
             environment: process.env.NODE_ENV,
-            useGemini: USE_GEMINI,
+            useOpenRouter: USE_OPENROUTER,
             timestamp: new Date().toISOString()
           }
         }, { status: 500 })
@@ -383,17 +370,17 @@ export async function GET() {
   console.log('[Health] VERCEL:', process.env.VERCEL)
   console.log('[Health] VERCEL_ENV:', process.env.VERCEL_ENV)
   console.log('[Health] IS_PRODUCTION:', IS_PRODUCTION)
-  console.log('[Health] USE_GEMINI:', USE_GEMINI)
-  console.log('[Health] GEMINI_API_KEY exists:', !!GEMINI_API_KEY)
+  console.log('[Health] USE_OPENROUTER:', USE_OPENROUTER)
+  console.log('[Health] OPENROUTER_API_KEY exists:', !!OPENROUTER_API_KEY)
   
-  if (USE_GEMINI) {
-    console.log('[Health] Using Gemini service')
+  if (USE_OPENROUTER) {
+    console.log('[Health] Using OpenRouter service')
     return NextResponse.json({
       status: 'healthy',
-      service: 'gemini',
-      model: 'gemini-2.0-flash',
-      hasApiKey: !!GEMINI_API_KEY,
-      apiKeyLength: GEMINI_API_KEY?.length || 0,
+      service: 'openrouter',
+      model: 'gemini-2.0-flash-exp',
+      hasApiKey: !!OPENROUTER_API_KEY,
+      apiKeyLength: OPENROUTER_API_KEY?.length || 0,
       environment: {
         NODE_ENV: process.env.NODE_ENV,
         VERCEL: process.env.VERCEL,
