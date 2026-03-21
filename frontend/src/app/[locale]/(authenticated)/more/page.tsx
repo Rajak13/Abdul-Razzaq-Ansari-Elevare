@@ -132,8 +132,8 @@ export default function MorePage() {
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="p-6 space-y-6 pb-24">
-      <div className="container mx-auto max-w-6xl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen pb-24">
+      <div>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">More</h1>

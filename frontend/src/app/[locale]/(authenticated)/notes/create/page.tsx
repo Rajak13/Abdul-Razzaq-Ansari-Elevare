@@ -30,8 +30,8 @@ function CreateNoteContent() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="container mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+      <div>
         {/* Header */}
         <div className="mb-6">
           <Link href="/notes">
@@ -54,7 +54,7 @@ function CreateNoteContent() {
         </div>
 
         {/* Note Editor */}
-        <div className="mx-auto max-w-5xl">
+        <div>
           <NoteEditor
             template={templateId || undefined}
             folderId={folderId || undefined}
@@ -71,8 +71,8 @@ function CreateNoteContent() {
 export default function CreateNotePage() {
   return (
     <Suspense fallback={
-      <div className="p-6 space-y-6">
-        <div className="container mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+        <div>
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-48 rounded bg-gray-200"></div>
             <div className="h-96 rounded bg-gray-200"></div>

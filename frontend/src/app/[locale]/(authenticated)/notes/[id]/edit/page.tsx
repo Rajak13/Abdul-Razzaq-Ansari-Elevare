@@ -28,8 +28,8 @@ export default function EditNotePage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="container mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+        <div>
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-48 rounded bg-gray-200"></div>
             <div className="h-96 rounded bg-gray-200"></div>
@@ -41,8 +41,8 @@ export default function EditNotePage() {
 
   if (!note) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="container mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+        <div>
           <div className="text-center">
             <h1 className="text-2xl font-bold">Note not found</h1>
             <p className="mt-2 text-muted-foreground">
@@ -61,8 +61,8 @@ export default function EditNotePage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="container mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+      <div>
         {/* Header */}
         <div className="mb-6">
           <Link href={`/notes/${noteId}`}>
@@ -85,7 +85,7 @@ export default function EditNotePage() {
         </div>
 
         {/* Note Editor */}
-        <div className="mx-auto max-w-5xl">
+        <div>
           <NoteEditor
             note={note}
             onSave={handleSave}

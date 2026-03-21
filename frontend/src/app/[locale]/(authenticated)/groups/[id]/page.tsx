@@ -96,7 +96,7 @@ export default function StudyGroupDetailPage() {
 
   if (groupError) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Study Group</h2>
           <p className="text-muted-foreground mb-4">
@@ -113,7 +113,7 @@ export default function StudyGroupDetailPage() {
 
   if (groupLoading || !group) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
         <div className="flex items-center space-x-4">
           <Skeleton className="h-8 w-8" />
           <Skeleton className="h-8 w-32" />
@@ -147,7 +147,7 @@ export default function StudyGroupDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-background min-h-screen">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">

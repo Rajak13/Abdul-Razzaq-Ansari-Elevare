@@ -133,8 +133,8 @@ export default function NotePage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="container mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+        <div>
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-48 rounded bg-gray-200"></div>
             <div className="h-96 rounded bg-gray-200"></div>
@@ -146,8 +146,8 @@ export default function NotePage() {
 
   if (!note) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="container mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+        <div>
           <div className="text-center">
             <h1 className="text-2xl font-bold">Note not found</h1>
             <p className="mt-2 text-muted-foreground">
@@ -166,8 +166,8 @@ export default function NotePage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="container mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
+      <div>
         {/* Header */}
         <div className="mb-6">
           <Link href="/notes">
@@ -243,61 +243,59 @@ export default function NotePage() {
         </div>
 
         {/* Note Content */}
-        <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Main Content */}
-            <div className="lg:col-span-3">
-              <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
-                <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-                  {/* Tags */}
-                  {note.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {note.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          <Hash className="mr-1 h-3 w-3" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Folder */}
-                  {folder && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Folder className="h-4 w-4" />
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-3 w-3 rounded"
-                          style={{ backgroundColor: folder.color || '#6b7280' }}
-                        />
-                        {folder.name}
-                      </div>
-                    </div>
-                  )}
-                </CardHeader>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            <Card className="border-white/20 bg-white/50 shadow-xl backdrop-blur-sm dark:border-slate-700/30 dark:bg-slate-800/50">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-700">
+                {/* Tags */}
+                {note.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {note.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        <Hash className="mr-1 h-3 w-3" />
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 
-                <CardContent className="p-6 lg:p-8">
-                  <MarkdownRenderer 
-                    content={typeof note.content === 'string' ? note.content : extractTextFromContent(note.content)}
-                    className="text-gray-900 dark:text-gray-100"
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Summary Sidebar */}
-            {note.summary && (
-              <div className="lg:col-span-1">
-                <div className="sticky top-6">
-                  <SummaryDisplay
-                    note={note}
-                    summary={note.summary}
-                    isEditable={false}
-                  />
-                </div>
-              </div>
-            )}
+                {/* Folder */}
+                {folder && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Folder className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-3 w-3 rounded"
+                        style={{ backgroundColor: folder.color || '#6b7280' }}
+                      />
+                      {folder.name}
+                    </div>
+                  </div>
+                )}
+              </CardHeader>
+              
+              <CardContent className="p-6 lg:p-8">
+                <MarkdownRenderer 
+                  content={typeof note.content === 'string' ? note.content : extractTextFromContent(note.content)}
+                  className="text-gray-900 dark:text-gray-100"
+                />
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Summary Sidebar */}
+          {note.summary && (
+            <div className="lg:col-span-1">
+              <div className="sticky top-6">
+                <SummaryDisplay
+                  note={note}
+                  summary={note.summary}
+                  isEditable={false}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

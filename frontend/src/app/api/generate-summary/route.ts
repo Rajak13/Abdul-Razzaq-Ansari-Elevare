@@ -83,7 +83,8 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
   }
 
   try {
-    const prompt = `Summarize the following text concisely in 2-4 sentences. Return only the summary, no preamble or explanation.\n\nText:\n${text}`
+    // More direct prompt that avoids preambles
+    const prompt = `${text}\n\nProvide a concise summary of the above text in 2-4 sentences:`
 
     console.log(`[OpenRouter:${requestId}] Prompt length:`, prompt.length)
     console.log(`[OpenRouter:${requestId}] Calling OpenRouter API...`)
@@ -99,13 +100,17 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct',
+        // Using a free model - you can also try 'google/gemma-2-9b-it:free' or 'meta-llama/llama-3.2-3b-instruct:free'
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: [{
+          role: 'system',
+          content: 'You are a helpful assistant that provides concise summaries. Always respond with just the summary, no introductory phrases like "Here is a summary" or "The text discusses". Start directly with the summary content.'
+        }, {
           role: 'user',
           content: prompt
         }],
-        temperature: 0.7,
-        max_tokens: 500
+        temperature: 0.5, // Lower temperature for more focused summaries
+        max_tokens: 300 // Reduced for more concise output
       })
     }, 3) // 3 retries with exponential backoff
     
@@ -130,12 +135,29 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
       throw new Error('No response generated from OpenRouter')
     }
     
-    const summary = data.choices[0]?.message?.content?.trim()
+    let summary = data.choices[0]?.message?.content?.trim()
     
     if (!summary) {
       console.error(`[OpenRouter:${requestId}] ❌ No content in choice`)
       throw new Error('Empty response from OpenRouter')
     }
+    
+    // Clean up common AI preambles
+    const preambles = [
+      /^Here is a (concise )?summary( of the text)?( in \d+-\d+ sentences)?:?\s*/i,
+      /^Here's a (concise )?summary( of the text)?( in \d+-\d+ sentences)?:?\s*/i,
+      /^The text (discusses|describes|explains|talks about|is about):?\s*/i,
+      /^This text (discusses|describes|explains|talks about|is about):?\s*/i,
+      /^Summary:?\s*/i,
+      /^In summary,?\s*/i,
+      /^To summarize,?\s*/i
+    ]
+    
+    for (const pattern of preambles) {
+      summary = summary.replace(pattern, '')
+    }
+    
+    summary = summary.trim()
     
     console.log(`[OpenRouter:${requestId}] ✓ Summary generated, length:`, summary.length)
     console.log(`[OpenRouter:${requestId}] Summary preview:`, summary.substring(0, 100) + '...')
@@ -145,7 +167,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'llama-3.1-8b'
+      model: 'llama-3.2-3b-free'
     }
   } catch (error: any) {
     console.error(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL FAILED ==========`)

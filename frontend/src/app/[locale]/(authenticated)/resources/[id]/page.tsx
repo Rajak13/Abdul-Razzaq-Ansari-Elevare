@@ -182,7 +182,7 @@ export default function ResourceDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -192,7 +192,7 @@ export default function ResourceDetailPage() {
 
   if (!resource) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
         <Card>
           <CardContent className="p-8 text-center">
             <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -211,7 +211,7 @@ export default function ResourceDetailPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
