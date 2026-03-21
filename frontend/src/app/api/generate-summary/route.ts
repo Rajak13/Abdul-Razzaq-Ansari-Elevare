@@ -100,7 +100,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        // Using a free model - you can also try 'google/gemma-2-9b-it:free' or 'meta-llama/llama-3.2-3b-instruct:free'
+        // Using a free model - fallback chain for reliability
         model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: [{
           role: 'system',
@@ -110,7 +110,9 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
           content: prompt
         }],
         temperature: 0.5, // Lower temperature for more focused summaries
-        max_tokens: 300 // Reduced for more concise output
+        max_tokens: 300, // Reduced for more concise output
+        // Add fallback models in case the primary one is unavailable
+        route: 'fallback'
       })
     }, 3) // 3 retries with exponential backoff
     
