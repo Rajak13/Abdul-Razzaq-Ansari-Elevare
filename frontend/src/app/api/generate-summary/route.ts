@@ -6,6 +6,7 @@ import {
   type ErrorCode
 } from '@/lib/summarization-errors'
 import { stripMarkdown } from '@/lib/strip-markdown'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 interface SummarizationRequest {
   text: string
@@ -29,24 +30,45 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 // ─── Gemini summarization ────────────────────────────────────────────────────
 
 async function summarizeWithGemini(text: string): Promise<SummarizationResponse> {
-  const { GoogleGenerativeAI } = await import('@google/generative-ai')
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  console.log('[Gemini] Starting summarization, text length:', text.length)
+  console.log('[Gemini] API key available:', !!GEMINI_API_KEY)
+  console.log('[Gemini] API key prefix:', GEMINI_API_KEY?.substring(0, 10) + '...')
+  
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY is not configured')
+  }
 
-  const prompt = `Summarize the following text concisely in 2-4 sentences. 
+  try {
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+    const prompt = `Summarize the following text concisely in 2-4 sentences. 
 Return only the summary, no preamble or explanation.
 
 Text:
 ${text}`
 
-  const result = await model.generateContent(prompt)
-  const summary = result.response.text().trim()
+    console.log('[Gemini] Calling generateContent...')
+    const result = await model.generateContent(prompt)
+    console.log('[Gemini] Got response from Gemini')
+    
+    const summary = result.response.text().trim()
+    console.log('[Gemini] Summary generated, length:', summary.length)
 
-  return {
-    summary,
-    processingTime: 0, // filled in by caller
-    chunksProcessed: 1,
-    model: 'gemini-1.5-flash'
+    return {
+      summary,
+      processingTime: 0, // filled in by caller
+      chunksProcessed: 1,
+      model: 'gemini-1.5-flash'
+    }
+  } catch (error: any) {
+    console.error('[Gemini] Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      response: error.response
+    })
+    throw error
   }
 }
 
@@ -146,17 +168,38 @@ export async function POST(request: NextRequest) {
     if (GEMINI_API_KEY) {
       try {
         console.log('[API] Using Gemini for summarization')
+        console.log('[API] Environment:', process.env.NODE_ENV)
+        console.log('[API] GEMINI_API_KEY exists:', !!GEMINI_API_KEY)
+        
         const result = await summarizeWithGemini(plainText)
         result.processingTime = Date.now() - startTime
 
+        console.log('[API] Gemini summarization successful')
+
         if (noteId && authToken) {
+          console.log('[API] Saving summary to backend for note:', noteId)
           await saveSummaryToBackend(result.summary, result.model, noteId, authToken)
         }
 
         return NextResponse.json(result)
-      } catch (err) {
-        console.error('[API] Gemini summarization failed:', err)
-        return NextResponse.json(createErrorResponse('UNKNOWN_ERROR'), { status: 500 })
+      } catch (err: any) {
+        console.error('[API] Gemini summarization failed:', {
+          message: err.message,
+          name: err.name,
+          stack: err.stack,
+          cause: err.cause
+        })
+        
+        // Return more detailed error for debugging
+        return NextResponse.json({
+          ...createErrorResponse('UNKNOWN_ERROR'),
+          debug: {
+            error: err.message,
+            type: err.name,
+            hasApiKey: !!GEMINI_API_KEY,
+            environment: process.env.NODE_ENV
+          }
+        }, { status: 500 })
       }
     }
 

@@ -171,88 +171,88 @@ export default function NotesPage() {
     }
   };
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-screen">
-      <div className="container mx-auto">
+    <div className="p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-background min-h-screen">
+      <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-              <FileText className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('myNotes')}</h1>
-              <p className="text-sm font-medium text-muted-foreground">{t('noNotesDescription')}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">{t('myNotes')}</h1>
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground hidden sm:block">{t('noNotesDescription')}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center p-1 bg-muted rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center p-1 bg-muted rounded-lg sm:rounded-xl border border-border shadow-sm">
               <Button
                 variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'grid' ? "bg-card shadow-sm" : "text-muted-foreground")}
+                className={cn("h-7 sm:h-8 rounded-md sm:rounded-lg px-2 sm:px-4 font-bold text-xs transition-all", viewMode === 'grid' ? "bg-card shadow-sm" : "text-muted-foreground")}
               >
-                <LayoutGrid className="w-4 h-4 mr-2" />
-                Cards
+                <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Cards</span>
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className={cn("h-8 rounded-lg px-4 font-bold text-xs transition-all", viewMode === 'list' ? "bg-card shadow-sm" : "text-muted-foreground")}
+                className={cn("h-7 sm:h-8 rounded-md sm:rounded-lg px-2 sm:px-4 font-bold text-xs transition-all", viewMode === 'list' ? "bg-card shadow-sm" : "text-muted-foreground")}
               >
-                <List className="w-4 h-4 mr-2" />
-                List
+                <List className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">List</span>
               </Button>
             </div>
 
             <Button
               id="tour-notes-create"
               onClick={() => setShowTemplateSelector(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-10 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-9 sm:h-10 px-4 sm:px-6 rounded-lg sm:rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('createNote')}
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t('createNote')}</span>
             </Button>
           </div>
         </div>
 
         {/* View Layout */}
-        <div className={cn("grid gap-8", viewMode === 'list' ? "grid-cols-1 lg:grid-cols-4" : "grid-cols-1")}>
-          {/* Folders Sidebar - Only in List Mode or Small Devices */}
+        <div className={cn("grid gap-4 sm:gap-6 lg:gap-8", viewMode === 'list' ? "grid-cols-1 lg:grid-cols-4" : "grid-cols-1")}>
+          {/* Folders Sidebar - Only in List Mode */}
           {viewMode === 'list' && (
             <div className="lg:col-span-1">
-              <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card">
-                <CardHeader className="p-6 pb-0">
-                  <div className="flex items-center justify-between mb-4">
-                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Folders</CardTitle>
-                    <Button id="tour-notes-folder" variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleFolderCreate()}>
-                      <FolderPlus className="w-4 h-4 text-primary" />
+              <Card className="border-none shadow-lg sm:shadow-xl shadow-black/5 dark:shadow-black/20 rounded-2xl sm:rounded-3xl overflow-hidden bg-card">
+                <CardHeader className="p-4 sm:p-6 pb-0">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <CardTitle className="text-xs sm:text-sm font-bold uppercase tracking-widest text-muted-foreground">Folders</CardTitle>
+                    <Button id="tour-notes-folder" variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" onClick={() => handleFolderCreate()}>
+                      <FolderPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                     </Button>
                   </div>
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <div className="relative mb-3 sm:mb-4">
+                    <Search className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Search notes..."
-                      className="w-full bg-muted border-none rounded-xl py-2 pl-10 pr-4 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full bg-muted border-none rounded-lg sm:rounded-xl py-1.5 sm:py-2 pl-8 sm:pl-10 pr-3 sm:pr-4 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent className="p-3 sm:p-4 pt-0">
                   <div
                     onClick={() => handleFolderSelect(null)}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all mb-1",
+                      "flex items-center justify-between p-2.5 sm:p-3 rounded-lg sm:rounded-xl cursor-pointer transition-all mb-1",
                       !selectedFolderId ? "bg-secondary text-primary font-bold" : "text-foreground font-medium hover:bg-secondary"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <Folder className="w-4 h-4" />
-                      <span className="text-sm">All Notes</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Folder className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="text-xs sm:text-sm">All Notes</span>
                     </div>
-                    {notesData && <span className="text-[10px] font-bold bg-card px-2 py-0.5 rounded-full border border-border shadow-sm">{notesData.total}</span>}
+                    {notesData && <span className="text-[9px] sm:text-[10px] font-bold bg-card px-1.5 sm:px-2 py-0.5 rounded-full border border-border shadow-sm">{notesData.total}</span>}
                   </div>
                   <FolderTree
                     selectedFolderId={selectedFolderId}
@@ -269,21 +269,21 @@ export default function NotesPage() {
 
           {/* Main Content Area */}
           <div className={cn(viewMode === 'list' ? "lg:col-span-3" : "")}>
-            <Card className="border-none shadow-xl shadow-lg shadow-black/5 dark:shadow-black/20 rounded-3xl overflow-hidden bg-card min-h-[600px] flex flex-col">
-              <CardHeader className="p-6 border-b border-border">
+            <Card className="border-none shadow-lg sm:shadow-xl shadow-black/5 dark:shadow-black/20 rounded-2xl sm:rounded-3xl overflow-hidden bg-card min-h-[400px] sm:min-h-[600px] flex flex-col">
+              <CardHeader className="p-4 sm:p-6 border-b border-border">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     {viewMode === 'grid' && selectedFolderId && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg mr-2" onClick={() => setSelectedFolderId(null)}>
-                        <ArrowLeft className="w-4 h-4" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg mr-1 sm:mr-2" onClick={() => setSelectedFolderId(null)}>
+                        <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
                     )}
-                    <CardTitle className="text-lg font-bold text-foreground">
+                    <CardTitle className="text-base sm:text-lg font-bold text-foreground">
                       {selectedFolderId ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground font-medium">Folders</span>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                          <span>{currentFolder?.name}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-muted-foreground font-medium text-sm sm:text-base">Folders</span>
+                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+                          <span className="text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{currentFolder?.name}</span>
                         </div>
                       ) : t('allNotes')}
                     </CardTitle>
@@ -291,21 +291,21 @@ export default function NotesPage() {
                 </div>
               </CardHeader>
 
-              <CardContent className="p-6 flex-grow">
+              <CardContent className="p-4 sm:p-6 flex-grow">
                 {notesLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                     {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-40 bg-secondary rounded-2xl animate-pulse" />
+                      <div key={i} className="h-32 sm:h-40 bg-secondary rounded-xl sm:rounded-2xl animate-pulse" />
                     ))}
                   </div>
                 ) : (
                   <>
                     {/* Grid Mode Root View: SHOW FOLDERS AS CARDS FIRST */}
                     {viewMode === 'grid' && !selectedFolderId && (
-                      <div className="space-y-8">
+                      <div className="space-y-6 sm:space-y-8">
                         <div>
-                          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Collections</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                          <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Collections</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                             {folders.filter(f => !f.parent_id).map((folder) => (
                               <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
                             ))}
@@ -314,13 +314,13 @@ export default function NotesPage() {
                               onClick={() => { setViewMode('list'); setSelectedFolderId(null); }}
                               className="group relative cursor-pointer"
                             >
-                              <div className="absolute -top-[10px] left-0 h-[20px] w-24 bg-muted group-hover:bg-secondary rounded-t-xl border-l border-t border-r border-border transition-all z-0"></div>
-                              <div className="relative bg-muted group-hover:bg-secondary p-6 rounded-2xl border border-border shadow-sm transition-all group-hover:shadow-md z-10 border-dashed">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-card shadow-inner">
-                                  <List className="w-6 h-6 text-foreground" />
+                              <div className="absolute -top-[8px] sm:-top-[10px] left-0 h-[16px] sm:h-[20px] w-20 sm:w-24 bg-muted group-hover:bg-secondary rounded-t-lg sm:rounded-t-xl border-l border-t border-r border-border transition-all z-0"></div>
+                              <div className="relative bg-muted group-hover:bg-secondary p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-border shadow-sm transition-all group-hover:shadow-md z-10 border-dashed">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 bg-card shadow-inner">
+                                  <List className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
                                 </div>
-                                <h4 className="font-bold text-foreground truncate mb-1">Detailed List</h4>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Expanded View</p>
+                                <h4 className="font-bold text-sm sm:text-base text-foreground truncate mb-1">Detailed List</h4>
+                                <p className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Expanded View</p>
                               </div>
                             </div>
                           </div>
@@ -329,8 +329,8 @@ export default function NotesPage() {
                         {/* Uncategorized Notes */}
                         {displayNotes.filter(n => !n.folder_id).length > 0 && (
                           <div>
-                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Uncategorized Notes</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Uncategorized Notes</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                               {displayNotes.filter(n => !n.folder_id).map((note) => (
                                 <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
                               ))}
@@ -342,11 +342,11 @@ export default function NotesPage() {
 
                     {/* Grid Mode Folder View: SHOW NOTES */}
                     {viewMode === 'grid' && selectedFolderId && (
-                      <div className="space-y-8">
+                      <div className="space-y-6 sm:space-y-8">
                         {currentSubfolders.length > 0 && (
                           <div>
-                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Sub-folders</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Sub-folders</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                               {currentSubfolders.map((folder) => (
                                 <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
                               ))}
@@ -355,14 +355,14 @@ export default function NotesPage() {
                         )}
 
                         <div>
-                          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-1">Notes in this folder</h3>
+                          <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Notes in this folder</h3>
                           {displayNotes.length === 0 ? (
-                            <div className="py-20 text-center bg-muted rounded-3xl border border-dashed border-border">
-                              <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                              <p className="text-sm font-bold text-muted-foreground">This folder is empty</p>
+                            <div className="py-12 sm:py-20 text-center bg-muted rounded-2xl sm:rounded-3xl border border-dashed border-border">
+                              <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground/30 mx-auto mb-3 sm:mb-4" />
+                              <p className="text-xs sm:text-sm font-bold text-muted-foreground">This folder is empty</p>
                             </div>
                           ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                               {displayNotes.map((note) => (
                                 <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
                               ))}
@@ -376,45 +376,45 @@ export default function NotesPage() {
                     {viewMode === 'list' && (
                       <>
                         {displayNotes.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center h-full py-20 grayscale opacity-50">
-                            <FileText className="w-16 h-16 mb-4 text-muted-foreground/50" />
-                            <h3 className="text-xl font-bold text-foreground mb-2">{t('noNotes')}</h3>
-                            <p className="text-sm text-muted-foreground">{t('noNotesDescription')}</p>
+                          <div className="flex flex-col items-center justify-center h-full py-12 sm:py-20 grayscale opacity-50">
+                            <FileText className="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4 text-muted-foreground/50" />
+                            <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1 sm:mb-2">{t('noNotes')}</h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground">{t('noNotesDescription')}</p>
                           </div>
                         ) : (
-                          <div className="space-y-4">
+                          <div className="space-y-2 sm:space-y-4">
                             {displayNotes.map((note) => (
                               <div
                                 key={note.id}
-                                className="group flex items-center justify-between p-4 bg-card border border-border rounded-2xl transition-all hover:bg-secondary hover:shadow-sm cursor-pointer"
+                                className="group flex items-center justify-between p-3 sm:p-4 bg-card border border-border rounded-xl sm:rounded-2xl transition-all hover:bg-secondary hover:shadow-sm cursor-pointer"
                                 onClick={() => handleNoteSelect(note)}
                               >
-                                <div className="flex items-center gap-4 flex-grow">
-                                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary border border-border">
-                                    <FileText className="w-5 h-5" />
+                                <div className="flex items-center gap-2 sm:gap-4 flex-grow min-w-0">
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-muted flex items-center justify-center text-primary border border-border flex-shrink-0">
+                                    <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                                   </div>
-                                  <div className="min-w-0">
-                                    <h4 className="font-bold text-foreground truncate">{note.title}</h4>
-                                    <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase py-1">
-                                      <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}</span>
+                                  <div className="min-w-0 flex-grow">
+                                    <h4 className="font-bold text-sm sm:text-base text-foreground truncate">{note.title}</h4>
+                                    <div className="flex items-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase py-0.5 sm:py-1">
+                                      <span className="flex items-center gap-1 sm:gap-1.5"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> <span className="hidden sm:inline">{formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}</span><span className="sm:hidden">Recent</span></span>
                                       {note.folder_id && (
-                                        <div className="flex items-center gap-1.5">
-                                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: folders.find(f => f.id === note.folder_id)?.color || '#gray' }}></div>
-                                          {folders.find(f => f.id === note.folder_id)?.name}
+                                        <div className="flex items-center gap-1 sm:gap-1.5 truncate">
+                                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0" style={{ backgroundColor: folders.find(f => f.id === note.folder_id)?.color || '#gray' }}></div>
+                                          <span className="truncate">{folders.find(f => f.id === note.folder_id)?.name}</span>
                                         </div>
                                       )}
                                     </div>
-                                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{note.summary || t('summary.noSummary')}</p>
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5 hidden sm:block">{note.summary || t('summary.noSummary')}</p>
                                   </div>
                                 </div>
-                                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1 sm:gap-2 flex-shrink-0">
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hidden sm:flex">
+                                    <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                                   </Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                                    <Settings className="w-4 h-4 text-muted-foreground" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hidden sm:flex">
+                                    <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                                   </Button>
-                                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 ml-2" />
+                                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50 sm:ml-2" />
                                 </div>
                               </div>
                             ))}
@@ -462,7 +462,7 @@ function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) =
       {/* Folder shape with colored outline */}
       <div className="relative">
         {/* Folder tab */}
-        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
+        <svg viewBox="0 0 300 40" className="w-full h-6 sm:h-8" preserveAspectRatio="none">
           <path
             d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
             style={{ fill: "hsl(var(--muted))" }}
@@ -488,36 +488,36 @@ function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) =
         </svg>
         
         {/* Content overlay */}
-        <div className="absolute inset-0 top-8 p-5 flex flex-col">
+        <div className="absolute inset-0 top-6 sm:top-8 p-3 sm:p-5 flex flex-col">
           {/* Icon and Title */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
             <div 
-              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: folderColor }}
             >
-              <FileText className="w-5 h-5 text-primary-foreground" />
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
             </div>
-            <h4 className="text-lg font-normal text-foreground truncate">{note.title}</h4>
+            <h4 className="text-base sm:text-lg font-normal text-foreground truncate">{note.title}</h4>
           </div>
 
           {/* Footer with date and menu */}
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-foreground/70 text-sm font-normal">
+            <span className="text-foreground/70 text-xs sm:text-sm font-normal truncate">
               {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                  <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg">
-                  <Share2 className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
+                  <Share2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Share
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-lg">
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
+                  <Settings className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -536,7 +536,7 @@ function FolderTabCard({ folder, onSelect }: { folder: any; onSelect: (id: strin
       {/* Folder shape with colored outline */}
       <div className="relative">
         {/* Folder tab */}
-        <svg viewBox="0 0 300 40" className="w-full h-8" preserveAspectRatio="none">
+        <svg viewBox="0 0 300 40" className="w-full h-6 sm:h-8" preserveAspectRatio="none">
           <path
             d="M 0 40 L 0 15 Q 0 10 5 10 L 60 10 L 72 0 L 140 0 Q 145 0 145 5 L 145 35 Q 145 40 150 40 L 300 40"
             style={{ fill: "hsl(var(--muted))" }}
@@ -562,30 +562,30 @@ function FolderTabCard({ folder, onSelect }: { folder: any; onSelect: (id: strin
         </svg>
         
         {/* Content overlay */}
-        <div className="absolute inset-0 top-8 p-5 flex flex-col">
+        <div className="absolute inset-0 top-6 sm:top-8 p-3 sm:p-5 flex flex-col">
           {/* Icon and Title */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
             <div 
-              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: folderColor }}
             >
-              <Folder className="w-5 h-5 text-primary-foreground" />
+              <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
             </div>
-            <h4 className="text-lg font-normal text-foreground truncate">{folder.name}</h4>
+            <h4 className="text-base sm:text-lg font-normal text-foreground truncate">{folder.name}</h4>
           </div>
 
           {/* Footer with date and menu */}
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-foreground/70 text-sm font-normal">Apr 2, 2023</span>
+            <span className="text-foreground/70 text-xs sm:text-sm font-normal">Apr 2, 2023</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                  <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg">
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="rounded-lg text-xs sm:text-sm">
+                  <Settings className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>

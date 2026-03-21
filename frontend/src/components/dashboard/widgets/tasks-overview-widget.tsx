@@ -66,38 +66,38 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
 
   return (
     <Card className={`${className} h-full`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold truncate">{t('title')}</CardTitle>
         <Link href="/tasks">
-          <Button size="sm" variant="outline" className="h-8">
-            <Plus className="mr-1 h-3 w-3" />
-            {t('createTask')}
+          <Button size="sm" variant="outline" className="h-7 sm:h-8 text-xs px-2 sm:px-3 flex-shrink-0">
+            <Plus className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">{t('createTask')}</span>
           </Button>
         </Link>
       </CardHeader>
-      <CardContent className="pb-4">
-        <div className="space-y-4">
+      <CardContent className="pb-3 sm:pb-4 px-3 sm:px-6">
+        <div className="space-y-3 sm:space-y-4">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <div>
-                <p className="text-sm font-medium">{stats.completed}</p>
-                <p className="text-xs text-muted-foreground">{t('dueToday')}</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-2">
+              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500 mb-1 sm:mb-0 flex-shrink-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs sm:text-sm font-medium">{stats.completed}</p>
+                <p className="text-[9px] sm:text-xs text-muted-foreground truncate">{t('dueToday')}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <div>
-                <p className="text-sm font-medium">{stats.pending}</p>
-                <p className="text-xs text-muted-foreground">{t('dueSoon')}</p>
+            <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-2">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500 mb-1 sm:mb-0 flex-shrink-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs sm:text-sm font-medium">{stats.pending}</p>
+                <p className="text-[9px] sm:text-xs text-muted-foreground truncate">{t('dueSoon')}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="h-4 w-4 text-red-500" />
-              <div>
-                <p className="text-sm font-medium">{stats.overdue}</p>
-                <p className="text-xs text-muted-foreground">{t('overdue')}</p>
+            <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-2">
+              <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-500 mb-1 sm:mb-0 flex-shrink-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs sm:text-sm font-medium">{stats.overdue}</p>
+                <p className="text-[9px] sm:text-xs text-muted-foreground truncate">{t('overdue')}</p>
               </div>
             </div>
           </div>
@@ -105,9 +105,9 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
           {/* Recent Tasks */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">{t('upcomingTasks')}</h4>
+              <h4 className="text-xs sm:text-sm font-medium">{t('upcomingTasks')}</h4>
               <Link href="/tasks">
-                <Button variant="ghost" size="sm" className="text-xs">
+                <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-7 px-2">
                   {t('viewAll')}
                 </Button>
               </Link>
@@ -128,24 +128,24 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
             ) : (
               <div className="space-y-2">
                 {tasks.slice(0, 3).map((task) => (
-                  <div key={task.id} className="flex items-center space-x-3 rounded-lg p-2 hover:bg-muted/50 transition-colors">
+                  <div key={task.id} className="flex items-center space-x-2 sm:space-x-3 rounded-lg p-1.5 sm:p-2 hover:bg-muted/50 transition-colors">
                     <div className="flex-shrink-0">
                       <Checkbox
                         checked={task.status === 'completed'}
                         onCheckedChange={() => handleToggleComplete(task.id, task.status)}
-                        className="h-4 w-4"
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate text-sm font-medium ${task.status === 'completed' ? 'text-muted-foreground line-through' : ''}`}>
+                      <p className={`truncate text-xs sm:text-sm font-medium ${task.status === 'completed' ? 'text-muted-foreground line-through' : ''}`}>
                         {task.title}
                       </p>
 
-                      <div className="mt-1 flex items-center space-x-2">
+                      <div className="mt-0.5 sm:mt-1 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                         <Badge
                           variant="secondary"
-                          className={`text-xs ${
+                          className={`text-[9px] sm:text-xs px-1.5 py-0 ${
                             task.priority === 'urgent'
                               ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                               : task.priority === 'high'
@@ -162,9 +162,9 @@ export function TasksOverviewWidget({ className }: TasksOverviewWidgetProps) {
                         </Badge>
 
                         {task.due_date && (
-                          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            <span>
+                          <div className="flex items-center space-x-0.5 sm:space-x-1 text-[9px] sm:text-xs text-muted-foreground">
+                            <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                            <span className="truncate">
                               {isToday(new Date(task.due_date)) 
                                 ? t('dueToday')
                                 : format(new Date(task.due_date), 'MMM d', { locale: dateLocale })

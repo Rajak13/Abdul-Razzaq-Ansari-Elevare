@@ -56,23 +56,23 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
 
   return (
     <Card className={`${className} h-full`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold flex items-center">
-          <Calendar className="h-5 w-5 mr-2" />
-          {todaysTasks.length > 0 ? t('today') : t('title')}
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold flex items-center">
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
+          <span className="truncate">{todaysTasks.length > 0 ? t('today') : t('title')}</span>
         </CardTitle>
         <Link href="/tasks">
-          <Button size="sm" variant="outline" className="h-8">
-            <Plus className="mr-1 h-3 w-3" />
-            {t('scheduleTask')}
+          <Button size="sm" variant="outline" className="h-7 sm:h-8 text-xs px-2 sm:px-3 flex-shrink-0">
+            <Plus className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">{t('scheduleTask')}</span>
           </Button>
         </Link>
       </CardHeader>
-      <CardContent className="pb-4">
-        <div className="space-y-3">
-          <div className="text-center py-2">
-            <p className="text-2xl font-bold">{today.getDate()}</p>
-            <p className="text-sm text-muted-foreground">
+      <CardContent className="pb-3 sm:pb-4 px-3 sm:px-6">
+        <div className="space-y-2 sm:space-y-3">
+          <div className="text-center py-1.5 sm:py-2">
+            <p className="text-xl sm:text-2xl font-bold">{today.getDate()}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {today.toLocaleDateString(locale, { 
                 weekday: 'long',
                 month: 'short'
@@ -97,15 +97,15 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
               </div>
             ) : displayTasks.length > 0 ? (
               displayTasks.map((task) => (
-                <div key={task.id} className="flex items-center space-x-3 rounded-lg p-2 hover:bg-muted/50 transition-colors">
-                  <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div key={task.id} className="flex items-center space-x-2 sm:space-x-3 rounded-lg p-1.5 sm:p-2 hover:bg-muted/50 transition-colors">
+                  <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${
+                    <p className={`text-xs sm:text-sm font-medium truncate ${
                       task.status === 'completed' ? 'line-through text-muted-foreground' : ''
                     }`}>
                       {task.title}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[9px] sm:text-xs text-muted-foreground truncate">
                       {task.due_date ? (
                         isToday(parseISO(task.due_date)) 
                           ? t('today')
@@ -115,7 +115,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                   </div>
                   <Badge 
                     variant="secondary" 
-                    className={`text-xs ${
+                    className={`text-[9px] sm:text-xs px-1.5 py-0 flex-shrink-0 ${
                       task.priority === 'urgent'
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         : task.priority === 'high'
@@ -125,10 +125,18 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                     }`}
                   >
-                    {task.priority === 'urgent' ? tTasks('priorityUrgent')
-                      : task.priority === 'high' ? tTasks('priorityHigh')
-                      : task.priority === 'medium' ? tTasks('priorityMedium')
-                      : tTasks('priorityLow')}
+                    <span className="hidden sm:inline">
+                      {task.priority === 'urgent' ? tTasks('priorityUrgent')
+                        : task.priority === 'high' ? tTasks('priorityHigh')
+                        : task.priority === 'medium' ? tTasks('priorityMedium')
+                        : tTasks('priorityLow')}
+                    </span>
+                    <span className="sm:hidden">
+                      {task.priority === 'urgent' ? 'U'
+                        : task.priority === 'high' ? 'H'
+                        : task.priority === 'medium' ? 'M'
+                        : 'L'}
+                    </span>
                   </Badge>
                 </div>
               ))
@@ -153,7 +161,7 @@ export function CalendarWidget({ className }: CalendarWidgetProps) {
 
           {displayTasks.length > 0 && (
             <Link href="/tasks">
-              <Button variant="ghost" size="sm" className="w-full text-xs">
+              <Button variant="ghost" size="sm" className="w-full text-[10px] sm:text-xs h-6 sm:h-7">
                 {t('viewAllTasks')}
               </Button>
             </Link>

@@ -72,61 +72,61 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
 
   return (
     <Card className={`${className} h-full`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold flex items-center">
-          <Users className="h-5 w-5 mr-2" />
-          {t('title')}
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold flex items-center">
+          <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
+          <span className="truncate">{t('title')}</span>
         </CardTitle>
         <Link href="/groups">
-          <Button size="sm" variant="outline" className="h-8">
-            <Plus className="mr-1 h-3 w-3" />
-            {t('viewAll')}
+          <Button size="sm" variant="outline" className="h-7 sm:h-8 text-xs px-2 sm:px-3 flex-shrink-0">
+            <Plus className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">{t('viewAll')}</span>
           </Button>
         </Link>
       </CardHeader>
-      <CardContent className="pb-4">
-        <div className="space-y-4">
+      <CardContent className="pb-3 sm:pb-4 px-3 sm:px-6">
+        <div className="space-y-3 sm:space-y-4">
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{studyGroups.length}</div>
-              <div className="text-xs text-muted-foreground">{t('myGroups')}</div>
+              <div className="text-xl sm:text-2xl font-bold text-purple-600">{studyGroups.length}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">{t('myGroups')}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{totalGroups}</div>
-              <div className="text-xs text-muted-foreground">{t('allGroups')}</div>
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">{totalGroups}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">{t('allGroups')}</div>
             </div>
           </div>
 
           {/* Groups List */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {studyGroups.length > 0 ? (
               <>
                 {studyGroups.slice(0, 3).map((group) => (
                   <Link key={group.id} href={`/groups/${group.id}`}>
-                    <div className="flex items-start space-x-3 rounded-lg p-2 hover:bg-muted/50 cursor-pointer transition-colors">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    <div className="flex items-start space-x-2 sm:space-x-3 rounded-lg p-1.5 sm:p-2 hover:bg-muted/50 cursor-pointer transition-colors">
+                      <Avatar className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-[10px] sm:text-xs">
                           {getGroupInitials(group.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium truncate">{group.name}</p>
+                        <div className="flex items-center space-x-1.5 sm:space-x-2">
+                          <p className="text-xs sm:text-sm font-medium truncate">{group.name}</p>
                           {group.is_private ? (
-                            <Lock className="h-3 w-3 text-muted-foreground" />
+                            <Lock className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-muted-foreground flex-shrink-0" />
                           ) : (
-                            <Globe className="h-3 w-3 text-muted-foreground" />
+                            <Globe className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-muted-foreground flex-shrink-0" />
                           )}
                         </div>
-                        <div className="mt-1 flex items-center space-x-3 text-xs text-muted-foreground">
-                          <span className="flex items-center space-x-1">
-                            <Users className="h-3 w-3" />
+                        <div className="mt-0.5 sm:mt-1 flex items-center space-x-2 sm:space-x-3 text-[9px] sm:text-xs text-muted-foreground">
+                          <span className="flex items-center space-x-0.5 sm:space-x-1">
+                            <Users className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                             <span>{t('members', { count: group.member_count })}</span>
                           </span>
                         </div>
                         {group.user_role && (
-                          <Badge variant="secondary" className="mt-1 text-xs">
+                          <Badge variant="secondary" className="mt-0.5 sm:mt-1 text-[9px] sm:text-xs px-1.5 py-0">
                             {group.user_role === 'owner' ? t('roleOwner') : 
                              group.user_role === 'admin' ? t('roleAdmin') : t('roleMember')}
                           </Badge>
@@ -137,7 +137,7 @@ export function StudyGroupsWidget({ className }: StudyGroupsWidgetProps) {
                 ))}
                 
                 <Link href="/groups">
-                  <Button variant="ghost" size="sm" className="w-full text-xs">
+                  <Button variant="ghost" size="sm" className="w-full text-[10px] sm:text-xs h-6 sm:h-7">
                     {t('viewAll')}
                   </Button>
                 </Link>

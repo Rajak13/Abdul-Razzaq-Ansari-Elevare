@@ -54,17 +54,17 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
 
   return (
     <Card className={`${className} h-full`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold truncate">{t('title')}</CardTitle>
         <Link href="/notes/create">
-          <Button size="sm" variant="outline" className="h-8">
-            <Plus className="mr-1 h-3 w-3" />
-            {t('createNote')}
+          <Button size="sm" variant="outline" className="h-7 sm:h-8 text-xs px-2 sm:px-3 flex-shrink-0">
+            <Plus className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">{t('createNote')}</span>
           </Button>
         </Link>
       </CardHeader>
-      <CardContent className="pb-4">
-        <div className="space-y-3">
+      <CardContent className="pb-3 sm:pb-4 px-3 sm:px-6">
+        <div className="space-y-2 sm:space-y-3">
           {isLoading ? (
             // Loading skeleton
             <div className="space-y-3">
@@ -83,14 +83,14 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
             <>
               {notes.map((note) => (
                 <Link key={note.id} href={`/notes/${note.id}`}>
-                  <div className="flex items-start space-x-3 rounded-lg p-2 hover:bg-muted/50 cursor-pointer transition-colors">
-                    <FileText className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start space-x-2 sm:space-x-3 rounded-lg p-1.5 sm:p-2 hover:bg-muted/50 cursor-pointer transition-colors">
+                    <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{note.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      <p className="text-xs sm:text-sm font-medium truncate">{note.title}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">
                         {getPreview(note.content)}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                         {t('lastEdited', { 
                           time: formatDistanceToNow(new Date(note.updated_at), { 
                             addSuffix: true,
@@ -104,7 +104,7 @@ export function RecentNotesWidget({ className }: RecentNotesWidgetProps) {
               ))}
               
               <Link href="/notes/all">
-                <Button variant="ghost" size="sm" className="w-full text-xs">
+                <Button variant="ghost" size="sm" className="w-full text-[10px] sm:text-xs h-6 sm:h-7">
                   {t('viewAll')}
                 </Button>
               </Link>

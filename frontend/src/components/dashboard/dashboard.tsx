@@ -16,29 +16,29 @@ export function Dashboard({ className }: DashboardProps) {
 
   return (
     <div className={`bg-background ${className}`}>
-      <div className="p-3 sm:p-4 lg:p-6">
+      <div className="p-2 sm:p-3 md:p-4 lg:p-6">
         {/* Dashboard Controls */}
-        <div className="flex justify-end mb-4 sm:mb-6">
+        <div className="flex justify-end mb-3 sm:mb-4 lg:mb-6">
           <DashboardControls />
         </div>
 
         {/* Enhanced Edit Mode Notice */}
         {isEditing && (
-          <div className="mb-4 sm:mb-6 bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 bg-primary rounded-full animate-pulse flex-shrink-0" />
-              <p className="text-xs sm:text-sm font-semibold text-primary">
+          <div className="mb-3 sm:mb-4 lg:mb-6 bg-primary/10 border border-primary/20 rounded-lg sm:rounded-xl p-2.5 sm:p-3 md:p-4">
+            <div className="flex items-center space-x-2">
+              <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 bg-primary rounded-full animate-pulse flex-shrink-0" />
+              <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-primary">
                 {t('editMode')} {t('overview').toLowerCase()}
               </p>
             </div>
-            <p className="text-[10px] sm:text-xs text-primary/80 mt-2">
+            <p className="text-[9px] sm:text-[10px] md:text-xs text-primary/80 mt-1.5 sm:mt-2">
               {t('editModeHint', { cancel: t('cancelEdit') })}
             </p>
           </div>
         )}
 
         {/* Dashboard Grid */}
-        <div className="bg-card rounded-xl border shadow-sm">
+        <div className="bg-card rounded-lg sm:rounded-xl border shadow-sm">
           <DashboardGrid />
         </div>
       </div>

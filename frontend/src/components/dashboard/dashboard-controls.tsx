@@ -107,24 +107,25 @@ export function DashboardControls({ className }: DashboardControlsProps) {
   }
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center gap-1.5 sm:gap-2 ${className}`}>
       {/* Edit Toggle */}
       <Button
         id="tour-dashboard-customize"
         variant={isEditing ? 'default' : 'outline'}
         size="sm"
         onClick={handleToggleEdit}
+        className="h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3"
       >
-        <Edit3 className="h-4 w-4 mr-2" />
-        {isEditing ? t('cancelEdit') : t('customize')}
+        <Edit3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+        <span className="hidden sm:inline">{isEditing ? t('cancelEdit') : t('customize')}</span>
       </Button>
 
       {/* Add Widget Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button id="tour-dashboard-add-widget" variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            {t('addWidget')}
+          <Button id="tour-dashboard-add-widget" variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3">
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t('addWidget')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
@@ -151,8 +152,8 @@ export function DashboardControls({ className }: DashboardControlsProps) {
       {/* Dashboard Settings */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4" />
+          <Button variant="outline" size="sm" className="h-8 sm:h-9 w-8 sm:w-9 p-0">
+            <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
