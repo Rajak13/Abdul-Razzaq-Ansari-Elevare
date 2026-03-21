@@ -35,20 +35,28 @@ const USE_GEMINI = GEMINI_API_KEY && NODE_ENV === 'production'
 // ─── Gemini summarization ────────────────────────────────────────────────────
 
 async function summarizeWithGemini(text: string): Promise<SummarizationResponse> {
-  console.log('[Gemini] Starting summarization, text length:', text.length)
-  console.log('[Gemini] API key available:', !!GEMINI_API_KEY)
-  console.log('[Gemini] API key prefix:', GEMINI_API_KEY?.substring(0, 20) + '...')
+  const geminiRequestId = crypto.randomUUID().substring(0, 8)
+  
+  console.log(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL START ==========`)
+  console.log(`[Gemini:${geminiRequestId}] Text length:`, text.length)
+  console.log(`[Gemini:${geminiRequestId}] Text preview:`, text.substring(0, 100) + '...')
+  console.log(`[Gemini:${geminiRequestId}] API key available:`, !!GEMINI_API_KEY)
+  console.log(`[Gemini:${geminiRequestId}] API key length:`, GEMINI_API_KEY?.length || 0)
+  console.log(`[Gemini:${geminiRequestId}] API key prefix:`, GEMINI_API_KEY?.substring(0, 20) + '...')
   
   if (!GEMINI_API_KEY) {
+    console.error(`[Gemini:${geminiRequestId}] ❌ GEMINI_API_KEY is not configured`)
     throw new Error('GEMINI_API_KEY is not configured')
   }
 
   try {
+    console.log(`[Gemini:${geminiRequestId}] Creating GoogleGenerativeAI instance...`)
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    console.log('[Gemini] GoogleGenerativeAI instance created')
+    console.log(`[Gemini:${geminiRequestId}] ✓ GoogleGenerativeAI instance created`)
     
+    console.log(`[Gemini:${geminiRequestId}] Getting generative model (gemini-pro)...`)
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-    console.log('[Gemini] Model instance created')
+    console.log(`[Gemini:${geminiRequestId}] ✓ Model instance created`)
 
     const prompt = `Summarize the following text concisely in 2-4 sentences. 
 Return only the summary, no preamble or explanation.
@@ -56,21 +64,27 @@ Return only the summary, no preamble or explanation.
 Text:
 ${text}`
 
-    console.log('[Gemini] Calling generateContent...')
+    console.log(`[Gemini:${geminiRequestId}] Prompt length:`, prompt.length)
+    console.log(`[Gemini:${geminiRequestId}] Calling generateContent...`)
+    
     const startTime = Date.now()
     const result = await model.generateContent(prompt)
     const duration = Date.now() - startTime
-    console.log('[Gemini] Got response from Gemini in', duration, 'ms')
+    
+    console.log(`[Gemini:${geminiRequestId}] ✓ Got response from Gemini in ${duration}ms`)
+    console.log(`[Gemini:${geminiRequestId}] Result object type:`, typeof result)
+    console.log(`[Gemini:${geminiRequestId}] Result has response:`, !!result.response)
     
     const response = result.response
-    console.log('[Gemini] Response object:', {
-      candidates: response.candidates?.length,
-      promptFeedback: response.promptFeedback
-    })
+    console.log(`[Gemini:${geminiRequestId}] Response candidates:`, response.candidates?.length || 0)
+    console.log(`[Gemini:${geminiRequestId}] Response promptFeedback:`, JSON.stringify(response.promptFeedback))
     
+    console.log(`[Gemini:${geminiRequestId}] Extracting text from response...`)
     const summary = response.text().trim()
-    console.log('[Gemini] Summary generated, length:', summary.length)
+    console.log(`[Gemini:${geminiRequestId}] ✓ Summary generated, length:`, summary.length)
+    console.log(`[Gemini:${geminiRequestId}] Summary preview:`, summary.substring(0, 100) + '...')
 
+    console.log(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL SUCCESS ==========`)
     return {
       summary,
       processingTime: 0, // filled in by caller
@@ -78,26 +92,32 @@ ${text}`
       model: 'gemini-pro'
     }
   } catch (error: any) {
-    console.error('[Gemini] Error details:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      response: error.response,
-      status: error.status,
-      statusText: error.statusText
-    })
+    console.error(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL FAILED ==========`)
+    console.error(`[Gemini:${geminiRequestId}] Error type:`, typeof error)
+    console.error(`[Gemini:${geminiRequestId}] Error name:`, error.name)
+    console.error(`[Gemini:${geminiRequestId}] Error message:`, error.message)
+    console.error(`[Gemini:${geminiRequestId}] Error stack:`, error.stack)
+    console.error(`[Gemini:${geminiRequestId}] Error response:`, error.response)
+    console.error(`[Gemini:${geminiRequestId}] Error status:`, error.status)
+    console.error(`[Gemini:${geminiRequestId}] Error statusText:`, error.statusText)
+    console.error(`[Gemini:${geminiRequestId}] Error code:`, error.code)
+    console.error(`[Gemini:${geminiRequestId}] Full error:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
     
     // Check for specific error types
     if (error.message?.includes('API key')) {
+      console.error(`[Gemini:${geminiRequestId}] ❌ API key error detected`)
       throw new Error('Invalid or missing Gemini API key')
     }
     if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+      console.error(`[Gemini:${geminiRequestId}] ❌ Rate limit error detected`)
       throw new Error('Gemini API rate limit exceeded. Please try again later.')
     }
     if (error.message?.includes('SAFETY')) {
+      console.error(`[Gemini:${geminiRequestId}] ❌ Safety filter error detected`)
       throw new Error('Content was blocked by safety filters')
     }
     
+    console.error(`[Gemini:${geminiRequestId}] ❌ Rethrowing original error`)
     throw error
   }
 }
@@ -175,17 +195,28 @@ async function saveSummaryToBackend(
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
+  const requestId = crypto.randomUUID()
+
+  console.log(`[${requestId}] ========== NEW SUMMARIZATION REQUEST ==========`)
+  console.log(`[${requestId}] Timestamp:`, new Date().toISOString())
+  console.log(`[${requestId}] Environment:`, process.env.NODE_ENV)
+  console.log(`[${requestId}] USE_GEMINI:`, USE_GEMINI)
+  console.log(`[${requestId}] GEMINI_API_KEY exists:`, !!GEMINI_API_KEY)
+  console.log(`[${requestId}] GEMINI_API_KEY length:`, GEMINI_API_KEY?.length || 0)
 
   try {
     let body: SummarizationRequest
     try {
       body = await request.json()
-    } catch {
+      console.log(`[${requestId}] Request body parsed, text length:`, body.text?.length || 0)
+    } catch (parseError: any) {
+      console.error(`[${requestId}] Failed to parse JSON:`, parseError.message)
       return NextResponse.json(createErrorResponse('INVALID_JSON'), { status: 400 })
     }
 
     const validation = validateSummarizationRequest(body)
     if (!validation.isValid) {
+      console.warn(`[${requestId}] Validation failed:`, validation.error)
       const statusCode = validation.error?.code === 'TEXT_TOO_LONG' ? 413 : 400
       return NextResponse.json(validation.error, { status: statusCode })
     }
@@ -194,47 +225,60 @@ export async function POST(request: NextRequest) {
     const noteId = request.headers.get('x-note-id')
     const authToken = request.headers.get('authorization')
 
+    console.log(`[${requestId}] Plain text length:`, plainText.length)
+    console.log(`[${requestId}] Note ID:`, noteId || 'none')
+    console.log(`[${requestId}] Auth token present:`, !!authToken)
+
     // ── Production: use Gemini ──
     if (USE_GEMINI) {
+      console.log(`[${requestId}] ========== USING GEMINI API ==========`)
+      console.log(`[${requestId}] API Key prefix:`, GEMINI_API_KEY?.substring(0, 10) + '...')
+      
       try {
-        console.log('[API] Using Gemini for summarization')
-        console.log('[API] Environment:', process.env.NODE_ENV)
-        console.log('[API] GEMINI_API_KEY exists:', !!GEMINI_API_KEY)
-        
+        console.log(`[${requestId}] Calling summarizeWithGemini...`)
         const result = await summarizeWithGemini(plainText)
         result.processingTime = Date.now() - startTime
 
-        console.log('[API] Gemini summarization successful')
+        console.log(`[${requestId}] ✅ Gemini summarization successful`)
+        console.log(`[${requestId}] Summary length:`, result.summary.length)
+        console.log(`[${requestId}] Processing time:`, result.processingTime, 'ms')
 
         if (noteId && authToken) {
-          console.log('[API] Saving summary to backend for note:', noteId)
+          console.log(`[${requestId}] Saving summary to backend for note:`, noteId)
           await saveSummaryToBackend(result.summary, result.model, noteId, authToken)
         }
 
+        console.log(`[${requestId}] ========== REQUEST COMPLETE ==========`)
         return NextResponse.json(result)
       } catch (err: any) {
-        console.error('[API] Gemini summarization failed:', {
-          message: err.message,
-          name: err.name,
-          stack: err.stack,
-          cause: err.cause
-        })
+        console.error(`[${requestId}] ❌ Gemini summarization FAILED`)
+        console.error(`[${requestId}] Error name:`, err.name)
+        console.error(`[${requestId}] Error message:`, err.message)
+        console.error(`[${requestId}] Error stack:`, err.stack)
+        console.error(`[${requestId}] Error cause:`, err.cause)
+        console.error(`[${requestId}] Full error object:`, JSON.stringify(err, Object.getOwnPropertyNames(err)))
         
         // Return more detailed error for debugging
         return NextResponse.json({
           ...createErrorResponse('UNKNOWN_ERROR'),
           debug: {
+            requestId,
             error: err.message,
             type: err.name,
             hasApiKey: !!GEMINI_API_KEY,
-            environment: process.env.NODE_ENV
+            apiKeyLength: GEMINI_API_KEY?.length || 0,
+            environment: process.env.NODE_ENV,
+            useGemini: USE_GEMINI,
+            timestamp: new Date().toISOString()
           }
         }, { status: 500 })
       }
     }
 
     // ── Development: use FastAPI ──
-    console.log('[API] Using FastAPI for summarization')
+    console.log(`[${requestId}] ========== USING FASTAPI ==========`)
+    console.log(`[${requestId}] FastAPI URL:`, SUMMARIZATION_SERVICE_URL)
+    
     const fastApiRequest: SummarizationRequest = {
       text: plainText,
       maxLength: Math.min(body.maxLength || 150, 300),
@@ -244,6 +288,8 @@ export async function POST(request: NextRequest) {
     let lastError: ErrorCode = 'UNKNOWN_ERROR'
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      console.log(`[${requestId}] Attempt ${attempt}/${MAX_RETRIES}`)
+      
       try {
         const result = await callSummarizationService(fastApiRequest, attempt)
 
@@ -251,25 +297,42 @@ export async function POST(request: NextRequest) {
           const processingTime = Date.now() - startTime
           const response = { ...result.data, processingTime, metadata: { attempt, totalProcessingTime: processingTime } }
 
+          console.log(`[${requestId}] ✅ FastAPI summarization successful`)
+          console.log(`[${requestId}] Processing time:`, processingTime, 'ms')
+
           if (noteId && authToken) {
+            console.log(`[${requestId}] Saving summary to backend`)
             await saveSummaryToBackend(result.data.summary, result.data.model, noteId, authToken)
           }
 
+          console.log(`[${requestId}] ========== REQUEST COMPLETE ==========`)
           return NextResponse.json(response)
         }
 
+        console.warn(`[${requestId}] Attempt ${attempt} failed with error:`, result.errorCode)
         lastError = result.errorCode
-        if (!isRetryableError(result.errorCode)) break
-        if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, getRetryDelay(result.errorCode, attempt)))
-      } catch {
+        if (!isRetryableError(result.errorCode)) {
+          console.log(`[${requestId}] Error is not retryable, stopping`)
+          break
+        }
+        if (attempt < MAX_RETRIES) {
+          const delay = getRetryDelay(result.errorCode, attempt)
+          console.log(`[${requestId}] Retrying in ${delay}ms...`)
+          await new Promise(r => setTimeout(r, delay))
+        }
+      } catch (attemptError: any) {
+        console.error(`[${requestId}] Attempt ${attempt} threw exception:`, attemptError.message)
         lastError = 'NETWORK_ERROR'
         if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 1000 * attempt))
       }
     }
 
+    console.error(`[${requestId}] ❌ All attempts failed, last error:`, lastError)
     return NextResponse.json(createErrorResponse(lastError), { status: getStatusCodeForError(lastError) })
-  } catch (error) {
-    console.error('Error in POST /api/generate-summary:', error)
+  } catch (error: any) {
+    console.error(`[${requestId}] ❌ FATAL ERROR in POST /api/generate-summary`)
+    console.error(`[${requestId}] Error:`, error.message)
+    console.error(`[${requestId}] Stack:`, error.stack)
     return NextResponse.json(createErrorResponse('INTERNAL_ERROR'), { status: 500 })
   }
 }
@@ -277,15 +340,27 @@ export async function POST(request: NextRequest) {
 // ─── GET health check ─────────────────────────────────────────────────────────
 
 export async function GET() {
+  console.log('[Health] Health check requested')
+  console.log('[Health] Environment:', process.env.NODE_ENV)
+  console.log('[Health] USE_GEMINI:', USE_GEMINI)
+  console.log('[Health] GEMINI_API_KEY exists:', !!GEMINI_API_KEY)
+  
   if (USE_GEMINI) {
+    console.log('[Health] Using Gemini service')
     return NextResponse.json({
       status: 'healthy',
       service: 'gemini',
       model: 'gemini-pro',
+      hasApiKey: !!GEMINI_API_KEY,
+      apiKeyLength: GEMINI_API_KEY?.length || 0,
+      environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
     })
   }
 
+  console.log('[Health] Using FastAPI service')
+  console.log('[Health] FastAPI URL:', SUMMARIZATION_SERVICE_URL)
+  
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), HEALTH_CHECK_TIMEOUT)
@@ -297,6 +372,7 @@ export async function GET() {
     clearTimeout(timeoutId)
 
     if (response.ok) {
+      console.log('[Health] FastAPI is healthy')
       return NextResponse.json({
         status: 'healthy',
         service: 'fastapi',
@@ -305,9 +381,11 @@ export async function GET() {
       })
     }
 
+    console.warn('[Health] FastAPI returned non-OK status:', response.status)
     return NextResponse.json({ status: 'unhealthy', service: 'fastapi' }, { status: 503 })
-  } catch {
-    return NextResponse.json({ status: 'unhealthy', service: 'unavailable' }, { status: 503 })
+  } catch (error: any) {
+    console.error('[Health] FastAPI health check failed:', error.message)
+    return NextResponse.json({ status: 'unhealthy', service: 'unavailable', error: error.message }, { status: 503 })
   }
 }
 
