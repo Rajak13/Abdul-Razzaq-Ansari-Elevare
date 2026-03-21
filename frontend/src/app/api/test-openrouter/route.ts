@@ -59,7 +59,7 @@ export async function GET() {
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.2-1b-instruct:free',
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: [{
           role: 'user',
           content: 'Say "Hello, OpenRouter API is working!" in one sentence.'
@@ -88,7 +88,7 @@ export async function GET() {
       success: true,
       message: 'OpenRouter API is working correctly',
       response: text,
-      model: 'meta-llama/llama-3.2-1b-instruct:free',
+      model: 'meta-llama/llama-3.2-3b-instruct:free',
       diagnostics: {
         ...diagnostics,
         responseTime: duration,

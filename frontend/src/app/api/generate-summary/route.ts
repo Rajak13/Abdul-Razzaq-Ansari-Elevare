@@ -100,8 +100,8 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        // Using a smaller, faster free model (1B parameters)
-        model: 'meta-llama/llama-3.2-1b-instruct:free',
+        // Using Llama 3.2 3B - good balance of speed and quality
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: [{
           role: 'system',
           content: 'You are a helpful assistant that provides concise summaries. Always respond with just the summary, no introductory phrases like "Here is a summary" or "The text discusses". Start directly with the summary content.'
@@ -109,9 +109,8 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
           role: 'user',
           content: prompt
         }],
-        temperature: 0.5, // Lower temperature for more focused summaries
-        max_tokens: 300, // Reduced for more concise output
-        // Add fallback models in case the primary one is unavailable
+        temperature: 0.5,
+        max_tokens: 300,
         route: 'fallback'
       })
     }, 3) // 3 retries with exponential backoff
@@ -169,7 +168,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'llama-3.2-1b-free'
+      model: 'llama-3.2-3b-free'
     }
   } catch (error: any) {
     console.error(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL FAILED ==========`)
