@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const NODE_ENV = process.env.NODE_ENV
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'production'
+const IS_PRODUCTION = NODE_ENV === 'production' || IS_VERCEL
 
 /**
  * Simple test endpoint to verify Gemini API configuration
@@ -13,13 +15,23 @@ export async function GET() {
   
   console.log(`[Test:${testId}] ========== GEMINI API TEST ==========`)
   console.log(`[Test:${testId}] Environment:`, NODE_ENV)
+  console.log(`[Test:${testId}] VERCEL:`, process.env.VERCEL)
+  console.log(`[Test:${testId}] VERCEL_ENV:`, process.env.VERCEL_ENV)
+  console.log(`[Test:${testId}] IS_VERCEL:`, IS_VERCEL)
+  console.log(`[Test:${testId}] IS_PRODUCTION:`, IS_PRODUCTION)
   console.log(`[Test:${testId}] GEMINI_API_KEY exists:`, !!GEMINI_API_KEY)
   console.log(`[Test:${testId}] GEMINI_API_KEY length:`, GEMINI_API_KEY?.length || 0)
   console.log(`[Test:${testId}] GEMINI_API_KEY prefix:`, GEMINI_API_KEY?.substring(0, 20) || 'N/A')
 
   const diagnostics: any = {
     timestamp: new Date().toISOString(),
-    environment: NODE_ENV,
+    environment: {
+      NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      IS_VERCEL,
+      IS_PRODUCTION
+    },
     hasApiKey: !!GEMINI_API_KEY,
     apiKeyLength: GEMINI_API_KEY?.length || 0,
     apiKeyPrefix: GEMINI_API_KEY?.substring(0, 10) || 'N/A',

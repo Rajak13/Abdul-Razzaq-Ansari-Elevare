@@ -28,9 +28,23 @@ const HEALTH_CHECK_TIMEOUT = 5000
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const NODE_ENV = process.env.NODE_ENV
 
+// Vercel sets NODE_ENV automatically, but we also check for Vercel-specific env vars
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'production'
+const IS_PRODUCTION = NODE_ENV === 'production' || IS_VERCEL
+
 // In development, prefer FastAPI even if Gemini key is set (for testing)
-// In production, use Gemini if available
-const USE_GEMINI = GEMINI_API_KEY && NODE_ENV === 'production'
+// In production/Vercel, use Gemini if available
+const USE_GEMINI = !!GEMINI_API_KEY && IS_PRODUCTION
+
+console.log('[Config] Environment detection:', {
+  NODE_ENV,
+  VERCEL: process.env.VERCEL,
+  VERCEL_ENV: process.env.VERCEL_ENV,
+  IS_VERCEL,
+  IS_PRODUCTION,
+  HAS_GEMINI_KEY: !!GEMINI_API_KEY,
+  USE_GEMINI
+})
 
 // ─── Gemini summarization ────────────────────────────────────────────────────
 
@@ -342,6 +356,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   console.log('[Health] Health check requested')
   console.log('[Health] Environment:', process.env.NODE_ENV)
+  console.log('[Health] VERCEL:', process.env.VERCEL)
+  console.log('[Health] VERCEL_ENV:', process.env.VERCEL_ENV)
+  console.log('[Health] IS_PRODUCTION:', IS_PRODUCTION)
   console.log('[Health] USE_GEMINI:', USE_GEMINI)
   console.log('[Health] GEMINI_API_KEY exists:', !!GEMINI_API_KEY)
   
@@ -353,7 +370,13 @@ export async function GET() {
       model: 'gemini-pro',
       hasApiKey: !!GEMINI_API_KEY,
       apiKeyLength: GEMINI_API_KEY?.length || 0,
-      environment: process.env.NODE_ENV,
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        VERCEL: process.env.VERCEL,
+        VERCEL_ENV: process.env.VERCEL_ENV,
+        IS_VERCEL,
+        IS_PRODUCTION
+      },
       timestamp: new Date().toISOString()
     })
   }
@@ -382,10 +405,25 @@ export async function GET() {
     }
 
     console.warn('[Health] FastAPI returned non-OK status:', response.status)
-    return NextResponse.json({ status: 'unhealthy', service: 'fastapi' }, { status: 503 })
+    return NextResponse.json({ 
+      status: 'unhealthy', 
+      service: 'fastapi',
+      reason: 'Non-OK status',
+      statusCode: response.status
+    }, { status: 503 })
   } catch (error: any) {
     console.error('[Health] FastAPI health check failed:', error.message)
-    return NextResponse.json({ status: 'unhealthy', service: 'unavailable', error: error.message }, { status: 503 })
+    return NextResponse.json({ 
+      status: 'unhealthy', 
+      service: 'unavailable', 
+      error: error.message,
+      config: {
+        USE_GEMINI,
+        HAS_API_KEY: !!GEMINI_API_KEY,
+        IS_PRODUCTION,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    }, { status: 503 })
   }
 }
 
