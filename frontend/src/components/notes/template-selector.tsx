@@ -57,7 +57,6 @@ export function TemplateSelector({
                   <CardDescription>{template.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{template.preview}</p>
                   <Button className="mt-3 w-full" variant="outline">
                     {t('useTemplate')}
                   </Button>
