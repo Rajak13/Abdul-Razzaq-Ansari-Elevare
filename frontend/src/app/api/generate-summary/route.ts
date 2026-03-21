@@ -74,8 +74,8 @@ ${text}`
     
     const startTime = Date.now()
     
-    // Use direct REST API call with v1 endpoint (not v1beta)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    // Use direct REST API call with v1 endpoint
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -132,7 +132,7 @@ ${text}`
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'gemini-1.5-flash'
+      model: 'gemini-2.0-flash'
     }
   } catch (error: any) {
     console.error(`[Gemini:${geminiRequestId}] ========== GEMINI API CALL FAILED ==========`)
@@ -391,7 +391,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       service: 'gemini',
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       hasApiKey: !!GEMINI_API_KEY,
       apiKeyLength: GEMINI_API_KEY?.length || 0,
       environment: {
