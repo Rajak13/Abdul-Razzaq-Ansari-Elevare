@@ -47,7 +47,7 @@ async function summarizeWithGemini(text: string): Promise<SummarizationResponse>
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
     console.log('[Gemini] GoogleGenerativeAI instance created')
     
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
     console.log('[Gemini] Model instance created')
 
     const prompt = `Summarize the following text concisely in 2-4 sentences. 
@@ -75,7 +75,7 @@ ${text}`
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'gemini-1.5-flash'
+      model: 'gemini-pro'
     }
   } catch (error: any) {
     console.error('[Gemini] Error details:', {
@@ -281,7 +281,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       service: 'gemini',
-      model: 'gemini-1.5-flash',
+      model: 'gemini-pro',
       timestamp: new Date().toISOString()
     })
   }
