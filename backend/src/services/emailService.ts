@@ -1,13 +1,18 @@
 import sgMail from '@sendgrid/mail';
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Determine which email service to use based on environment
+// Determine which email service to use
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const USE_SMTP = process.env.NODE_ENV === 'development' || process.env.USE_SMTP === 'true';
 
-// Initialize SendGrid (for production)
-if (!USE_SMTP) {
+// Initialize Resend (for production if key is present)
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+// Initialize SendGrid (fallback for production if no Resend key)
+if (!USE_SMTP && !RESEND_API_KEY) {
   sgMail.setApiKey(config.email.password);
 }
 
@@ -15,7 +20,7 @@ if (!USE_SMTP) {
 const smtpTransporter = USE_SMTP ? nodemailer.createTransport({
   host: config.email.host,
   port: config.email.port,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
     user: config.email.user,
     pass: config.email.password,
@@ -26,27 +31,36 @@ const smtpTransporter = USE_SMTP ? nodemailer.createTransport({
 }) : null;
 
 // Log which email service is being used
-logger.info(`Email service initialized: ${USE_SMTP ? 'SMTP (Nodemailer)' : 'SendGrid'}`, {
-  host: USE_SMTP ? config.email.host : 'SendGrid API',
+const emailService = resend ? 'Resend' : USE_SMTP ? 'SMTP (Nodemailer)' : 'SendGrid';
+logger.info(`Email service initialized: ${emailService}`, {
+  host: USE_SMTP ? config.email.host : resend ? 'Resend API' : 'SendGrid API',
   port: USE_SMTP ? config.email.port : 'N/A',
   user: USE_SMTP ? config.email.user : 'API Key'
 });
 
 /**
- * Unified email sending function that works with both SMTP and SendGrid
+ * Unified email sending function that works with SMTP, Resend, and SendGrid
  */
 async function sendEmail(msg: { to: string; from: string; subject: string; html: string }) {
   if (USE_SMTP && smtpTransporter) {
-    // Use SMTP (Nodemailer)
+    // Use SMTP (Nodemailer) for development
     await smtpTransporter.sendMail({
       from: msg.from,
       to: msg.to,
       subject: msg.subject,
       html: msg.html,
     });
+  } else if (resend) {
+    // Use Resend for production (preferred)
+    await resend.emails.send({
+      from: msg.from,
+      to: msg.to,
+      subject: msg.subject,
+      html: msg.html,
+    });
   } else {
-    // Use SendGrid
-    await sendEmail(msg);
+    // Use SendGrid as fallback
+    await sgMail.send(msg);
   }
 }
 
