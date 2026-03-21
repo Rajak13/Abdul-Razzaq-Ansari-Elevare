@@ -78,7 +78,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
         'X-Title': 'Elevare Learning'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'nousresearch/hermes-3-llama-3.1-405b:free',
         messages: [{
           role: 'user',
           content: prompt
@@ -124,7 +124,7 @@ async function summarizeWithOpenRouter(text: string): Promise<SummarizationRespo
       summary,
       processingTime: 0, // filled in by caller
       chunksProcessed: 1,
-      model: 'gemini-2.0-flash-exp'
+      model: 'hermes-3-405b'
     }
   } catch (error: any) {
     console.error(`[OpenRouter:${requestId}] ========== OPENROUTER API CALL FAILED ==========`)
@@ -378,7 +378,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       service: 'openrouter',
-      model: 'gemini-2.0-flash-exp',
+      model: 'hermes-3-405b',
       hasApiKey: !!OPENROUTER_API_KEY,
       apiKeyLength: OPENROUTER_API_KEY?.length || 0,
       environment: {
