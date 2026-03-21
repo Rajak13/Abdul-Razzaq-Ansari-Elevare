@@ -429,8 +429,8 @@ export async function GET() {
       service: 'unavailable', 
       error: error.message,
       config: {
-        USE_GEMINI,
-        HAS_API_KEY: !!GEMINI_API_KEY,
+        USE_OPENROUTER,
+        HAS_API_KEY: !!OPENROUTER_API_KEY,
         IS_PRODUCTION,
         NODE_ENV: process.env.NODE_ENV
       }
