@@ -226,9 +226,9 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] ========== NEW SUMMARIZATION REQUEST ==========`)
   console.log(`[${requestId}] Timestamp:`, new Date().toISOString())
   console.log(`[${requestId}] Environment:`, process.env.NODE_ENV)
-  console.log(`[${requestId}] USE_GEMINI:`, USE_GEMINI)
-  console.log(`[${requestId}] GEMINI_API_KEY exists:`, !!GEMINI_API_KEY)
-  console.log(`[${requestId}] GEMINI_API_KEY length:`, GEMINI_API_KEY?.length || 0)
+  console.log(`[${requestId}] USE_OPENROUTER:`, USE_OPENROUTER)
+  console.log(`[${requestId}] OPENROUTER_API_KEY exists:`, !!OPENROUTER_API_KEY)
+  console.log(`[${requestId}] OPENROUTER_API_KEY length:`, OPENROUTER_API_KEY?.length || 0)
 
   try {
     let body: SummarizationRequest
