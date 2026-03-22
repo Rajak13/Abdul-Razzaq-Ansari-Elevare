@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
   },
   // Increase body size limit for file uploads
   experimental: {
