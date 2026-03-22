@@ -101,8 +101,13 @@ export default function NotesPage() {
   }, [folders, selectedFolderId, viewMode]);
 
   const handleTemplateSelect = (template: NoteTemplate) => {
-    // Navigate to create page with template
-    router.push(`/notes/create?template=${template.id}`);
+    // Navigate to create page with template and current folder
+    const params = new URLSearchParams();
+    params.set('template', template.id);
+    if (selectedFolderId) {
+      params.set('folder', selectedFolderId);
+    }
+    router.push(`/notes/create?${params.toString()}`);
     setShowTemplateSelector(false);
   };
 
