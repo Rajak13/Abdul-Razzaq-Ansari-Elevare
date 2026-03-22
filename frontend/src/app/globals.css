@@ -462,6 +462,23 @@
   display: none;
 }
 
+/* Scale toast notifications to match 80% page scaling */
+[data-sonner-toaster] {
+  font-size: 0.8rem !important;
+}
+
+[data-sonner-toast] {
+  font-size: 0.8rem !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-size: 0.875rem !important;
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 0.75rem !important;
+}
+
   /* Mobile-responsive tabs - scrollable on small screens */
   @media (max-width: 640px) {
     [role="tablist"] {
