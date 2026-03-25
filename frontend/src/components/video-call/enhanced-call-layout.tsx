@@ -33,6 +33,7 @@ export function EnhancedCallLayout({
 }: EnhancedCallLayoutProps) {
   const [activeView, setActiveView] = useState<ViewType>('video');
   const [callDuration, setCallDuration] = useState(0);
+  const [activeNote, setActiveNote] = useState<any>(null); // track note created in-call
 
   // Activity indicators
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -175,13 +176,19 @@ export function EnhancedCallLayout({
         </div>
 
         <div className={activeView === 'notes' ? "h-full p-6 overflow-auto" : "hidden"}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Collaborative Notes</h2>
-            <p className="text-muted-foreground">
-              Take notes during your call. Create and organize notes for your study group.
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-1">Collaborative Notes</h2>
+            <p className="text-muted-foreground text-sm">
+              Take notes during your call. Notes are saved to your account.
             </p>
           </div>
-          <NoteEditor />
+          <NoteEditor
+            note={activeNote || undefined}
+            onSave={(savedNote) => {
+              // Switch to editing the saved note — prevents router.push navigating away
+              setActiveNote(savedNote);
+            }}
+          />
         </div>
 
         <div className={activeView === 'whiteboard' ? "h-full bg-background" : "hidden"}>
