@@ -175,15 +175,13 @@ export function EnhancedCallLayout({
         </div>
 
         <div className={activeView === 'notes' ? "h-full p-6 overflow-auto" : "hidden"}>
-          <div className="max-w-5xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Collaborative Notes</h2>
-              <p className="text-muted-foreground">
-                Take notes during your call. Create and organize notes for your study group.
-              </p>
-            </div>
-            <NoteEditor />
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">Collaborative Notes</h2>
+            <p className="text-muted-foreground">
+              Take notes during your call. Create and organize notes for your study group.
+            </p>
           </div>
+          <NoteEditor />
         </div>
 
         <div className={activeView === 'whiteboard' ? "h-full bg-background" : "hidden"}>
