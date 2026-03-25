@@ -1021,10 +1021,14 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
     );
   }
 
+  // Controls padding scales down slightly with more participants to give grid more room
+  const totalParticipants = participants.length + 1;
+  const controlsPadding = totalParticipants >= 6 ? 'py-2 px-4' : totalParticipants >= 4 ? 'py-3 px-4' : 'py-4 px-4';
+
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
+    <div className="flex flex-col h-full bg-background text-foreground overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-card border-b border-border">
+      <div className="flex items-center justify-between p-4 bg-card border-b border-border flex-shrink-0">
         <div className="flex items-center space-x-3">
           <h1 className="text-lg font-semibold text-foreground">
             {isInBreakoutRoom ? `Breakout Room: ${breakoutRoomName}` : 'Video Call'}
@@ -1036,14 +1040,14 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
           </div>
         </div>
         <div className="text-sm text-muted-foreground">
-          {participants.length + 1} participant{participants.length + 1 !== 1 ? 's' : ''}
+          {totalParticipants} participant{totalParticipants !== 1 ? 's' : ''}
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex">
+      {/* Main content — min-h-0 ensures it doesn't overflow past controls */}
+      <div className="flex-1 flex min-h-0">
         {/* Video area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
           {/* Screen share area */}
           {(isScreenSharing || participants.some(p => p.isScreenSharing)) && (
             <div className="flex-1 min-h-0">
@@ -1055,8 +1059,8 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
             </div>
           )}
 
-          {/* Participant grid */}
-          <div className={`${isScreenSharing || participants.some(p => p.isScreenSharing) ? 'h-32 flex-shrink-0 border-t border-border' : 'flex-1'}`}>
+          {/* Participant grid — fills remaining space, never overflows */}
+          <div className={`min-h-0 ${isScreenSharing || participants.some(p => p.isScreenSharing) ? 'h-32 flex-shrink-0 border-t border-border' : 'flex-1'}`}>
             {(isScreenSharing || participants.some(p => p.isScreenSharing)) ? (
               <ParticipantGridCompact
                 participants={participants}
@@ -1102,8 +1106,8 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
         )}
       </div>
 
-      {/* Controls */}
-      <div className="p-4 bg-card border-t border-border">
+      {/* Controls — always visible, spacing adapts to participant count */}
+      <div className={`${controlsPadding} bg-card border-t border-border flex-shrink-0`}>
         <CallControls
           isAudioEnabled={isAudioEnabled}
           isVideoEnabled={isVideoEnabled}

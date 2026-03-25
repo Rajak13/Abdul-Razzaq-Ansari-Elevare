@@ -298,9 +298,9 @@ export default function NotesPage() {
 
               <CardContent className="p-4 sm:p-6 flex-grow">
                 {notesLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                  <div className="flex flex-col gap-1.5">
                     {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-32 sm:h-40 bg-secondary rounded-xl sm:rounded-2xl animate-pulse" />
+                      <div key={i} className="h-10 bg-secondary rounded-lg animate-pulse" />
                     ))}
                   </div>
                 ) : (
@@ -310,7 +310,7 @@ export default function NotesPage() {
                       <div className="space-y-6 sm:space-y-8">
                         <div>
                           <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Collections</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                          <div className="flex flex-col gap-1">
                             {folders.filter(f => !f.parent_id).map((folder) => (
                               <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
                             ))}
@@ -335,7 +335,7 @@ export default function NotesPage() {
                         {displayNotes.filter(n => !n.folder_id).length > 0 && (
                           <div>
                             <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Uncategorized Notes</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                            <div className="flex flex-col gap-1">
                               {displayNotes.filter(n => !n.folder_id).map((note) => (
                                 <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
                               ))}
@@ -351,7 +351,7 @@ export default function NotesPage() {
                         {currentSubfolders.length > 0 && (
                           <div>
                             <h3 className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 sm:mb-4 px-1">Sub-folders</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                            <div className="flex flex-col gap-1">
                               {currentSubfolders.map((folder) => (
                                 <FolderTabCard key={folder.id} folder={folder} onSelect={handleFolderSelect} />
                               ))}
@@ -367,7 +367,7 @@ export default function NotesPage() {
                               <p className="text-xs sm:text-sm font-bold text-muted-foreground">This folder is empty</p>
                             </div>
                           ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                            <div className="flex flex-col gap-1">
                               {displayNotes.map((note) => (
                                 <NoteCard key={note.id} note={note} onSelect={handleNoteSelect} folders={folders} />
                               ))}
@@ -457,87 +457,42 @@ export default function NotesPage() {
 
 // Subordinate components for cleaner main render
 function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) => void; folders: NoteFolder[] }) {
-  // Get folder color if note belongs to a folder
-  const folderColor = note.folder_id 
+  const folderColor = note.folder_id
     ? folders.find(f => f.id === note.folder_id)?.color || 'hsl(142,71%,45%)'
     : 'hsl(142,71%,45%)';
 
   return (
-    <div 
-      onClick={() => onSelect(note)} 
-      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
-      style={{ aspectRatio: '1.4 / 1' }}
+    <div
+      onClick={() => onSelect(note)}
+      className="group flex items-center gap-3 px-3 py-2.5 bg-card border border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
     >
-      {/* Rectangular card with folder color accent */}
-      <div className="relative h-full bg-card rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
-        style={{ 
-          borderColor: folderColor,
-        }}
-      >
-        {/* Diagonal accent stripe */}
-        <div 
-          className="absolute top-0 right-0 w-16 h-16 opacity-10"
-          style={{ 
-            backgroundColor: folderColor,
-            clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
-          }}
-        />
-        
-        {/* Top color bar */}
-        <div 
-          className="absolute top-0 left-0 right-0 h-1.5"
-          style={{ backgroundColor: folderColor }}
-        />
-        
-        {/* Content */}
-        <div className="relative h-full p-3 sm:p-4 flex flex-col">
-          {/* Icon */}
-          <div 
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md mb-2"
-            style={{ backgroundColor: folderColor }}
-          >
-            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-          </div>
-          
-          {/* Title */}
-          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
-            {note.title}
-          </h4>
-          
-          {/* Summary */}
-          <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1 mb-2">
-            {note.summary || 'No summary available'}
-          </p>
+      {/* Color dot */}
+      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: folderColor }} />
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
-            <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">
-              {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
-            </span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 rounded-lg"
-                >
-                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg text-xs">
-                  <Share2 className="mr-2 h-3.5 w-3.5" />
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-lg text-xs">
-                  <Settings className="mr-2 h-3.5 w-3.5" />
-                  Settings
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+      {/* Title + date */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground truncate">{note.title}</p>
+        <p className="text-xs text-muted-foreground truncate">
+          {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
+        </p>
       </div>
+
+      {/* Actions */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+          <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+            <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem className="text-xs">
+            <Share2 className="mr-2 h-3.5 w-3.5" />Share
+          </DropdownMenuItem>
+          <DropdownMenuItem className="text-xs">
+            <Settings className="mr-2 h-3.5 w-3.5" />Settings
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -545,81 +500,31 @@ function NoteCard({ note, onSelect, folders }: { note: any; onSelect: (n: any) =
 function FolderTabCard({ folder, onSelect }: { folder: any; onSelect: (id: string) => void }) {
   const folderColor = folder.color || 'hsl(142,71%,45%)';
   return (
-    <div 
-      onClick={() => onSelect(folder.id)} 
-      className="group relative cursor-pointer transition-all hover:scale-[1.02]"
-      style={{ aspectRatio: '1.4 / 1' }}
+    <div
+      onClick={() => onSelect(folder.id)}
+      className="group flex items-center gap-3 px-3 py-2.5 bg-card border border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
     >
-      {/* Rectangular folder card with unique design */}
-      <div className="relative h-full bg-gradient-to-br from-card to-muted rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-xl transition-all"
-        style={{ 
-          borderColor: folderColor,
-        }}
-      >
-        {/* Folder tab accent at top */}
-        <div 
-          className="absolute top-0 left-0 w-20 h-6 rounded-br-2xl shadow-md"
-          style={{ 
-            backgroundColor: folderColor,
-          }}
-        />
-        
-        {/* Decorative circle pattern */}
-        <div 
-          className="absolute bottom-0 right-0 w-24 h-24 rounded-full opacity-5"
-          style={{ 
-            backgroundColor: folderColor,
-            transform: 'translate(30%, 30%)'
-          }}
-        />
-        
-        {/* Content */}
-        <div className="relative h-full p-3 sm:p-4 flex flex-col">
-          {/* Large folder icon */}
-          <div 
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg mb-2 mt-1"
-            style={{ backgroundColor: folderColor }}
-          >
-            <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-          </div>
-          
-          {/* Folder name */}
-          <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 mb-1.5 flex-1">
-            {folder.name}
-          </h4>
-          
-          {/* Stats */}
-          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-2">
-            <FileText className="w-3 h-3" />
-            <span className="font-medium">Notes</span>
-          </div>
-
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-border/50 mt-auto">
-            <div 
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: folderColor }}
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5 sm:h-6 sm:w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 rounded-lg"
-                >
-                  <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg text-xs">
-                  <Settings className="mr-2 h-3.5 w-3.5" />
-                  Settings
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+      {/* Folder icon */}
+      <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: folderColor }}>
+        <Folder className="w-4 h-4 text-white" />
       </div>
+
+      {/* Name */}
+      <p className="flex-1 text-sm font-medium text-foreground truncate">{folder.name}</p>
+
+      {/* Actions */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+          <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+            <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem className="text-xs">
+            <Settings className="mr-2 h-3.5 w-3.5" />Settings
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
