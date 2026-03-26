@@ -27,6 +27,10 @@ function OAuthCallbackContent() {
           // Store token
           localStorage.setItem('auth_token', token);
           
+          // Fetch user profile to initialize auth state
+          const { default: apiClient } = await import('@/lib/api-client');
+          await apiClient.get('/auth/me'); // warms up the auth context
+          
           // Initialize socket connection
           socketService.connect(token);
           
@@ -37,8 +41,8 @@ function OAuthCallbackContent() {
             toast.success('Welcome back!');
           }
           
-          // Redirect to dashboard - using locale-aware router
-          router.push('/dashboard');
+          // Redirect directly to dashboard
+          router.replace('/dashboard');
         } catch (error) {
           console.error('OAuth callback error:', error);
           toast.error('Authentication failed. Please try again.');
