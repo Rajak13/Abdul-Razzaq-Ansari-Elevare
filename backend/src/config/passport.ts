@@ -8,6 +8,10 @@ import { OAuthProfile } from '../types/auth';
  * Configure Google OAuth Strategy
  */
 if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
+  logger.info('Registering Google OAuth strategy', {
+    clientIdPrefix: config.oauth.google.clientId.substring(0, 10),
+    callbackURL: config.oauth.google.callbackURL,
+  });
   passport.use(
     new GoogleStrategy(
       {
@@ -41,7 +45,11 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
     )
   );
 } else {
-  logger.warn('Google OAuth not configured - missing credentials');
+  logger.warn('Google OAuth not configured - missing credentials', {
+    hasClientId: !!config.oauth.google.clientId,
+    hasClientSecret: !!config.oauth.google.clientSecret,
+    clientIdValue: config.oauth.google.clientId ? 'present' : 'EMPTY',
+  });
 }
 
 /**
