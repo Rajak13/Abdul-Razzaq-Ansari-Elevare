@@ -11,6 +11,7 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { VideoCall } from './video-call';
+import { LiveKitCall } from './livekit-call';
 import { GroupChat } from '@/components/study-groups/group-chat';
 import { NoteEditor } from '@/components/notes/note-editor';
 import WhiteboardCanvas from '@/components/whiteboard/whiteboard-canvas';
@@ -102,6 +103,9 @@ export function EnhancedCallLayout({
     }
   };
 
+  // Use LiveKit SFU in production, WebRTC mesh on localhost
+  const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
+
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Top Navigation Bar */}
@@ -165,14 +169,23 @@ export function EnhancedCallLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 relative overflow-hidden">
-        {/* Video Call - Main UI hidden when not active, but component must stay mounted so floating window and WebRTC works */}
+        {/* Video Call - LiveKit in production, WebRTC mesh on localhost */}
         <div className={activeView === 'video' ? 'h-full' : ''}>
-          <VideoCall
-            callId={callId}
-            groupId={groupId}
-            onLeave={onLeave}
-            isFloating={activeView !== 'video'}
-          />
+          {isProduction ? (
+            <LiveKitCall
+              callId={callId}
+              groupId={groupId}
+              groupName={groupName}
+              onLeave={onLeave}
+            />
+          ) : (
+            <VideoCall
+              callId={callId}
+              groupId={groupId}
+              onLeave={onLeave}
+              isFloating={activeView !== 'video'}
+            />
+          )}
         </div>
 
         <div className={activeView === 'notes' ? "h-full p-6 overflow-auto" : "hidden"}>
