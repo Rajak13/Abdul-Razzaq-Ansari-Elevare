@@ -14,7 +14,8 @@ import {
   getFileFolders,
   getFileFolderById,
   updateFileFolder,
-  deleteFileFolder
+  deleteFileFolder,
+  downloadFolder
 } from '../controllers/fileController';
 
 const router = Router();
@@ -29,6 +30,7 @@ router.get('/folders', getFileFolders);
 router.get('/folders/:id', getFileFolderById);
 router.put('/folders/:id', updateFileFolder);
 router.delete('/folders/:id', deleteFileFolder);
+router.get('/folders/:id/download', downloadFolder);
 
 // File management routes
 router.post('/', uploadFile, handleUploadError, uploadFileController);

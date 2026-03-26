@@ -445,3 +445,33 @@ export const deleteFileFolder = async (req: Request, res: Response): Promise<voi
     }
   }
 };
+
+import fs from 'fs';
+
+export const downloadFolder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { zipPath, folderName } = await fileService.downloadFolder(id, userId);
+
+    res.download(zipPath, `${folderName}.zip`, (err) => {
+      // Clean up temp zip after sending
+      fs.unlink(zipPath, () => {});
+      if (err && !res.headersSent) {
+        res.status(500).json({ error: 'Failed to download folder' });
+      }
+    });
+  } catch (error) {
+    logger.error('Error downloading folder:', error);
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Failed to download folder' });
+    }
+  }
+};

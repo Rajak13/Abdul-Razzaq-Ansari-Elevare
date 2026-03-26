@@ -1,7 +1,9 @@
 import { Pool } from 'pg';
 import path from 'path';
 import fs from 'fs/promises';
+import { createWriteStream } from 'fs';
 import { randomUUID } from 'crypto';
+import archiver from 'archiver';
 import { 
   File, 
   FileFolder,
@@ -777,5 +779,59 @@ export class FileService {
     } finally {
       client.release();
     }
+  }
+
+  async downloadFolder(folderId: string, userId: string): Promise<{ zipPath: string; folderName: string }> {
+    // Verify ownership
+    const folderResult = await this.db.query(
+      'SELECT * FROM file_folders WHERE id = $1 AND user_id = $2',
+      [folderId, userId]
+    );
+    if (folderResult.rows.length === 0) throw new Error('Folder not found or access denied');
+    const folder = folderResult.rows[0];
+
+    // Collect all files recursively
+    const collectFiles = async (id: string, prefix: string): Promise<{ filePath: string; archivePath: string }[]> => {
+      const filesResult = await this.db.query(
+        'SELECT name, path FROM files WHERE folder_id = $1 AND user_id = $2',
+        [id, userId]
+      );
+      const subResult = await this.db.query(
+        'SELECT id, name FROM file_folders WHERE parent_id = $1 AND user_id = $2',
+        [id, userId]
+      );
+
+      const entries: { filePath: string; archivePath: string }[] = filesResult.rows.map((f: any) => ({
+        filePath: path.join(process.cwd(), 'uploads', f.path.replace('/uploads/', '')),
+        archivePath: path.join(prefix, f.name),
+      }));
+
+      for (const sub of subResult.rows) {
+        const subEntries = await collectFiles(sub.id, path.join(prefix, sub.name));
+        entries.push(...subEntries);
+      }
+      return entries;
+    };
+
+    const entries = await collectFiles(folderId, folder.name);
+
+    // Build zip in temp dir
+    const tmpDir = path.join(process.cwd(), 'uploads', 'tmp');
+    await fs.mkdir(tmpDir, { recursive: true });
+    const zipPath = path.join(tmpDir, `${randomUUID()}.zip`);
+
+    await new Promise<void>((resolve, reject) => {
+      const output = createWriteStream(zipPath);
+      const archive = archiver('zip', { zlib: { level: 6 } });
+      output.on('close', resolve);
+      archive.on('error', reject);
+      archive.pipe(output);
+      for (const entry of entries) {
+        archive.file(entry.filePath, { name: entry.archivePath });
+      }
+      archive.finalize();
+    });
+
+    return { zipPath, folderName: folder.name };
   }
 }

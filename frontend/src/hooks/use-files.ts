@@ -68,6 +68,22 @@ export function useDownloadFile() {
   });
 }
 
+export function useDownloadFolder() {
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { blob, name } = await fileService.downloadFolder(id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    },
+  });
+}
+
 export function useSearchFiles(query: string, folderId?: string) {
   return useQuery({
     queryKey: ['files', 'search', query, folderId],

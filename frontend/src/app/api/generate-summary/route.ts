@@ -72,13 +72,11 @@ async function summarizeWithGroq(text: string): Promise<SummarizationResponse> {
   }
 
   try {
-    // Comprehensive prompt for detailed summaries
-    const prompt = `Summarize the following text comprehensively. Cover all main topics, key points, and important details so that someone reading only the summary can understand the entire content. Be thorough but concise.
+    // 2-paragraph summary for list/card view display
+    const prompt = `Summarize the following text in exactly 2 short paragraphs (2-3 sentences each). Be concise and informative. No preamble, start directly with the summary.
 
 Text:
-${text}
-
-Provide a comprehensive summary:`
+${text}`
 
     console.log(`[Groq:${requestId}] Calling Groq API...`)
     
@@ -91,16 +89,16 @@ Provide a comprehensive summary:`
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant', // Fast and free
+        model: 'llama-3.1-8b-instant',
         messages: [{
           role: 'system',
-          content: 'You are a helpful assistant that creates comprehensive summaries. Always respond with just the summary content, no introductory phrases like "Here is a summary" or "The text discusses". Start directly with the summary. Cover all main topics and key points thoroughly.'
+          content: 'You are a concise summarizer. Write exactly 2 short paragraphs (2-3 sentences each). No introductory phrases like "Here is a summary" or "The text discusses". Start directly with the content.'
         }, {
           role: 'user',
           content: prompt
         }],
-        temperature: 0.5,
-        max_tokens: 1000, // Allow longer summaries for comprehensive coverage
+        temperature: 0.4,
+        max_tokens: 200,
         top_p: 1,
         stream: false
       })

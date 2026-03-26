@@ -64,6 +64,17 @@ export const fileService = {
     return response.data;
   },
 
+  async downloadFolder(id: string): Promise<{ blob: Blob; name: string }> {
+    const response = await apiClient.get(`/files/folders/${id}/download`, {
+      responseType: 'blob',
+    });
+    // Extract filename from content-disposition header if available
+    const disposition = response.headers['content-disposition'] || '';
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const name = match ? match[1] : 'folder.zip';
+    return { blob: response.data, name };
+  },
+
   async searchFiles(query: string, folderId?: string): Promise<UserFile[]> {
     const params = new URLSearchParams();
     params.append('query', query);

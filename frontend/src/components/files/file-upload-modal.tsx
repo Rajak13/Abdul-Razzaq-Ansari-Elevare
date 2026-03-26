@@ -178,13 +178,14 @@ export function FileUploadModal({
                 type="file"
                 className="absolute inset-0 cursor-pointer opacity-0"
                 onChange={handleInputChange}
+                accept=".zip,.tar,.tar.gz,.tgz,.7z,.rar,application/zip,application/x-tar,application/x-7z-compressed,application/x-rar-compressed,*/*"
               />
               <Upload className="mx-auto h-12 w-12 text-gray-400" />
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 {t('upload.dragDrop')}
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                {t('upload.maxSize', { size: '50MB' })}
+                {t('upload.maxSize', { size: '50MB' })} · ZIP/TAR folders supported
               </p>
             </div>
           )}

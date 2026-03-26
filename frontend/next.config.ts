@@ -5,7 +5,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Disable Next.js image optimization - confirmed to reduce memory in Next.js 16.x
+  // See: https://github.com/vercel/next.js/issues (active memory leak in 16.x)
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
@@ -17,16 +20,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Disable in-memory cache to prevent unbounded growth (Next.js 16 leak workaround)
+  cacheMaxMemorySize: 0,
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
-  // Increase body size limit for file uploads
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb' as any
     },
-    // Enable optimized package imports
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'date-fns'],
+    preloadEntriesOnStart: false,
+    serverSourceMaps: false,
   },
   // Performance optimizations
   compiler: {
