@@ -67,14 +67,13 @@ export function VideoCallLobby({
 
         // Get user media for preview
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: videoInputs.length > 0 ? { deviceId: videoInputs[0].deviceId } : false,
-          audio: audioInputs.length > 0 ? { deviceId: audioInputs[0].deviceId } : false
+          video: videoInputs.length > 0 ? { deviceId: videoInputs[0].deviceId } : true,
+          audio: audioInputs.length > 0 ? { deviceId: audioInputs[0].deviceId } : true
         });
 
         setLocalStream(stream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
+        // Don't set srcObject here — the video element may not be in the DOM yet.
+        // A separate effect syncs the stream once the element renders.
 
         setError(null);
       } catch (err) {
@@ -88,10 +87,24 @@ export function VideoCallLobby({
     initializeMedia();
 
     return () => {
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
+      // Use a ref-captured stream to avoid stale closure
     };
+  }, []);
+
+  // Sync stream to video element whenever either changes
+  useEffect(() => {
+    if (localStream && videoRef.current) {
+      videoRef.current.srcObject = localStream;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [localStream, videoEnabled]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      localStream?.getTracks().forEach(track => track.stop());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update stream when devices change
@@ -113,10 +126,7 @@ export function VideoCallLobby({
 
         const newStream = await navigator.mediaDevices.getUserMedia(constraints);
         setLocalStream(newStream);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = newStream;
-        }
+        // srcObject sync is handled by the dedicated useEffect above
       } catch (err) {
         console.error('Error updating stream:', err);
       }

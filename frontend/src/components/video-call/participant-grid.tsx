@@ -49,22 +49,22 @@ export function ParticipantGrid({
   // Check if anyone is screen sharing
   const screenSharingParticipant = uniqueParticipants.find(p => p.isScreenSharing && p.screenStream);
 
-  // If someone is screen sharing, show their screen prominently
+  // If someone is screen sharing, show their screen prominently with sidebar participants
   if (screenSharingParticipant) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 md:p-4">
-        {/* Main screen share area */}
-        <div className="flex-1 bg-gray-900 rounded-lg overflow-hidden border-2 border-green-500">
+      <div className="flex h-full gap-2 p-2 md:p-4">
+        {/* Screen share — takes ~75% of width */}
+        <div className="flex-1 min-w-0 bg-black rounded-lg overflow-hidden border-2 border-green-500">
           <ScreenShareVideo
             participant={screenSharingParticipant}
             stream={screenSharingParticipant.screenStream}
           />
         </div>
 
-        {/* Participant thumbnails at bottom */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        {/* Participant sidebar — fixed width, scrollable */}
+        <div className="w-44 md:w-52 flex-shrink-0 flex flex-col gap-2 overflow-y-auto">
           {/* Local user */}
-          <div className="w-32 h-24 flex-shrink-0">
+          <div className="w-full aspect-video flex-shrink-0">
             <ParticipantVideo
               isLocal={true}
               participant={{
@@ -80,7 +80,7 @@ export function ParticipantGrid({
 
           {/* Remote participants */}
           {uniqueParticipants.slice(0, 10).map((participant) => (
-            <div key={`thumb-${participant.userId}`} className="w-32 h-24 flex-shrink-0">
+            <div key={`thumb-${participant.userId}`} className="w-full aspect-video flex-shrink-0">
               <ParticipantVideo
                 isLocal={false}
                 participant={participant}
