@@ -1047,10 +1047,10 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       {/* Main content — min-h-0 ensures it doesn't overflow past controls */}
       <div className="flex-1 flex min-h-0">
         {/* Video area */}
-        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        <div className={`flex-1 flex ${(isScreenSharing || participants.some(p => p.isScreenSharing)) ? 'flex-row' : 'flex-col'} min-h-0 min-w-0`}>
           {/* Screen share area */}
           {(isScreenSharing || participants.some(p => p.isScreenSharing)) && (
-            <div className="flex-1 min-h-0">
+            <div className="flex-[3] min-w-0 border-r border-border">
               <ScreenShare
                 screenStream={screenStream}
                 participants={participants}
@@ -1060,7 +1060,7 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
           )}
 
           {/* Participant grid — fills remaining space, never overflows */}
-          <div className={`min-h-0 ${isScreenSharing || participants.some(p => p.isScreenSharing) ? 'h-32 flex-shrink-0 border-t border-border' : 'flex-1'}`}>
+          <div className={`min-h-0 ${(isScreenSharing || participants.some(p => p.isScreenSharing)) ? 'w-64 md:w-72 flex-shrink-0' : 'flex-1'}`}>
             {(isScreenSharing || participants.some(p => p.isScreenSharing)) ? (
               <ParticipantGridCompact
                 participants={participants}

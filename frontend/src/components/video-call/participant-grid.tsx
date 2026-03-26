@@ -321,9 +321,9 @@ export function ParticipantGridCompact({
   );
 
   return (
-    <div className="flex gap-2 p-2 h-full overflow-x-auto">
-      {/* Local user - smaller in compact mode */}
-      <div className="w-24 h-20 flex-shrink-0">
+    <div className="flex flex-col gap-2 p-2 md:p-4 h-full overflow-y-auto">
+      {/* Local user */}
+      <div className="w-full aspect-video flex-shrink-0">
         <ParticipantVideo
           isLocal={true}
           participant={{
@@ -339,7 +339,7 @@ export function ParticipantGridCompact({
 
       {/* Remote participants */}
       {uniqueParticipants.map((participant) => (
-        <div key={participant.userId} className="w-24 h-20 flex-shrink-0">
+        <div key={participant.userId} className="w-full aspect-video flex-shrink-0">
           <ParticipantVideo
             isLocal={false}
             participant={participant}

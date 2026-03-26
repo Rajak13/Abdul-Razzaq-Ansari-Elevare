@@ -271,10 +271,10 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
 
       {/* Main content */}
       <div className="flex-1 flex min-h-0">
-        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        <div className={`flex-1 flex ${(localScreenSharing || screenSharer) ? 'flex-row' : 'flex-col'} min-h-0 min-w-0`}>
           {/* Screen share area */}
           {(localScreenSharing || screenSharer) && (
-            <div className="flex-1 min-h-0">
+            <div className="flex-[3] min-w-0 border-r border-border">
               <LiveKitScreenShareArea
                 screenSharer={screenSharer}
                 localParticipant={localParticipant}
@@ -284,7 +284,7 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
           )}
 
           {/* Participant grid */}
-          <div className={`min-h-0 ${(localScreenSharing || screenSharer) ? 'h-32 flex-shrink-0 border-t border-border' : 'flex-1'}`}>
+          <div className={`min-h-0 ${(localScreenSharing || screenSharer) ? 'w-64 md:w-72 flex-shrink-0' : 'flex-1'}`}>
             {(localScreenSharing || screenSharer) ? (
               <LiveKitParticipantGridCompact
                 remoteParticipants={remoteParticipants}
@@ -411,8 +411,8 @@ function LiveKitParticipantGridCompact({
   isVideoEnabled: boolean;
 }) {
   return (
-    <div className="flex gap-2 p-2 h-full overflow-x-auto">
-      <div className="w-24 h-20 flex-shrink-0">
+    <div className="flex flex-col gap-2 p-2 md:p-4 h-full overflow-y-auto">
+      <div className="w-full aspect-video flex-shrink-0">
         <LiveKitParticipantTile
           participant={localParticipant}
           isLocal
@@ -421,7 +421,7 @@ function LiveKitParticipantGridCompact({
         />
       </div>
       {remoteParticipants.map((p) => (
-        <div key={p.identity} className="w-24 h-20 flex-shrink-0">
+        <div key={p.identity} className="w-full aspect-video flex-shrink-0">
           <LiveKitParticipantTile participant={p} isLocal={false} />
         </div>
       ))}
