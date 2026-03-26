@@ -144,6 +144,7 @@ import fileRoutes from './routes/fileRoutes';
 import adminRoutes from './routes/adminRoutes';
 import suspensionAppealRoutes from './routes/suspensionAppealRoutes';
 import reportRoutes from './routes/reportRoutes';
+import livekitRoutes from './routes/livekitRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -161,6 +162,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/suspension-appeals', suspensionAppealRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/livekit', livekitRoutes);
 
 // 404 handler
 app.use(notFoundHandler);
