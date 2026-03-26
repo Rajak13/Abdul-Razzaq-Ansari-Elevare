@@ -1,67 +1,39 @@
-import sgMail from '@sendgrid/mail';
 import nodemailer from 'nodemailer';
-import { Resend } from 'resend';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Determine which email service to use
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const USE_SMTP = process.env.NODE_ENV === 'development' || process.env.USE_SMTP === 'true';
-
-// Initialize Resend (for production if key is present)
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
-
-// Initialize SendGrid (fallback for production if no Resend key)
-if (!USE_SMTP && !RESEND_API_KEY) {
-  sgMail.setApiKey(config.email.password);
-}
-
-// Initialize Nodemailer SMTP transporter (for development)
-const smtpTransporter = USE_SMTP ? nodemailer.createTransport({
+// Always use SMTP — Brevo in production, Gmail/local in development
+// Brevo free tier: 300 emails/day, sends to ANY email address, no domain verification needed
+// Sign up at https://app.brevo.com → SMTP & API → SMTP tab → copy host/port/login/password
+const smtpTransporter = nodemailer.createTransport({
   host: config.email.host,
   port: config.email.port,
-  secure: false,
+  secure: false, // STARTTLS
   auth: {
     user: config.email.user,
     pass: config.email.password,
   },
   tls: {
-    rejectUnauthorized: false // For development only
-  }
-}) : null;
+    rejectUnauthorized: false,
+  },
+});
 
-// Log which email service is being used
-const emailService = resend ? 'Resend' : USE_SMTP ? 'SMTP (Nodemailer)' : 'SendGrid';
-logger.info(`Email service initialized: ${emailService}`, {
-  host: USE_SMTP ? config.email.host : resend ? 'Resend API' : 'SendGrid API',
-  port: USE_SMTP ? config.email.port : 'N/A',
-  user: USE_SMTP ? config.email.user : 'API Key'
+logger.info('Email service initialized: SMTP', {
+  host: config.email.host,
+  port: config.email.port,
+  user: config.email.user,
 });
 
 /**
- * Unified email sending function that works with SMTP, Resend, and SendGrid
+ * Unified email sending function via SMTP (Brevo in production)
  */
 async function sendEmail(msg: { to: string; from: string; subject: string; html: string }) {
-  if (USE_SMTP && smtpTransporter) {
-    // Use SMTP (Nodemailer) for development
-    await smtpTransporter.sendMail({
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-    });
-  } else if (resend) {
-    // Use Resend for production (preferred)
-    await resend.emails.send({
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-    });
-  } else {
-    // Use SendGrid as fallback
-    await sgMail.send(msg);
-  }
+  await smtpTransporter.sendMail({
+    from: msg.from,
+    to: msg.to,
+    subject: msg.subject,
+    html: msg.html,
+  });
 }
 
 // Enterprise Email Template Base
