@@ -177,6 +177,7 @@ export function EnhancedCallLayout({
               groupId={groupId}
               groupName={groupName}
               onLeave={onLeave}
+              isFloating={activeView !== 'video'}
             />
           ) : (
             <VideoCall
