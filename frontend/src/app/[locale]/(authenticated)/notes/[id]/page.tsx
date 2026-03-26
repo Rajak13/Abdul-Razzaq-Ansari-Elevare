@@ -89,6 +89,11 @@ export default function NotePage() {
   };
 
   const handleExport = async (format: 'html' | 'markdown' | 'pdf') => {
+    if (format === 'pdf') {
+      handleExportPdf();
+      return;
+    }
+
     try {
       const blob = await exportNote.mutateAsync({ 
         id: noteId, 
@@ -101,7 +106,7 @@ export default function NotePage() {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `${note?.title || 'note'}.${format === 'html' ? 'html' : format === 'markdown' ? 'md' : 'pdf'}`;
+      a.download = `${note?.title || 'note'}.${format === 'html' ? 'html' : 'md'}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -111,6 +116,56 @@ export default function NotePage() {
     } catch {
       toast.error('Failed to export note. Please try again.');
     }
+  };
+
+  const handleExportPdf = () => {
+    if (!note) return;
+
+    const noteContent = typeof note.content === 'string'
+      ? note.content
+      : extractTextFromContent(note.content);
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow popups to export as PDF.');
+      return;
+    }
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${note.title}</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #111; line-height: 1.7; }
+    h1 { font-size: 2rem; margin-bottom: 4px; }
+    .meta { color: #666; font-size: 0.85rem; margin-bottom: 24px; }
+    .tags { margin-bottom: 16px; }
+    .tag { display: inline-block; background: #f0f0f0; border-radius: 4px; padding: 2px 8px; margin-right: 6px; font-size: 0.8rem; }
+    .summary { background: #f9f9f9; border-left: 4px solid #6366f1; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px; }
+    .summary h3 { margin: 0 0 8px; font-size: 0.9rem; color: #6366f1; }
+    pre { background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto; }
+    code { font-family: monospace; font-size: 0.9em; }
+    @media print { body { margin: 0; } }
+  </style>
+</head>
+<body>
+  <h1>${note.title}</h1>
+  <div class="meta">Last updated: ${new Date(note.updated_at).toLocaleDateString()}</div>
+  ${note.tags.length > 0 ? `<div class="tags">${note.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>` : ''}
+  ${note.summary ? `<div class="summary"><h3>Summary</h3><p>${note.summary}</p></div>` : ''}
+  <div class="content">${noteContent}</div>
+</body>
+</html>`);
+
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+
+    toast.success('PDF export opened — save as PDF from the print dialog.');
   };
 
   // Extract text content from note content
