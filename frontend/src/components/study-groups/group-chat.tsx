@@ -46,9 +46,22 @@ export function GroupChat({ groupId }: GroupChatProps) {
 
   // Socket event handlers
   useEffect(() => {
-    // Always set up listeners, even if not connected yet
-    // Join the group room
-    socketService.joinGroup(groupId);
+    // Join the group room — retry until socket is connected
+    const tryJoin = () => {
+      if (socketService.isConnected()) {
+        socketService.joinGroup(groupId);
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryJoin()) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (tryJoin() || attempts >= 40) clearInterval(interval);
+      }, 500);
+    }
 
     // Listen for new messages
     const handleNewMessage = (newMessage: any) => {
@@ -173,7 +186,7 @@ export function GroupChat({ groupId }: GroupChatProps) {
 
   if (isLoading) {
     return (
-      <Card className="h-[600px] flex flex-col">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-lg flex items-center space-x-2">
             <MessageCircle className="h-5 w-5" />
@@ -199,7 +212,7 @@ export function GroupChat({ groupId }: GroupChatProps) {
   }
 
   return (
-    <Card className="h-[600px] flex flex-col overflow-hidden">
+    <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="pb-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center space-x-2">

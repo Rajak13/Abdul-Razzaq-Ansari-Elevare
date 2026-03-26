@@ -7,7 +7,6 @@ import {
   DocumentTextIcon,
   PencilSquareIcon,
   VideoCameraIcon,
-  EyeSlashIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { VideoCall } from './video-call';
@@ -198,6 +197,7 @@ export function EnhancedCallLayout({
           </div>
           <NoteEditor
             note={activeNote || undefined}
+            template={activeNote ? undefined : 'meeting'}
             onSave={(savedNote) => {
               // Switch to editing the saved note — prevents router.push navigating away
               setActiveNote(savedNote);

@@ -7,7 +7,6 @@ import {
   useLocalParticipant,
   useTracks,
   VideoTrack,
-  AudioTrack,
   RoomAudioRenderer,
   useRoomContext,
 } from '@livekit/components-react';
@@ -28,6 +27,10 @@ import {
   ComputerDesktopIcon,
   PhoneXMarkIcon,
   UserIcon,
+  XMarkIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
+  MinusIcon,
 } from '@heroicons/react/24/outline';
 import {
   SpeakerXMarkIcon,
@@ -63,12 +66,19 @@ export function LiveKitCall(props: LiveKitCallProps) {
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
+      <div className="h-full flex items-center justify-center bg-background text-foreground">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold mb-2">Connection Error</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
           <button
             onClick={props.onLeave}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-colors"
           >
             Leave Call
           </button>
@@ -79,10 +89,11 @@ export function LiveKitCall(props: LiveKitCallProps) {
 
   if (!token || !livekitUrl) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900">
+      <div className="h-full flex items-center justify-center bg-background text-foreground">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-gray-400">Connecting to {props.groupName}...</p>
+          <h2 className="text-xl font-semibold mb-2">Connecting to server...</h2>
+          <p className="text-muted-foreground">Connecting to {props.groupName}...</p>
         </div>
       </div>
     );
@@ -117,7 +128,7 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const hasJoinedRef = useRef(false);
 
-  // ── Socket notifications (same as WebRTC) ──────────────────────────────────
+  // ── Socket notifications (mirrors WebRTC) ─────────────────────────────────
   useEffect(() => {
     if (!room || hasJoinedRef.current) return;
     hasJoinedRef.current = true;
@@ -131,59 +142,41 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
 
     const handleParticipantConnected = (participant: Participant) => {
       toast.success(`${participant.name || participant.identity} joined the call`, {
-        duration: 3000,
-        icon: '👋',
+        duration: 3000, icon: '👋',
       });
-      if (socket) {
-        socket.emit('user_joined_call', {
-          callId,
-          userId: participant.identity,
-          user: { name: participant.name || participant.identity },
-        });
-      }
+      socket?.emit('user_joined_call', {
+        callId,
+        userId: participant.identity,
+        user: { name: participant.name || participant.identity },
+      });
     };
 
     const handleParticipantDisconnected = (participant: Participant) => {
       toast.info(`${participant.name || participant.identity} left the call`, {
-        duration: 3000,
-        icon: '👋',
+        duration: 3000, icon: '👋',
       });
-      if (socket) {
-        socket.emit('user_left_call', {
-          callId,
-          userId: participant.identity,
-          user: { name: participant.name || participant.identity },
-        });
-      }
+      socket?.emit('user_left_call', {
+        callId,
+        userId: participant.identity,
+        user: { name: participant.name || participant.identity },
+      });
     };
 
     const handleTrackMuted = (pub: TrackPublication, participant: Participant) => {
       if (participant.isLocal) return;
       if (pub.kind === Track.Kind.Audio) {
-        toast.info(`${participant.name || 'Someone'} muted their microphone`, {
-          duration: 2000,
-          icon: '🔇',
-        });
+        toast.info(`${participant.name || 'Someone'} muted their microphone`, { duration: 2000, icon: '🔇' });
       } else if (pub.kind === Track.Kind.Video) {
-        toast.info(`${participant.name || 'Someone'} turned off their camera`, {
-          duration: 2000,
-          icon: '📷',
-        });
+        toast.info(`${participant.name || 'Someone'} turned off their camera`, { duration: 2000, icon: '📷' });
       }
     };
 
     const handleTrackUnmuted = (pub: TrackPublication, participant: Participant) => {
       if (participant.isLocal) return;
       if (pub.kind === Track.Kind.Audio) {
-        toast.info(`${participant.name || 'Someone'} unmuted their microphone`, {
-          duration: 2000,
-          icon: '🎤',
-        });
+        toast.info(`${participant.name || 'Someone'} unmuted their microphone`, { duration: 2000, icon: '🎤' });
       } else if (pub.kind === Track.Kind.Video) {
-        toast.info(`${participant.name || 'Someone'} turned on their camera`, {
-          duration: 2000,
-          icon: '📹',
-        });
+        toast.info(`${participant.name || 'Someone'} turned on their camera`, { duration: 2000, icon: '📹' });
       }
     };
 
@@ -204,15 +197,13 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
   const toggleAudio = useCallback(async () => {
     await localParticipant.setMicrophoneEnabled(!isAudioEnabled);
     setIsAudioEnabled((v) => !v);
-    const socket = socketService.getSocket();
-    socket?.emit('audio_state_change', { callId, muted: isAudioEnabled });
+    socketService.getSocket()?.emit('audio_state_change', { callId, muted: isAudioEnabled });
   }, [localParticipant, isAudioEnabled, callId]);
 
   const toggleVideo = useCallback(async () => {
     await localParticipant.setCameraEnabled(!isVideoEnabled);
     setIsVideoEnabled((v) => !v);
-    const socket = socketService.getSocket();
-    socket?.emit('video_state_change', { callId, enabled: !isVideoEnabled });
+    socketService.getSocket()?.emit('video_state_change', { callId, enabled: !isVideoEnabled });
   }, [localParticipant, isVideoEnabled, callId]);
 
   const toggleScreenShare = useCallback(async () => {
@@ -235,81 +226,135 @@ function LiveKitCallInner({ callId, groupId, onLeave, isFloating }: LiveKitCallP
   }, [localParticipant, isScreenSharing, callId]);
 
   const handleLeave = useCallback(() => {
-    const socket = socketService.getSocket();
-    socket?.emit('leave_call', callId);
+    socketService.getSocket()?.emit('leave_call', callId);
     room.disconnect();
     onLeave();
   }, [room, callId, onLeave]);
 
+  const totalParticipants = remoteParticipants.length + 1;
+  const controlsPadding =
+    totalParticipants >= 6 ? 'py-2 px-4' :
+    totalParticipants >= 4 ? 'py-3 px-4' : 'py-4 px-4';
+
+  // ── Floating mode — mirrors FloatingVideoWindow from WebRTC ───────────────
   if (isFloating) {
-    return <FloatingParticipants remoteParticipants={remoteParticipants} localParticipant={localParticipant} />;
+    return (
+      <LiveKitFloatingWindow
+        remoteParticipants={remoteParticipants}
+        localParticipant={localParticipant}
+        isAudioEnabled={isAudioEnabled}
+        isVideoEnabled={isVideoEnabled}
+      />
+    );
   }
 
+  // ── Check if anyone is screen sharing ─────────────────────────────────────
+  const screenSharer = remoteParticipants.find((p) =>
+    p.getTrackPublication(Track.Source.ScreenShare)?.isSubscribed
+  );
+  const localScreenSharing = isScreenSharing;
+
   return (
-    <div className="h-full flex flex-col bg-gray-900">
-      {/* Participant grid */}
-      <div className="flex-1 overflow-hidden">
-        <LiveKitParticipantGrid
-          remoteParticipants={remoteParticipants}
-          localParticipant={localParticipant}
-          isAudioEnabled={isAudioEnabled}
-          isVideoEnabled={isVideoEnabled}
-        />
+    <div className="flex flex-col h-full bg-background text-foreground overflow-hidden">
+      {/* Header — identical to WebRTC */}
+      <div className="flex items-center justify-between p-4 bg-card border-b border-border flex-shrink-0">
+        <div className="flex items-center space-x-3">
+          <h1 className="text-lg font-semibold text-foreground">Video Call</h1>
+          <div className="px-2 py-1 rounded-full text-xs bg-primary text-primary-foreground">
+            connected
+          </div>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {totalParticipants} participant{totalParticipants !== 1 ? 's' : ''}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+          {/* Screen share area */}
+          {(localScreenSharing || screenSharer) && (
+            <div className="flex-1 min-h-0">
+              <LiveKitScreenShareArea
+                screenSharer={screenSharer}
+                localParticipant={localParticipant}
+                isLocalSharing={localScreenSharing}
+              />
+            </div>
+          )}
+
+          {/* Participant grid */}
+          <div className={`min-h-0 ${(localScreenSharing || screenSharer) ? 'h-32 flex-shrink-0 border-t border-border' : 'flex-1'}`}>
+            {(localScreenSharing || screenSharer) ? (
+              <LiveKitParticipantGridCompact
+                remoteParticipants={remoteParticipants}
+                localParticipant={localParticipant}
+                isAudioEnabled={isAudioEnabled}
+                isVideoEnabled={isVideoEnabled}
+              />
+            ) : (
+              <LiveKitParticipantGrid
+                remoteParticipants={remoteParticipants}
+                localParticipant={localParticipant}
+                isAudioEnabled={isAudioEnabled}
+                isVideoEnabled={isVideoEnabled}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Controls bar — identical style to WebRTC CallControls */}
-      <div className="flex items-center justify-center space-x-4 py-4 bg-gray-800 border-t border-gray-700">
-        {/* Audio */}
-        <button
-          onClick={toggleAudio}
-          className={`p-3 rounded-full transition-all duration-200 ${
-            isAudioEnabled ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
-          }`}
-          title={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
-        >
-          {isAudioEnabled ? <MicrophoneIcon className="w-6 h-6" /> : <SpeakerXMarkIcon className="w-6 h-6" />}
-        </button>
+      <div className={`${controlsPadding} bg-card border-t border-border flex-shrink-0`}>
+        <div className="flex items-center justify-center space-x-4">
+          <button
+            onClick={toggleAudio}
+            className={`p-3 rounded-full transition-all duration-200 ${
+              isAudioEnabled ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+            }`}
+            title={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
+          >
+            {isAudioEnabled ? <MicrophoneIcon className="w-6 h-6" /> : <SpeakerXMarkIcon className="w-6 h-6" />}
+          </button>
 
-        {/* Video */}
-        <button
-          onClick={toggleVideo}
-          className={`p-3 rounded-full transition-all duration-200 ${
-            isVideoEnabled ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
-          }`}
-          title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
-        >
-          {isVideoEnabled ? <VideoCameraIcon className="w-6 h-6" /> : <VideoCameraSlashIcon className="w-6 h-6" />}
-        </button>
+          <button
+            onClick={toggleVideo}
+            className={`p-3 rounded-full transition-all duration-200 ${
+              isVideoEnabled ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+            }`}
+            title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+          >
+            {isVideoEnabled ? <VideoCameraIcon className="w-6 h-6" /> : <VideoCameraSlashIcon className="w-6 h-6" />}
+          </button>
 
-        {/* Screen share */}
-        <button
-          onClick={toggleScreenShare}
-          className={`p-3 rounded-full transition-all duration-200 ${
-            isScreenSharing ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
-          }`}
-          title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
-        >
-          {isScreenSharing ? (
-            <ComputerDesktopIconSolid className="w-6 h-6" />
-          ) : (
-            <ComputerDesktopIcon className="w-6 h-6" />
-          )}
-        </button>
+          <button
+            onClick={toggleScreenShare}
+            className={`p-3 rounded-full transition-all duration-200 ${
+              isScreenSharing ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
+            }`}
+            title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+          >
+            {isScreenSharing ? (
+              <ComputerDesktopIconSolid className="w-6 h-6" />
+            ) : (
+              <ComputerDesktopIcon className="w-6 h-6" />
+            )}
+          </button>
 
-        {/* Leave */}
-        <button
-          onClick={handleLeave}
-          className="p-3 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all duration-200 ml-8"
-          title="Leave call"
-        >
-          <PhoneXMarkIcon className="w-6 h-6" />
-        </button>
+          <button
+            onClick={handleLeave}
+            className="p-3 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all duration-200 ml-8"
+            title="Leave call"
+          >
+            <PhoneXMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// ── Participant grid — mirrors ParticipantGrid from WebRTC ───────────────────
+// ── Participant grid — full layout, mirrors ParticipantGrid from WebRTC ──────
 function LiveKitParticipantGrid({
   remoteParticipants,
   localParticipant,
@@ -322,7 +367,6 @@ function LiveKitParticipantGrid({
   isVideoEnabled: boolean;
 }) {
   const total = remoteParticipants.length + 1;
-
   const gridClass =
     total === 1 ? 'grid-cols-1' :
     total === 2 ? 'grid-cols-2' :
@@ -331,47 +375,22 @@ function LiveKitParticipantGrid({
     total <= 9 ? 'grid-cols-3 grid-rows-3' :
     'grid-cols-4 grid-rows-3';
 
-  // Check if anyone is screen sharing
-  const screenSharer = remoteParticipants.find((p) =>
-    p.getTrackPublication(Track.Source.ScreenShare)?.isSubscribed
-  );
-
-  if (screenSharer) {
-    return (
-      <div className="flex flex-col h-full gap-2 p-2 md:p-4">
-        <div className="flex-1 bg-black rounded-lg overflow-hidden border-2 border-green-500">
-          <ScreenShareTile participant={screenSharer} />
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          <div className="w-32 h-24 flex-shrink-0">
-            <ParticipantTile participant={localParticipant} isLocal isAudioEnabled={isAudioEnabled} isVideoEnabled={isVideoEnabled} />
-          </div>
-          {remoteParticipants.slice(0, 10).map((p) => (
-            <div key={p.identity} className="w-32 h-24 flex-shrink-0">
-              <ParticipantTile participant={p} isLocal={false} />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`grid ${gridClass} gap-1 md:gap-2 p-2 md:p-4 h-full`}>
-      <ParticipantTile
+      <LiveKitParticipantTile
         participant={localParticipant}
         isLocal
         isAudioEnabled={isAudioEnabled}
         isVideoEnabled={isVideoEnabled}
       />
       {remoteParticipants.slice(0, 11).map((p) => (
-        <ParticipantTile key={p.identity} participant={p} isLocal={false} />
+        <LiveKitParticipantTile key={p.identity} participant={p} isLocal={false} />
       ))}
       {remoteParticipants.length > 11 && (
-        <div className="bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
+        <div className="bg-gray-800 rounded-lg flex items-center justify-center border border-gray-600 md:border-2 aspect-video">
           <div className="text-center text-gray-300">
-            <UserIcon className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-sm">+{remoteParticipants.length - 11} more</p>
+            <UserIcon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2" />
+            <p className="text-xs md:text-sm">+{remoteParticipants.length - 11} more</p>
           </div>
         </div>
       )}
@@ -379,8 +398,39 @@ function LiveKitParticipantGrid({
   );
 }
 
-// ── Single participant tile ───────────────────────────────────────────────────
-function ParticipantTile({
+// ── Compact grid for screen-share mode — mirrors ParticipantGridCompact ──────
+function LiveKitParticipantGridCompact({
+  remoteParticipants,
+  localParticipant,
+  isAudioEnabled,
+  isVideoEnabled,
+}: {
+  remoteParticipants: Participant[];
+  localParticipant: LocalParticipant;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
+}) {
+  return (
+    <div className="flex gap-2 p-2 h-full overflow-x-auto">
+      <div className="w-24 h-20 flex-shrink-0">
+        <LiveKitParticipantTile
+          participant={localParticipant}
+          isLocal
+          isAudioEnabled={isAudioEnabled}
+          isVideoEnabled={isVideoEnabled}
+        />
+      </div>
+      {remoteParticipants.map((p) => (
+        <div key={p.identity} className="w-24 h-20 flex-shrink-0">
+          <LiveKitParticipantTile participant={p} isLocal={false} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Single participant tile — mirrors ParticipantVideo from WebRTC ────────────
+function LiveKitParticipantTile({
   participant,
   isLocal,
   isAudioEnabled,
@@ -425,9 +475,9 @@ function ParticipantTile({
         </div>
       )}
 
-      {/* Overlay */}
+      {/* Overlay — identical to WebRTC ParticipantVideo */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none">
-        {/* Top-right status */}
+        {/* Top-right status indicators */}
         <div className="absolute top-1 right-1 md:top-2 md:right-2 flex space-x-1">
           <div className={`p-0.5 md:p-1 rounded-full ${hasAudio ? 'bg-green-600' : 'bg-red-600'}`}>
             {hasAudio ? (
@@ -466,49 +516,252 @@ function ParticipantTile({
   );
 }
 
-// ── Screen share tile ─────────────────────────────────────────────────────────
-function ScreenShareTile({ participant }: { participant: Participant }) {
+// ── Screen share area — mirrors ScreenShare from WebRTC ───────────────────────
+function LiveKitScreenShareArea({
+  screenSharer,
+  localParticipant,
+  isLocalSharing,
+}: {
+  screenSharer?: Participant;
+  localParticipant: LocalParticipant;
+  isLocalSharing: boolean;
+}) {
+  const presenter = screenSharer || (isLocalSharing ? localParticipant : null);
   const tracks = useTracks([{ source: Track.Source.ScreenShare, withPlaceholder: false }]).filter(
-    (t) => t.participant.identity === participant.identity
+    (t) => presenter && t.participant.identity === presenter.identity
   );
   const screenTrack = tracks[0];
 
   return (
-    <div className="relative w-full h-full bg-black">
+    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden border-2 border-green-500">
       {screenTrack?.publication?.track ? (
         <VideoTrack trackRef={screenTrack as any} className="w-full h-full object-contain" />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-gray-400">
-          Loading screen share...
+          <p className="text-lg">Loading screen share...</p>
         </div>
       )}
       <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-          <p className="text-white font-medium">{participant.name || participant.identity}'s Screen</p>
+          <p className="text-white font-medium">
+            {isLocalSharing ? "Your Screen" : `${presenter?.name || presenter?.identity}'s Screen`}
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-// ── Floating compact view (when switching tabs) ───────────────────────────────
-function FloatingParticipants({
+// ── Floating window — exact replica of FloatingVideoWindow from WebRTC ────────
+// Uses the same bg-card, border-border, bg-muted theme tokens so it looks
+// identical in both dev (WebRTC) and prod (LiveKit).
+type FloatingState = 'minimized' | 'compact' | 'expanded';
+
+function LiveKitFloatingWindow({
   remoteParticipants,
   localParticipant,
+  isAudioEnabled,
+  isVideoEnabled,
 }: {
   remoteParticipants: Participant[];
   localParticipant: LocalParticipant;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
 }) {
+  const [floatState, setFloatState] = useState<FloatingState>('compact');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const windowRef = useRef<HTMLDivElement>(null);
+
+  // Load / save position — same as FloatingVideoWindow
+  useEffect(() => {
+    const saved = localStorage.getItem('floating-video-position');
+    if (saved) {
+      try { setPosition(JSON.parse(saved)); } catch {
+        setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
+      }
+    } else {
+      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('floating-video-position', JSON.stringify(position));
+  }, [position]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.no-drag')) return;
+    setIsDragging(true);
+    setDragOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const maxX = window.innerWidth - (windowRef.current?.offsetWidth || 400);
+      const maxY = window.innerHeight - (windowRef.current?.offsetHeight || 300);
+      setPosition({
+        x: Math.max(0, Math.min(e.clientX - dragOffset.x, maxX)),
+        y: Math.max(0, Math.min(e.clientY - dragOffset.y, maxY)),
+      });
+    };
+    const onUp = () => setIsDragging(false);
+    if (isDragging) {
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+    return () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+  }, [isDragging, dragOffset]);
+
+  const getDimensions = () => {
+    switch (floatState) {
+      case 'minimized': return { width: 240, height: 180 };
+      case 'compact':   return { width: 400, height: 300 };
+      case 'expanded':  return { width: 640, height: 480 };
+    }
+  };
+
+  const { width, height } = getDimensions();
+
+  const minimize = () => {
+    setFloatState('minimized');
+    setPosition({ x: window.innerWidth - 260, y: window.innerHeight - 200 });
+  };
+
+  const toggleExpand = () => {
+    setFloatState(floatState === 'expanded' ? 'compact' : 'expanded');
+  };
+
+  const totalCount = remoteParticipants.length + 1;
+
   return (
-    <div className="flex gap-2 p-2 h-full overflow-x-auto bg-gray-900">
-      <div className="w-24 h-20 flex-shrink-0">
-        <ParticipantTile participant={localParticipant} isLocal />
-      </div>
-      {remoteParticipants.map((p) => (
-        <div key={p.identity} className="w-24 h-20 flex-shrink-0">
-          <ParticipantTile participant={p} isLocal={false} />
+    <div
+      ref={windowRef}
+      className={`fixed z-40 bg-card border-2 border-border rounded-lg shadow-2xl overflow-hidden transition-all ${
+        isDragging ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
+      style={{ left: `${position.x}px`, top: `${position.y}px`, width: `${width}px`, height: `${height}px` }}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Header — identical to FloatingVideoWindow */}
+      <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-sm font-medium">
+            {totalCount} participant{totalCount !== 1 ? 's' : ''}
+          </span>
         </div>
+        <div className="flex items-center space-x-1 no-drag">
+          <button
+            onClick={minimize}
+            className="p-1 rounded hover:bg-accent transition-colors"
+            title="Minimize"
+          >
+            <MinusIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={toggleExpand}
+            className="p-1 rounded hover:bg-accent transition-colors"
+            title={floatState === 'expanded' ? 'Compact' : 'Expand'}
+          >
+            {floatState === 'expanded' ? (
+              <ArrowsPointingInIcon className="w-4 h-4" />
+            ) : (
+              <ArrowsPointingOutIcon className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Video content */}
+      <div className="relative h-[calc(100%-40px)] bg-muted">
+        {floatState === 'minimized' ? (
+          <LiveKitFloatingCompactGrid
+            remoteParticipants={remoteParticipants}
+            localParticipant={localParticipant}
+            isAudioEnabled={isAudioEnabled}
+            isVideoEnabled={isVideoEnabled}
+          />
+        ) : (
+          <LiveKitFloatingGrid
+            remoteParticipants={remoteParticipants}
+            localParticipant={localParticipant}
+            isAudioEnabled={isAudioEnabled}
+            isVideoEnabled={isVideoEnabled}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Compact 2x2 grid for minimized floating state — mirrors CompactParticipantGrid
+function LiveKitFloatingCompactGrid({
+  remoteParticipants,
+  localParticipant,
+  isAudioEnabled,
+  isVideoEnabled,
+}: {
+  remoteParticipants: Participant[];
+  localParticipant: LocalParticipant;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
+}) {
+  const shown = remoteParticipants.slice(0, 3);
+
+  return (
+    <div className="grid grid-cols-2 gap-1 p-1 h-full">
+      {/* Local */}
+      <div className="relative bg-background rounded overflow-hidden">
+        <LiveKitParticipantTile
+          participant={localParticipant}
+          isLocal
+          isAudioEnabled={isAudioEnabled}
+          isVideoEnabled={isVideoEnabled}
+        />
+      </div>
+      {shown.map((p) => (
+        <div key={p.identity} className="relative bg-background rounded overflow-hidden">
+          <LiveKitParticipantTile participant={p} isLocal={false} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Regular grid for compact/expanded floating state — mirrors ParticipantGrid in FloatingVideoWindow
+function LiveKitFloatingGrid({
+  remoteParticipants,
+  localParticipant,
+  isAudioEnabled,
+  isVideoEnabled,
+}: {
+  remoteParticipants: Participant[];
+  localParticipant: LocalParticipant;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
+}) {
+  const total = remoteParticipants.length + 1;
+  const cols = total <= 2 ? 1 : total <= 4 ? 2 : 3;
+
+  return (
+    <div
+      className="grid gap-2 p-2 h-full"
+      style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+    >
+      <LiveKitParticipantTile
+        participant={localParticipant}
+        isLocal
+        isAudioEnabled={isAudioEnabled}
+        isVideoEnabled={isVideoEnabled}
+      />
+      {remoteParticipants.map((p) => (
+        <LiveKitParticipantTile key={p.identity} participant={p} isLocal={false} />
       ))}
     </div>
   );

@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { WhiteboardToolbar } from './whiteboard-toolbar';
 import socketService from '@/services/socket-service';
 
@@ -80,68 +79,27 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
 
   // Initialize canvas and socket connection
   useEffect(() => {
-    console.log('🔍 Whiteboard Canvas - Checking connection:', {
-      socketConnected: socketService.isConnected(),
-      whiteboardId,
-      groupId
-    });
-
-    // Check if socket is connected, if not, set connected to true for offline mode
-    if (socketService.isConnected()) {
-      console.log('✅ Socket connected, joining whiteboard:', whiteboardId);
-      setIsConnected(true);
-      // Join whiteboard room
-      socketService.joinWhiteboard(whiteboardId);
-      
-      // Add current user to connected users list immediately
-      setConnectedUsers(prev => {
-        const currentUser = 'You'; // Or get from auth context
-        if (!prev.includes(currentUser)) {
-          return [...prev, currentUser];
-        }
-        return prev;
-      });
-    } else {
-      console.log('❌ Socket not connected, enabling offline mode');
-      // Enable offline mode - user can still draw locally
-      setIsConnected(true);
-      // Still add current user for offline mode
-      setConnectedUsers(['You (Offline)']);
-    }
-
-    // Set up event listeners
+    // Event handlers — defined here so they can be registered/unregistered cleanly
     const handleWhiteboardJoined = (data: any) => {
-      console.log('📋 Whiteboard joined event:', data);
       if (data.whiteboardId === whiteboardId) {
         setElements(data.elements || []);
-        // Ensure we always show at least the current user
-        const users = data.users || [];
-        if (users.length === 0) {
-          users.push('You');
-        }
+        const users = data.users?.length ? data.users : ['You'];
         setConnectedUsers(users);
         setIsConnected(true);
       }
     };
 
     const handleUserJoined = (data: any) => {
-      console.log('👤 User joined whiteboard:', data);
       if (data.whiteboardId === whiteboardId) {
         const userName = data.userName || data.user?.name || 'Unknown User';
-        setConnectedUsers(prev => {
-          if (!prev.includes(userName)) {
-            return [...prev, userName];
-          }
-          return prev;
-        });
+        setConnectedUsers(prev => prev.includes(userName) ? prev : [...prev, userName]);
       }
     };
 
     const handleUserLeft = (data: any) => {
-      console.log('👤 User left whiteboard:', data);
       if (data.whiteboardId === whiteboardId) {
         const userName = data.userName || data.user?.name || 'Unknown User';
-        setConnectedUsers(prev => prev.filter(user => user !== userName));
+        setConnectedUsers(prev => prev.filter(u => u !== userName));
       }
     };
 
@@ -153,12 +111,8 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
 
     const handleUpdateElement = (data: any) => {
       if (data.whiteboardId === whiteboardId) {
-        setElements(prev => 
-          prev.map(el => 
-            el.id === data.elementId 
-              ? { ...el, ...data.updates }
-              : el
-          )
+        setElements(prev =>
+          prev.map(el => el.id === data.elementId ? { ...el, ...data.updates } : el)
         );
       }
     };
@@ -172,15 +126,15 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
     const handleUserCursorMove = (data: any) => {
       if (data.whiteboardId === whiteboardId && data.userId !== 'current-user') {
         setUserCursors(prev => {
-          const newCursors = new Map(prev);
-          newCursors.set(data.userId, {
+          const next = new Map(prev);
+          next.set(data.userId, {
             userId: data.userId,
             userName: data.userName || 'Unknown User',
             x: data.x,
             y: data.y,
             color: data.color || '#FF0000'
           });
-          return newCursors;
+          return next;
         });
       }
     };
@@ -188,20 +142,18 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
     const handleUserCursorLeave = (data: any) => {
       if (data.whiteboardId === whiteboardId) {
         setUserCursors(prev => {
-          const newCursors = new Map(prev);
-          newCursors.delete(data.userId);
-          return newCursors;
+          const next = new Map(prev);
+          next.delete(data.userId);
+          return next;
         });
       }
     };
 
     const handleClearCanvas = (data: any) => {
-      if (data.whiteboardId === whiteboardId) {
-        setElements([]);
-      }
+      if (data.whiteboardId === whiteboardId) setElements([]);
     };
 
-    // Subscribe to events
+    // Register all event listeners immediately — they work regardless of join state
     socketService.onWhiteboardJoined(handleWhiteboardJoined);
     socketService.onUserJoinedWhiteboard(handleUserJoined);
     socketService.onUserLeftWhiteboard(handleUserLeft);
@@ -209,39 +161,47 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
     socketService.onUpdateElement(handleUpdateElement);
     socketService.onDeleteElement(handleDeleteElement);
     socketService.onClearCanvas(handleClearCanvas);
-    
-    // Subscribe to cursor events
-    if (socketService.getSocket()) {
-      socketService.getSocket()?.on('user_cursor_move', handleUserCursorMove);
-      socketService.getSocket()?.on('user_cursor_leave', handleUserCursorLeave);
+    socketService.getSocket()?.on('user_cursor_move', handleUserCursorMove);
+    socketService.getSocket()?.on('user_cursor_leave', handleUserCursorLeave);
+
+    // Always allow local drawing immediately
+    setIsConnected(true);
+    setConnectedUsers(['You']);
+
+    // Join whiteboard room — poll until socket is connected
+    const tryJoin = () => {
+      if (socketService.isConnected()) {
+        socketService.joinWhiteboard(whiteboardId);
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryJoin()) {
+      // Socket not ready yet — retry every 500ms until connected (max 20s)
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (tryJoin() || attempts >= 40) {
+          clearInterval(interval);
+        }
+      }, 500);
     }
 
     return () => {
-      // Clean up event listeners
       socketService.offAddElement(handleAddElement);
       socketService.offUpdateElement(handleUpdateElement);
       socketService.offDeleteElement(handleDeleteElement);
       socketService.offClearCanvas(handleClearCanvas);
-      
-      // Clean up cursor event listeners
-      if (socketService.getSocket()) {
-        socketService.getSocket()?.off('user_cursor_move', handleUserCursorMove);
-        socketService.getSocket()?.off('user_cursor_leave', handleUserCursorLeave);
-      }
-      
-      // Leave whiteboard room and emit cursor leave
-      if (isConnected && socketService.isConnected()) {
+      socketService.getSocket()?.off('user_cursor_move', handleUserCursorMove);
+      socketService.getSocket()?.off('user_cursor_leave', handleUserCursorLeave);
+      if (socketService.isConnected()) {
         socketService.emitCursorLeave(whiteboardId, 'current-user');
       }
       socketService.leaveWhiteboard(whiteboardId);
       setIsConnected(false);
     };
   }, [whiteboardId]);
-
-  // Redraw canvas when elements change
-  useEffect(() => {
-    redrawCanvas();
-  }, [elements]);
 
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -324,6 +284,33 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
       ctx.restore();
     });
   }, [elements, userCursors]);
+
+  // Redraw canvas when elements change
+  useEffect(() => {
+    redrawCanvas();
+  }, [elements]);
+
+  // Resize canvas to fill its container
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const resize = () => {
+      const { width, height } = container.getBoundingClientRect();
+      if (width > 0 && height > 0) {
+        canvas.width = width;
+        canvas.height = height;
+        redrawCanvas();
+      }
+    };
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [redrawCanvas]);
 
   const getMousePos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -533,19 +520,19 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
 
   if (!isConnected) {
     return (
-      <Card className={`p-6 ${className}`}>
+      <div className={`flex items-center justify-center p-6 ${className}`}>
         <div className="text-center text-muted-foreground">
           <div className="mb-2">Initializing whiteboard...</div>
           <div className="text-sm">
             {socketService.isConnected() ? 'Connecting to collaboration server...' : 'Starting in offline mode...'}
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className={`p-4 ${className}`}>
+    <div className={`flex flex-col ${className}`}>
       {/* Toolbar */}
       <WhiteboardToolbar
         whiteboardId={whiteboardId}
@@ -560,16 +547,16 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
         canEdit={canEdit}
         connectedUsers={connectedUsers}
         isConnected={socketService.isConnected()}
-        className="mb-4"
+        className="mb-2 px-4 pt-4 flex-shrink-0"
       />
 
       {/* Canvas */}
-      <div className="border rounded-lg overflow-hidden bg-white relative">
+      <div className="flex-1 border rounded-lg overflow-hidden bg-white relative min-h-0">
         <canvas
           ref={canvasRef}
           width={800}
           height={600}
-          className="block cursor-crosshair"
+          className="block cursor-crosshair w-full h-full"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -614,18 +601,18 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
       </div>
 
       {canEdit ? (
-        <div className="mt-2 text-sm text-center">
+        <div className="mt-2 text-sm text-center flex-shrink-0">
           <span className="text-green-600">✓ You can edit this whiteboard</span>
           {!socketService.isConnected() && (
             <span className="text-orange-500 ml-2">(Changes will sync when connection is restored)</span>
           )}
         </div>
       ) : (
-        <div className="mt-2 text-sm text-muted-foreground text-center">
+        <div className="mt-2 text-sm text-muted-foreground text-center flex-shrink-0">
           You have view-only access to this whiteboard
         </div>
       )}
-    </Card>
+    </div>
   );
 });
 
