@@ -8,7 +8,7 @@ import logger from '../utils/logger';
 const smtpTransporter = nodemailer.createTransport({
   host: config.email.host,
   port: config.email.port,
-  secure: false, // STARTTLS
+  secure: config.email.port === 465, // true for 465, false for other ports
   auth: {
     user: config.email.user,
     pass: config.email.password,
