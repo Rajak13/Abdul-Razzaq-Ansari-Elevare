@@ -88,42 +88,207 @@ export default function NotePage() {
     }
   };
 
+  const buildStyledHtml = (renderedHtml: string) => {
+    const tagsHtml = note?.tags.length
+      ? note.tags.map(t => `<span class="tag">#${t}</span>`).join('')
+      : '';
+    const summaryHtml = note?.summary
+      ? `<div class="summary"><div class="summary-label">Summary</div><p>${note.summary}</p></div>`
+      : '';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${note?.title || 'Note'}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      line-height: 1.75;
+      padding: 40px 20px;
+    }
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      padding: 36px 48px 32px;
+      color: white;
+    }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .meta {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .tag {
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .body { padding: 40px 48px; }
+    .summary {
+      background: #f0f0ff;
+      border-left: 4px solid #6366f1;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+    .summary-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6366f1;
+      margin-bottom: 6px;
+    }
+    .summary p { color: #374151; font-size: 0.95rem; line-height: 1.6; }
+    .content h1 { font-size: 1.75rem; font-weight: 700; margin: 1.5em 0 0.5em; color: #111827; }
+    .content h2 { font-size: 1.4rem; font-weight: 600; margin: 1.4em 0 0.4em; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+    .content h3 { font-size: 1.15rem; font-weight: 600; margin: 1.2em 0 0.3em; color: #374151; }
+    .content h4, .content h5, .content h6 { font-size: 1rem; font-weight: 600; margin: 1em 0 0.3em; color: #4b5563; }
+    .content p { margin: 0.75em 0; color: #374151; }
+    .content a { color: #6366f1; text-decoration: none; }
+    .content a:hover { text-decoration: underline; }
+    .content ul, .content ol { padding-left: 1.5em; margin: 0.75em 0; }
+    .content li { margin: 0.3em 0; color: #374151; }
+    .content blockquote {
+      border-left: 4px solid #d1d5db;
+      padding: 8px 16px;
+      margin: 1em 0;
+      color: #6b7280;
+      background: #f9fafb;
+      border-radius: 0 6px 6px 0;
+    }
+    .content code {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 0.875em;
+    }
+    .content pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 20px 24px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 1em 0;
+      font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    .content pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+    .content table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.9rem; }
+    .content th {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+    }
+    .content td { border: 1px solid #e5e7eb; padding: 9px 14px; color: #4b5563; }
+    .content tr:nth-child(even) td { background: #f9fafb; }
+    .content hr { border: none; border-top: 1px solid #e5e7eb; margin: 2em 0; }
+    .content img { max-width: 100%; border-radius: 8px; margin: 1em 0; }
+    .footer {
+      text-align: center;
+      padding: 20px 48px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      border-top: 1px solid #f3f4f6;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>${note?.title || 'Untitled Note'}</h1>
+      <div class="meta">Last updated: ${new Date(note?.updated_at || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+      ${tagsHtml ? `<div class="tags">${tagsHtml}</div>` : ''}
+    </div>
+    <div class="body">
+      ${summaryHtml}
+      <div class="content">${renderedHtml}</div>
+    </div>
+    <div class="footer">Exported from StudySync</div>
+  </div>
+</body>
+</html>`;
+  };
+
   const handleExport = async (format: 'html' | 'markdown' | 'pdf') => {
     if (format === 'pdf') {
       handleExportPdf();
       return;
     }
 
+    if (!note) return;
+
     try {
-      const blob = await exportNote.mutateAsync({ 
-        id: noteId, 
-        format, 
-        includeSummary: false 
-      });
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `${note?.title || 'note'}.${format === 'html' ? 'html' : 'md'}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast.success(`Note exported as ${format.toUpperCase()}`);
+      if (format === 'html') {
+        // Render markdown to HTML client-side and wrap in styled document
+        const MarkdownIt = (await import('markdown-it')).default;
+        const md = new MarkdownIt({ html: true, linkify: true, typographer: true, breaks: true });
+        const noteContent = typeof note.content === 'string' ? note.content : extractTextFromContent(note.content);
+        const renderedHtml = md.render(noteContent);
+        const fullHtml = buildStyledHtml(renderedHtml);
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${note.title || 'note'}.html`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success('Note exported as HTML');
+      } else {
+        // Markdown: download raw content
+        const noteContent = typeof note.content === 'string' ? note.content : extractTextFromContent(note.content);
+        const blob = new Blob([noteContent], { type: 'text/markdown;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${note.title || 'note'}.md`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success('Note exported as Markdown');
+      }
     } catch {
       toast.error('Failed to export note. Please try again.');
     }
   };
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     if (!note) return;
-
-    const noteContent = typeof note.content === 'string'
-      ? note.content
-      : extractTextFromContent(note.content);
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -131,39 +296,19 @@ export default function NotePage() {
       return;
     }
 
-    printWindow.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${note.title}</title>
-  <style>
-    body { font-family: Georgia, serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #111; line-height: 1.7; }
-    h1 { font-size: 2rem; margin-bottom: 4px; }
-    .meta { color: #666; font-size: 0.85rem; margin-bottom: 24px; }
-    .tags { margin-bottom: 16px; }
-    .tag { display: inline-block; background: #f0f0f0; border-radius: 4px; padding: 2px 8px; margin-right: 6px; font-size: 0.8rem; }
-    .summary { background: #f9f9f9; border-left: 4px solid #6366f1; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px; }
-    .summary h3 { margin: 0 0 8px; font-size: 0.9rem; color: #6366f1; }
-    pre { background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto; }
-    code { font-family: monospace; font-size: 0.9em; }
-    @media print { body { margin: 0; } }
-  </style>
-</head>
-<body>
-  <h1>${note.title}</h1>
-  <div class="meta">Last updated: ${new Date(note.updated_at).toLocaleDateString()}</div>
-  ${note.tags.length > 0 ? `<div class="tags">${note.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>` : ''}
-  ${note.summary ? `<div class="summary"><h3>Summary</h3><p>${note.summary}</p></div>` : ''}
-  <div class="content">${noteContent}</div>
-</body>
-</html>`);
+    const MarkdownIt = (await import('markdown-it')).default;
+    const md = new MarkdownIt({ html: true, linkify: true, typographer: true, breaks: true });
+    const noteContent = typeof note.content === 'string' ? note.content : extractTextFromContent(note.content);
+    const renderedHtml = md.render(noteContent);
+    const fullHtml = buildStyledHtml(renderedHtml);
 
+    printWindow.document.write(fullHtml);
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 500);
+    }, 600);
 
     toast.success('PDF export opened — save as PDF from the print dialog.');
   };

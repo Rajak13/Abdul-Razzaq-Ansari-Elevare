@@ -236,7 +236,7 @@ export default function AdminLoginPage() {
       <div className="admin-auth-illustration">
         <div className="admin-auth-illustration-container">
           <Image
-            src="/images/Admin-page(login).png"
+            src="/images/admin-login.png"
             alt="Admin Login Illustration"
             fill
             className="object-cover"
