@@ -25,14 +25,23 @@ logger.info('Email service initialized: SMTP', {
 });
 
 /**
- * Unified email sending function via SMTP (Brevo in production)
+ * Unified email sending function via SMTP via Promise to ensure Vercel and other serverless environments wait
  */
-async function sendEmail(msg: { to: string; from: string; subject: string; html: string }) {
-  await smtpTransporter.sendMail({
-    from: msg.from,
-    to: msg.to,
-    subject: msg.subject,
-    html: msg.html,
+async function sendEmail(msg: { to: string; from: string; subject: string; html: string }): Promise<any> {
+  return new Promise((resolve, reject) => {
+    smtpTransporter.sendMail({
+      from: msg.from,
+      to: msg.to,
+      subject: msg.subject,
+      html: msg.html,
+    }, (err, info) => {
+      if (err) {
+        logger.error("Nodemailer Error:", err);
+        reject(err);
+      } else {
+        resolve(info);
+      }
+    });
   });
 }
 
