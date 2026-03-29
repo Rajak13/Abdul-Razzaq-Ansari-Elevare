@@ -88,7 +88,8 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
     }
   };
 
-  const canJoin = !group.is_member && (!group.max_members || group.member_count < group.max_members);
+  const canJoin = !group.is_member && !group.has_pending_request && (!group.max_members || group.member_count < group.max_members);
+  const isPending = !!group.has_pending_request;
   const isFull = group.max_members && group.member_count >= group.max_members;
   const isOwner = group.user_role === 'owner';
 
@@ -199,6 +200,15 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
                 Leave
               </Button>
             )
+          ) : isPending ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled
+              className="flex-1 text-xs"
+            >
+              Pending
+            </Button>
           ) : (
             // Non-member actions
             canJoin && !isFull && (

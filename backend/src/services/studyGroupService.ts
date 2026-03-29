@@ -130,6 +130,7 @@ export async function getStudyGroups(
          sg.*,
          COUNT(gm.id) as member_count,
          EXISTS (SELECT 1 FROM group_members gm2 WHERE gm2.group_id = sg.id AND gm2.user_id = $${paramIndex}) as is_member,
+         EXISTS (SELECT 1 FROM group_join_requests gjr WHERE gjr.group_id = sg.id AND gjr.user_id = $${paramIndex} AND gjr.status = 'pending') as has_pending_request,
          gm3.role as user_role
        FROM study_groups sg
        LEFT JOIN group_members gm ON gm.group_id = sg.id
@@ -166,6 +167,7 @@ export async function getStudyGroupById(
          sg.*,
          COUNT(gm.id) as member_count,
          EXISTS (SELECT 1 FROM group_members gm2 WHERE gm2.group_id = sg.id AND gm2.user_id = $2) as is_member,
+         EXISTS (SELECT 1 FROM group_join_requests gjr WHERE gjr.group_id = sg.id AND gjr.user_id = $2 AND gjr.status = 'pending') as has_pending_request,
          gm3.role as user_role
        FROM study_groups sg
        LEFT JOIN group_members gm ON gm.group_id = sg.id
@@ -292,7 +294,7 @@ export async function deleteStudyGroup(
 export async function requestToJoinGroup(
   userId: string,
   groupId: string
-): Promise<GroupJoinRequest | null> {
+): Promise<{ status: 'joined' | 'pending'; request?: GroupJoinRequest } | null> {
   try {
     // Check if group exists (allow access to basic group info for join requests)
     const groupCheck = await query<StudyGroup>(
@@ -314,6 +316,18 @@ export async function requestToJoinGroup(
 
     if (memberCheck.rows[0]) {
       throw new Error('User is already a member of this group');
+    }
+
+    // If the group is public, join directly
+    if (!group.is_private) {
+      await query(
+        `INSERT INTO group_members (group_id, user_id, role)
+         VALUES ($1, $2, $3)`,
+        [groupId, userId, 'member']
+      );
+
+      logger.info('User instantly joined public group', { groupId, userId });
+      return { status: 'joined' };
     }
 
     // Check if there's already a pending request
@@ -363,7 +377,7 @@ export async function requestToJoinGroup(
     }
 
     logger.info('Join request created', { groupId, userId });
-    return joinRequest;
+    return { status: 'pending', request: joinRequest };
   } catch (error) {
     logger.error('Error creating join request', { error, userId, groupId });
     throw error;

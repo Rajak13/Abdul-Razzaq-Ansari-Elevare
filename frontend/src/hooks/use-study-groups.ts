@@ -133,13 +133,26 @@ export function useJoinGroup() {
 
   return useMutation({
     mutationFn: (id: string) => studyGroupService.requestToJoin(id),
-    onSuccess: (_, id) => {
-      // Invalidate all study group queries to refresh the data
+    onSuccess: (data, id) => {
+      // Invalidate all study group queries to refresh the data immediately
       queryClient.invalidateQueries({ queryKey: studyGroupKeys.all });
-      toast.success('Join request sent successfully!');
+      toast.success(data.message || 'Join request sent successfully!');
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to send join request');
+      const errorMessage = error?.response?.data?.error?.message 
+        || error?.message 
+        || 'Failed to process request';
+      
+      let userFriendlyMessage = errorMessage;
+      
+      // Translate backend developer errors into friendly statements
+      if (errorMessage.includes('already a member')) {
+        userFriendlyMessage = 'You are already a member of this study group.';
+      } else if (errorMessage.includes('already pending')) {
+        userFriendlyMessage = 'You have already sent a join request to this group. Please wait for an admin to approve it.';
+      }
+
+      toast.error(userFriendlyMessage);
     },
   });
 }

@@ -176,9 +176,9 @@ export async function requestToJoinGroup(
     const userId = req.user!.userId;
     const groupId = req.params.id;
 
-    const joinRequest = await studyGroupService.requestToJoinGroup(userId, groupId);
+    const result = await studyGroupService.requestToJoinGroup(userId, groupId);
 
-    if (!joinRequest) {
+    if (!result) {
       res.status(404).json({
         success: false,
         error: {
@@ -189,11 +189,20 @@ export async function requestToJoinGroup(
       return;
     }
 
-    res.status(201).json({
-      success: true,
-      joinRequest,
-      message: 'Join request sent successfully',
-    });
+    if (result.status === 'joined') {
+      res.status(200).json({
+        success: true,
+        message: 'Successfully joined the study group',
+        joined: true,
+      });
+    } else {
+      res.status(201).json({
+        success: true,
+        joinRequest: result.request,
+        message: 'Join request sent successfully. Pending admin approval.',
+        joined: false,
+      });
+    }
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'User is already a member of this group') {
@@ -201,7 +210,7 @@ export async function requestToJoinGroup(
           success: false,
           error: {
             code: 'ALREADY_MEMBER',
-            message: error.message,
+            message: 'You are already a member of this study group.',
           },
         });
         return;
@@ -211,7 +220,7 @@ export async function requestToJoinGroup(
           success: false,
           error: {
             code: 'REQUEST_PENDING',
-            message: error.message,
+            message: 'You have already sent a join request to this group. Please wait for an admin to approve it.',
           },
         });
         return;

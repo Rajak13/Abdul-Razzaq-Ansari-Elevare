@@ -16,6 +16,7 @@ export interface StudyGroupWithMemberCount extends StudyGroup {
   member_count: number;
   is_member: boolean;
   user_role?: GroupRole;
+  has_pending_request?: boolean;
 }
 
 export interface GroupMember {
