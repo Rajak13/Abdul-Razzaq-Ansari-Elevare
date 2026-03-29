@@ -1,48 +1,42 @@
-import nodemailer from 'nodemailer';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Always use SMTP — Brevo in production, Gmail/local in development
-// Brevo free tier: 300 emails/day, sends to ANY email address, no domain verification needed
-// Sign up at https://app.brevo.com → SMTP & API → SMTP tab → copy host/port/login/password
-const smtpTransporter = nodemailer.createTransport({
-  host: config.email.host,
-  port: config.email.port,
-  secure: config.email.port === 465, // true for 465, false for other ports
-  auth: {
-    user: config.email.user,
-    pass: config.email.password,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+const GOOGLE_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxhefPTNoXVdlp3Z7OfEiEy0PQqeqRZegDIViW7MpdhSzxaRDdLCMTd4-tqDtd0htuq/exec';
 
-logger.info('Email service initialized: SMTP', {
-  host: config.email.host,
-  port: config.email.port,
-  user: config.email.user,
-});
+logger.info('Email service initialized: Google Webhook');
 
 /**
- * Unified email sending function via SMTP via Promise to ensure Vercel and other serverless environments wait
+ * Unified email sending function using Google Apps Script Webhook
+ * Bypasses Render's strict outbound SMTP firewall entirely via HTTPS!
  */
 async function sendEmail(msg: { to: string; from: string; subject: string; html: string }): Promise<any> {
-  return new Promise((resolve, reject) => {
-    smtpTransporter.sendMail({
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-    }, (err, info) => {
-      if (err) {
-        logger.error("Nodemailer Error:", err);
-        reject(err);
-      } else {
-        resolve(info);
-      }
+  try {
+    const response = await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: msg.to,
+        subject: msg.subject,
+        html: msg.html,
+      }),
     });
-  });
+
+    if (!response.ok) {
+      throw new Error(`Google Script returned ${response.status}`);
+    }
+
+    const result = await response.json() as any;
+    if (result.status === 'error') {
+      throw new Error(result.message);
+    }
+
+    return result;
+  } catch (error) {
+    logger.error("Apps Script Error:", error);
+    throw error;
+  }
 }
 
 // Enterprise Email Template Base
