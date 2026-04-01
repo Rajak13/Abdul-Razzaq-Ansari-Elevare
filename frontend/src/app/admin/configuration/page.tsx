@@ -193,7 +193,7 @@ export default function AdminConfigurationPage() {
   const isMaintenanceEnabled = maintenanceMode?.data?.enabled || false;
 
   return (
-    <AdminRouteGuard requiredRole="owner">
+    <AdminRouteGuard requiredRole="moderator">
       <AdminLayout>
         <div className="p-6 space-y-6">
           {/* Header */}

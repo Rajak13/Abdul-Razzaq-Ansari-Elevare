@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { notificationService } from '../services/notification-service';
@@ -91,19 +91,20 @@ export function useNotifications() {
 
   // Play notification sound
   const playNotificationSound = useCallback(() => {
-    try {
-      const audio = new Audio('/sounds/notification.mp3');
-      audio.volume = 0.5;
-      audio.play().catch(error => {
-        // Silently handle decode errors for placeholder files
-        if (error.name !== 'NotAllowedError') {
-          console.log('🔇 Notification sound skipped (placeholder or blocked)');
-        }
-      });
-    } catch (error) {
-      console.log('Could not create audio element:', error);
-    }
+    const audio = new Audio('/sounds/mixkit-bell-notification-933.wav');
+    audio.volume = 0.5;
+    audio.play().catch(() => {
+      // Blocked by browser autoplay policy — silent fail is fine
+    });
   }, []);
+
+  // Stable refs so the socket listener is registered exactly once
+  const queryClientRef = useRef(queryClient);
+  const playNotificationSoundRef = useRef(playNotificationSound);
+  const tRef = useRef(t);
+  queryClientRef.current = queryClient;
+  playNotificationSoundRef.current = playNotificationSound;
+  tRef.current = t;
 
   // Handle real-time notifications
   useEffect(() => {
@@ -115,20 +116,17 @@ export function useNotifications() {
       socketService.connect(token);
     }
 
+    // Use a stable function reference so we never register duplicate listeners
     const handleNotification = (notification: Notification) => {
-      // Update queries
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClientRef.current.invalidateQueries({ queryKey: ['notifications'] });
+      queryClientRef.current.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      playNotificationSoundRef.current();
 
-      // Play notification sound
-      playNotificationSound();
-
-      // Show toast notification
       toast(notification.title, {
         description: notification.content,
         duration: 5000,
         action: notification.link ? {
-          label: t('actions.view'),
+          label: tRef.current('actions.view'),
           onClick: () => {
             const locale = window.location.pathname.split('/')[1] || 'en';
             const link = notification.link!.startsWith('/') && !notification.link!.startsWith(`/${locale}`)
@@ -141,33 +139,32 @@ export function useNotifications() {
       });
     };
 
-    const handleConnect = () => {
-      setIsConnected(true);
-    };
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
 
-    const handleDisconnect = () => {
-      setIsConnected(false);
-    };
-
-    // Set up event listeners
+    // Remove any previously registered listener before adding a new one
+    socketService.offNotification();
     socketService.onNotification(handleNotification);
 
     const socket = socketService.getSocket();
     if (socket) {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
       socket.on('connect', handleConnect);
       socket.on('disconnect', handleDisconnect);
       setIsConnected(socket.connected);
     }
 
-    // Cleanup
     return () => {
-      if (socket) {
-        socket.off('connect', handleConnect);
-        socket.off('disconnect', handleDisconnect);
-      }
       socketService.offNotification(handleNotification);
+      const s = socketService.getSocket();
+      if (s) {
+        s.off('connect', handleConnect);
+        s.off('disconnect', handleDisconnect);
+      }
     };
-  }, [queryClient, playNotificationSound, isAuthenticated]);
+  // Only re-run when auth state changes — refs keep everything else stable
+  }, [isAuthenticated]);
 
   // Actions
   const markAsRead = useCallback((notificationId: string) => {

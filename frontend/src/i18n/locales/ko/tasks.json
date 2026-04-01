@@ -144,6 +144,9 @@
     "kanban": "칸반 보기"
   },
   "messages": {
+    "loading": "작업을 불러오는 중...",
+    "retry": "다시 시도",
+    "loadErrorDescription": "작업을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.",
     "createSuccess": "작업이 성공적으로 생성되었습니다",
     "updateSuccess": "작업이 성공적으로 업데이트되었습니다",
     "deleteSuccess": "작업이 성공적으로 삭제되었습니다",

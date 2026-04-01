@@ -144,6 +144,9 @@
     "kanban": "Kanban View"
   },
   "messages": {
+    "loading": "Loading your tasks...",
+    "retry": "Retry",
+    "loadErrorDescription": "There was an error loading your tasks. Please try again.",
     "createSuccess": "Task created successfully",
     "updateSuccess": "Task updated successfully",
     "deleteSuccess": "Task deleted successfully",

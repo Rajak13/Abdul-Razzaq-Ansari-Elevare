@@ -96,7 +96,7 @@ const getFooter = () => `
       </tr>
       <tr>
         <td style="padding-bottom: 20px;">
-          <a href="${config.corsOrigin}/help" style="color: #2D6A4F; text-decoration: none; font-size: 13px; margin-right: 20px;">Help Center</a>
+          <a href="${config.frontendUrl}/help" style="color: #2D6A4F; text-decoration: none; font-size: 13px; margin-right: 20px;">Help Center</a>
           <span style="color: #cccccc;">|</span>
           <a href="mailto:support@elevare.com" style="color: #2D6A4F; text-decoration: none; font-size: 13px; margin-left: 20px;">Contact Support</a>
         </td>
@@ -107,9 +107,9 @@ const getFooter = () => `
             © ${new Date().getFullYear()} ELEVARE INC. ALL RIGHTS RESERVED.
           </p>
           <p style="margin: 0; color: #999999; font-size: 11px;">
-            <a href="${config.corsOrigin}/privacy" style="color: #999999; text-decoration: none;">Privacy Policy</a>
+            <a href="${config.frontendUrl}/privacy" style="color: #999999; text-decoration: none;">Privacy Policy</a>
             <span style="margin: 0 8px;">•</span>
-            <a href="${config.corsOrigin}/terms" style="color: #999999; text-decoration: none;">Terms of Service</a>
+            <a href="${config.frontendUrl}/terms" style="color: #999999; text-decoration: none;">Terms of Service</a>
           </p>
         </td>
       </tr>
@@ -351,7 +351,7 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   locale: string = 'en'
 ): Promise<void> {
-  const resetUrl = `${config.corsOrigin}/reset-password?token=${resetToken}`;
+  const resetUrl = `${config.frontendUrl}/reset-password?token=${resetToken}`;
 
   const translations: Record<string, any> = {
     en: {
@@ -535,7 +535,7 @@ export async function sendSuspensionEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const appealUrl = `${config.corsOrigin}/suspension-appeal`;
+  const appealUrl = `${config.frontendUrl}/suspension-appeal`;
 
   const expiresHtml = expiresAt && suspensionType === 'temporary' ? `
     <tr>
@@ -654,6 +654,124 @@ export async function sendSuspensionEmail(
 }
 
 /**
+ * Send account warning notification email
+ */
+export async function sendWarningEmail(
+  email: string,
+  name: string,
+  reason: string,
+  locale: string = 'en'
+): Promise<void> {
+  const translations: Record<string, any> = {
+    en: {
+      subject: 'Important: Account Warning from Elevare',
+      title: 'Account warning issued',
+      greeting: `Your Elevare account has received a formal warning, <strong style="color: #1a1a1a;">${name}</strong>.`,
+      reasonLabel: 'Reason for warning',
+      notice: 'This is an official warning. Continued violations of our Community Guidelines may result in account suspension.',
+      guidelinesButton: 'Review Community Guidelines',
+      disclaimer: 'If you believe this warning was issued in error, please contact support@elevare.edu.'
+    },
+    ne: {
+      subject: 'महत्त्वपूर्ण: Elevare बाट खाता चेतावनी',
+      title: 'खाता चेतावनी जारी गरियो',
+      greeting: `तपाईंको Elevare खातालाई औपचारिक चेतावनी प्राप्त भएको छ, <strong style="color: #1a1a1a;">${name}</strong>।`,
+      reasonLabel: 'चेतावनीको कारण',
+      notice: 'यो एक आधिकारिक चेतावनी हो। हाम्रो समुदाय दिशानिर्देशहरूको निरन्तर उल्लंघनले खाता निलम्बन हुन सक्छ।',
+      guidelinesButton: 'समुदाय दिशानिर्देशहरू समीक्षा गर्नुहोस्',
+      disclaimer: 'यदि तपाईंलाई लाग्छ कि यो चेतावनी गलत रूपमा जारी गरिएको छ भने, कृपया support@elevare.edu मा सम्पर्क गर्नुहोस्।'
+    },
+    ko: {
+      subject: '중요: Elevare 계정 경고',
+      title: '계정 경고 발행됨',
+      greeting: `Elevare 계정에 공식 경고가 발행되었습니다, <strong style="color: #1a1a1a;">${name}</strong>님.`,
+      reasonLabel: '경고 사유',
+      notice: '이것은 공식 경고입니다. 커뮤니티 가이드라인을 계속 위반하면 계정이 정지될 수 있습니다.',
+      guidelinesButton: '커뮤니티 가이드라인 검토',
+      disclaimer: '이 경고가 잘못 발행되었다고 생각하시면 support@elevare.edu로 문의하세요.'
+    }
+  };
+
+  const t = translations[locale] || translations['en'];
+  const loginUrl = `${config.frontendUrl}/login`;
+
+  const content = `
+    ${getHeader('⚠️')}
+    
+    <tr>
+      <td style="padding: 60px 60px 40px 60px;">
+        <h2 style="margin: 0 0 24px 0; color: #1a1a1a; font-size: 28px; font-weight: 400; font-family: Georgia, 'Times New Roman', serif; text-align: center; line-height: 1.3;">
+          ${t.title}
+        </h2>
+        <p style="margin: 0 0 40px 0; color: #666666; font-size: 15px; line-height: 1.7; text-align: center;">
+          ${t.greeting}
+        </p>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FFF9E6; border-left: 3px solid #F59E0B; border-radius: 4px; margin-bottom: 32px;">
+          <tr>
+            <td style="padding: 24px;">
+              <p style="margin: 0 0 8px 0; color: #92400E; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                ${t.reasonLabel}
+              </p>
+              <p style="margin: 0; color: #92400E; font-size: 14px; line-height: 1.6;">
+                ${reason}
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FEF2F2; border-left: 3px solid #EF4444; border-radius: 4px; margin-bottom: 32px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="margin: 0; color: #991B1B; font-size: 13px; line-height: 1.6;">
+                ${t.notice}
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center" style="padding: 20px 0;">
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="background-color: #2D6A4F; border-radius: 4px;">
+                    <a href="${loginUrl}" style="display: inline-block; padding: 16px 40px; color: #FFFFFF; text-decoration: none; font-weight: 500; font-size: 15px; letter-spacing: 0.3px;">
+                      ${t.guidelinesButton} →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin: 32px 0 0 0; color: #999999; font-size: 12px; line-height: 1.6; text-align: center;">
+          ${t.disclaimer}
+        </p>
+      </td>
+    </tr>
+
+    ${getFooter()}
+  `;
+
+  const msg = {
+    to: email,
+    from: config.email.from,
+    subject: t.subject,
+    html: getEmailTemplate(content),
+  };
+
+  try {
+    await sendEmail(msg);
+    logger.info('Warning email sent', { email, locale });
+  } catch (error) {
+    logger.error('Failed to send warning email', { email, locale, error });
+    throw new Error('Failed to send warning email');
+  }
+}
+
+/**
  * Send account unsuspension notification email
  */
 export async function sendUnsuspensionEmail(
@@ -696,7 +814,7 @@ export async function sendUnsuspensionEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const loginUrl = `${config.corsOrigin}/login`;
+  const loginUrl = `${config.frontendUrl}/login`;
 
   const content = `
     ${getHeader('✅')}
@@ -849,7 +967,7 @@ export async function sendReportSubmittedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const trackUrl = `${config.corsOrigin}/reports/${reportId}`;
+  const trackUrl = `${config.frontendUrl}/reports/${reportId}`;
 
   const content = `
     ${getHeader('📋')}
@@ -984,7 +1102,7 @@ export async function sendReportUnderReviewEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const trackUrl = `${config.corsOrigin}/reports/${reportId}`;
+  const trackUrl = `${config.frontendUrl}/reports/${reportId}`;
 
   const content = `
     ${getHeader('🔍')}
@@ -1109,7 +1227,7 @@ export async function sendReportResolvedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const viewUrl = `${config.corsOrigin}/reports/${reportId}`;
+  const viewUrl = `${config.frontendUrl}/reports/${reportId}`;
 
   const content = `
     ${getHeader('✅')}
@@ -1240,7 +1358,7 @@ export async function sendReportDismissedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const appealUrl = `${config.corsOrigin}/reports/${reportId}/appeal`;
+  const appealUrl = `${config.frontendUrl}/reports/${reportId}/appeal`;
 
   const content = `
     ${getHeader('ℹ️')}
@@ -1359,6 +1477,10 @@ export class EmailService {
 
   async sendUnsuspension(email: string, name: string, reason: string, locale?: string) {
     return sendUnsuspensionEmail(email, name, reason, locale);
+  }
+
+  async sendWarning(email: string, name: string, reason: string, locale?: string) {
+    return sendWarningEmail(email, name, reason, locale);
   }
 
   async sendNotification(options: { to: string; subject: string; text: string; html: string }) {

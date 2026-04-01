@@ -2,6 +2,7 @@
 
 import { BarChart3, Calendar, CheckSquare, LayoutGrid, List, Plus, Settings, Square } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -40,6 +41,7 @@ interface TaskManagerProps {
 }
 
 export function TaskManager({ className }: TaskManagerProps) {
+  const t = useTranslations('tasks')
   const [filters, setFilters] = useState<Partial<TaskFiltersType>>({
     sort_by: 'sort_order',
     sort_order: 'asc',
@@ -247,16 +249,16 @@ export function TaskManager({ className }: TaskManagerProps) {
                 </svg>
               </div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                Tasks
+                {t('title')}
               </h1>
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
-              Organize and track your academic tasks and assignments
+              {t('noTasksDescription')}
             </p>
             {tasks.length > 0 && (
               <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                <span>{tasks.filter(t => t.status === 'completed').length} completed</span>
-                <span>{tasks.filter(t => t.status === 'pending').length} pending</span>
+                <span>{tasks.filter(t => t.status === 'completed').length} {t('status.completed').toLowerCase()}</span>
+                <span>{tasks.filter(t => t.status === 'pending').length} {t('status.pending').toLowerCase()}</span>
               </div>
             )}
           </div>
@@ -268,7 +270,7 @@ export function TaskManager({ className }: TaskManagerProps) {
               className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30 text-sm"
             >
               <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-              <span>Statistics</span>
+              <span>{t('statistics.title')}</span>
             </Button>
             
             <Button
@@ -277,7 +279,7 @@ export function TaskManager({ className }: TaskManagerProps) {
               className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 backdrop-blur-sm border-white/20 dark:border-slate-600/30 text-sm"
             >
               <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-              <span>Categories</span>
+              <span>{t('categories.manage')}</span>
             </Button>
             
             <Button
@@ -290,7 +292,7 @@ export function TaskManager({ className }: TaskManagerProps) {
               )}
             >
               {selectionMode ? <CheckSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" /> : <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />}
-              <span>Select</span>
+              <span>{t('actions.selectAll')}</span>
             </Button>
             
             <Button 
@@ -299,8 +301,8 @@ export function TaskManager({ className }: TaskManagerProps) {
               className="bg-primary hover:bg-primary/90 shadow-lg text-sm"
             >
               <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-              <span className="hidden sm:inline">New Task</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">{t('createNewTask')}</span>
+              <span className="sm:hidden">{t('createTask')}</span>
             </Button>
           </div>
         </div>
@@ -338,7 +340,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                       onClick={handleSelectAll}
                       className="bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80"
                     >
-                      {selectedTasks.length === tasks.length ? 'Deselect All' : 'Select All'}
+                      {selectedTasks.length === tasks.length ? t('actions.deselectAll') : t('actions.selectAll')}
                     </Button>
                   )}
                   
@@ -349,7 +351,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     className={viewMode === 'list' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <List className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-2">List</span>
+                    <span className="hidden sm:inline ml-2">{t('viewMode.list').replace(' View', '').replace(' 보기', '').replace(' दृश्य', '')}</span>
                   </Button>
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -358,7 +360,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     className={viewMode === 'grid' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <LayoutGrid className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-2">Grid</span>
+                    <span className="hidden sm:inline ml-2">{t('viewMode.grid').replace(' View', '').replace(' 보기', '').replace(' दृश्य', '')}</span>
                   </Button>
                   <Button
                     variant={viewMode === 'calendar' ? 'default' : 'outline'}
@@ -367,7 +369,7 @@ export function TaskManager({ className }: TaskManagerProps) {
                     className={viewMode === 'calendar' ? 'bg-primary' : 'bg-white/50 hover:bg-white/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80'}
                   >
                     <Calendar className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-2">Calendar</span>
+                    <span className="hidden sm:inline ml-2">{t('viewMode.calendar').replace(' View', '').replace(' 보기', '').replace(' दृश्य', '')}</span>
                   </Button>
                 </div>
               </div>
@@ -377,15 +379,15 @@ export function TaskManager({ className }: TaskManagerProps) {
                 <div className="flex items-center justify-center py-16">
                   <div className="text-center space-y-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="text-slate-600 dark:text-slate-400">Loading your tasks...</p>
+                    <p className="text-slate-600 dark:text-slate-400">{t('messages.loading')}</p>
                   </div>
                 </div>
               ) : error ? (
                 <div className="text-center py-16">
                   <div className="space-y-4">
-                    <div className="text-red-600 text-lg font-medium">Failed to load tasks</div>
-                    <p className="text-slate-600 dark:text-slate-400">There was an error loading your tasks. Please try again.</p>
-                    <Button onClick={() => window.location.reload()}>Retry</Button>
+                    <div className="text-red-600 text-lg font-medium">{t('messages.loadError')}</div>
+                    <p className="text-slate-600 dark:text-slate-400">{t('messages.loadErrorDescription')}</p>
+                    <Button onClick={() => window.location.reload()}>{t('messages.retry')}</Button>
                   </div>
                 </div>
               ) : viewMode === 'calendar' ? (
@@ -458,7 +460,7 @@ export function TaskManager({ className }: TaskManagerProps) {
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Task</DialogTitle>
+            <DialogTitle>{t('createNewTask')}</DialogTitle>
           </DialogHeader>
           <TaskForm
             onSubmit={handleTaskSubmit}
@@ -472,7 +474,7 @@ export function TaskManager({ className }: TaskManagerProps) {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Task</DialogTitle>
+            <DialogTitle>{t('editTask')}</DialogTitle>
           </DialogHeader>
           {selectedTask && (
             <TaskForm
@@ -502,7 +504,7 @@ export function TaskManager({ className }: TaskManagerProps) {
       <Dialog open={showCategoriesDialog} onOpenChange={setShowCategoriesDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Manage Task Categories</DialogTitle>
+            <DialogTitle>{t('categories.manage')}</DialogTitle>
           </DialogHeader>
           <TaskCategoryManager />
         </DialogContent>
@@ -512,7 +514,7 @@ export function TaskManager({ className }: TaskManagerProps) {
       <Dialog open={showStatisticsDialog} onOpenChange={setShowStatisticsDialog}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Task Statistics & Analytics</DialogTitle>
+            <DialogTitle>{t('statistics.title')}</DialogTitle>
           </DialogHeader>
           <TaskStatistics tasks={tasks} />
         </DialogContent>

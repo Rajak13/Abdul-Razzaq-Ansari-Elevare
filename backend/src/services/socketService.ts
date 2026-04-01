@@ -456,10 +456,18 @@ export class SocketService {
           
           // If this is a group call and the first person, notify all group members
           if (groupId && isCallStarter) {
+            // Get group name first so we can include it in the event
+            const groupResult = await query(
+              'SELECT name FROM study_groups WHERE id = $1',
+              [groupId]
+            );
+            const groupName = groupResult.rows[0]?.name || 'Study Group';
+
             // Broadcast to ALL group members including the sender
             this.io.to(`group:${groupId}`).emit('group_call_started', {
               callId,
               groupId,
+              groupName,
               startedBy: socket.user,
               startedAt: new Date().toISOString()
             });
@@ -469,13 +477,6 @@ export class SocketService {
               'SELECT user_id, users.name as user_name FROM group_members JOIN users ON group_members.user_id = users.id WHERE group_id = $1 AND user_id != $2',
               [groupId, socket.userId]
             );
-
-            // Get group name for notification
-            const groupResult = await query(
-              'SELECT name FROM study_groups WHERE id = $1',
-              [groupId]
-            );
-            const groupName = groupResult.rows[0]?.name || 'Study Group';
 
             for (const member of groupMembers.rows) {
               // Get member's preferred language for locale-aware link

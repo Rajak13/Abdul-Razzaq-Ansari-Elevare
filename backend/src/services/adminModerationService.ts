@@ -667,6 +667,48 @@ export class AdminModerationService {
         });
       }
 
+      // Send email + in-app notification to the warned user
+      if (actionData.action === 'warn') {
+        try {
+          const warnedUserResult = await client.query(
+            'SELECT email, name, preferred_language FROM users WHERE id = $1',
+            [report.reported_user_id]
+          );
+
+          if (warnedUserResult.rows.length > 0) {
+            const warnedUser = warnedUserResult.rows[0];
+            const warnedLocale = warnedUser.preferred_language || 'en';
+
+            const { sendWarningEmail } = require('./emailService');
+            await sendWarningEmail(
+              warnedUser.email,
+              warnedUser.name,
+              actionData.reason,
+              warnedLocale
+            ).catch((emailErr: any) => {
+              logger.error('[Moderation] Failed to send warning email to warned user', { emailErr });
+            });
+
+            // Create in-app notification for the warned user
+            await client.query(`
+              INSERT INTO notifications (user_id, type, title, message, data, is_read, created_at)
+              VALUES ($1, 'system', 'Account Warning', $2, $3, false, CURRENT_TIMESTAMP)
+            `, [
+              report.reported_user_id,
+              `Your account has received a warning: ${actionData.reason}`,
+              JSON.stringify({ action: 'warn', reason: actionData.reason })
+            ]);
+
+            logger.info('[Moderation] Warning notification sent to warned user', {
+              userId: report.reported_user_id
+            });
+          }
+        } catch (warnNotifError) {
+          logger.error('[Moderation] Failed to notify warned user', { warnNotifError });
+          // Don't fail the transaction if notification fails
+        }
+      }
+
       await client.query('COMMIT');
       logger.info('[Moderation] Transaction committed successfully', {
         reportId,
