@@ -1,21 +1,20 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   XMarkIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
-  MinusIcon
+  MinusIcon,
+  MicrophoneIcon,
+  VideoCameraIcon,
+  PhoneXMarkIcon,
 } from '@heroicons/react/24/outline';
+import { SpeakerXMarkIcon, VideoCameraSlashIcon } from '@heroicons/react/24/solid';
 
 interface Participant {
   userId: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    avatar_url?: string;
-  };
+  user: { id: string; name: string; email: string; avatar_url?: string };
   stream?: MediaStream;
   audioEnabled: boolean;
   videoEnabled: boolean;
@@ -28,10 +27,23 @@ interface FloatingVideoWindowProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   onClose?: () => void;
+  onToggleAudio?: () => void;
+  onToggleVideo?: () => void;
+  onLeave?: () => void;
   initialState?: 'minimized' | 'compact' | 'expanded';
 }
 
-type VideoState = 'minimized' | 'compact' | 'expanded' | 'fullscreen';
+type VideoState = 'minimized' | 'compact' | 'expanded';
+
+// Snap to nearest corner/edge
+function snapPosition(x: number, y: number, w: number, h: number) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const margin = 12;
+  const snapX = x < vw / 2 ? margin : vw - w - margin;
+  const snapY = Math.max(margin, Math.min(y, vh - h - margin));
+  return { x: snapX, y: snapY };
+}
 
 export function FloatingVideoWindow({
   participants,
@@ -40,210 +52,140 @@ export function FloatingVideoWindow({
   isAudioEnabled,
   isVideoEnabled,
   onClose,
-  initialState = 'compact'
+  onToggleAudio,
+  onToggleVideo,
+  onLeave,
+  initialState = 'compact',
 }: FloatingVideoWindowProps) {
   const [videoState, setVideoState] = useState<VideoState>(initialState);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
+  const hasDraggedRef = useRef(false);
 
-  // Load saved position from localStorage
+  const getDimensions = useCallback(() => {
+    const vw = window.innerWidth;
+    switch (videoState) {
+      case 'minimized': return { width: Math.min(160, vw - 24), height: 120 };
+      case 'compact':   return { width: Math.min(320, vw - 24), height: 240 };
+      case 'expanded':  return { width: Math.min(480, vw - 24), height: 360 };
+    }
+  }, [videoState]);
+
+  // Init position bottom-right
   useEffect(() => {
     const saved = localStorage.getItem('floating-video-position');
     if (saved) {
       try {
-        const savedPosition = JSON.parse(saved);
-        setPosition(savedPosition);
-      } catch (e) {
-        // Use default position
-        setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
-      }
-    } else {
-      // Default to bottom-right corner
-      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
+        const p = JSON.parse(saved);
+        const { width, height } = getDimensions();
+        setPosition(snapPosition(p.x, p.y, width, height));
+        return;
+      } catch { /* fall through */ }
     }
-  }, []);
+    const { width, height } = getDimensions();
+    setPosition({ x: window.innerWidth - width - 12, y: window.innerHeight - height - 80 });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Save position to localStorage
+  // Re-snap when size changes
+  useEffect(() => {
+    const { width, height } = getDimensions();
+    setPosition(p => snapPosition(p.x, p.y, width, height));
+  }, [videoState, getDimensions]);
+
+  // Save position
   useEffect(() => {
     localStorage.setItem('floating-video-position', JSON.stringify(position));
   }, [position]);
 
-  // Handle dragging
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // ── Unified pointer drag (mouse + touch) ──────────────────────────────────
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('.no-drag')) return;
-
+    e.currentTarget.setPointerCapture(e.pointerId);
+    hasDraggedRef.current = false;
+    dragOffsetRef.current = { x: e.clientX - position.x, y: e.clientY - position.y };
     setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
-  };
+  }, [position]);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging) return;
+    hasDraggedRef.current = true;
+    const { width, height } = getDimensions();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const newX = Math.max(0, Math.min(e.clientX - dragOffsetRef.current.x, vw - width));
+    const newY = Math.max(0, Math.min(e.clientY - dragOffsetRef.current.y, vh - height));
+    setPosition({ x: newX, y: newY });
+  }, [isDragging, getDimensions]);
 
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
-
-      // Keep window within viewport
-      const maxX = window.innerWidth - (windowRef.current?.offsetWidth || 400);
-      const maxY = window.innerHeight - (windowRef.current?.offsetHeight || 300);
-
-      setPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY))
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
-
-  // Get dimensions based on state
-  const getDimensions = () => {
-    switch (videoState) {
-      case 'minimized':
-        return { width: 240, height: 180 };
-      case 'compact':
-        return { width: 400, height: 300 };
-      case 'expanded':
-        return { width: 640, height: 480 };
-      case 'fullscreen':
-        return { width: window.innerWidth, height: window.innerHeight };
-      default:
-        return { width: 400, height: 300 };
-    }
-  };
-
-  const dimensions = getDimensions();
-
-  const toggleState = () => {
-    if (videoState === 'minimized') {
-      setVideoState('compact');
-    } else if (videoState === 'compact') {
-      setVideoState('expanded');
-    } else if (videoState === 'expanded') {
-      setVideoState('compact');
-    }
-  };
+  const onPointerUp = useCallback((e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    // Snap to nearest edge after release
+    const { width, height } = getDimensions();
+    setPosition(p => snapPosition(p.x, p.y, width, height));
+  }, [isDragging, getDimensions]);
 
   const minimize = () => {
     setVideoState('minimized');
-    // Move to bottom-right corner
-    setPosition({
-      x: window.innerWidth - 260,
-      y: window.innerHeight - 200
-    });
   };
 
-  if (videoState === 'fullscreen') {
-    return (
-      <div className="fixed inset-0 z-50 bg-background">
-        {/* Fullscreen video content */}
-        <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between p-4 bg-card border-b">
-            <h3 className="text-lg font-semibold">Video Call</h3>
-            <button
-              onClick={() => setVideoState('compact')}
-              className="p-2 rounded-lg hover:bg-accent"
-            >
-              <ArrowsPointingInIcon className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="flex-1">
-            {/* Participant grid */}
-            <ParticipantGrid
-              participants={participants}
-              localStream={localStream}
-              localVideoRef={localVideoRef}
-              isAudioEnabled={isAudioEnabled}
-              isVideoEnabled={isVideoEnabled}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const toggleExpand = () => {
+    setVideoState(s => s === 'expanded' ? 'compact' : 'expanded');
+  };
+
+  const { width, height } = getDimensions();
+  const totalParticipants = participants.length + 1;
 
   return (
     <div
       ref={windowRef}
-      className={`fixed z-40 bg-card border-2 border-border rounded-lg shadow-2xl overflow-hidden transition-all ${isDragging ? 'cursor-grabbing' : 'cursor-grab'
-        }`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: `${dimensions.width}px`,
-        height: `${dimensions.height}px`,
-      }}
-      onMouseDown={handleMouseDown}
+      className={`fixed z-40 bg-card border-2 border-border rounded-2xl shadow-2xl overflow-hidden select-none transition-[width,height] duration-200 ${
+        isDragging ? 'cursor-grabbing shadow-3xl' : 'cursor-grab'
+      }`}
+      style={{ left: position.x, top: position.y, width, height, touchAction: 'none' }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm font-medium">
-            {participants.length + 1} participant{participants.length + 1 !== 1 ? 's' : ''}
+      {/* ── Header bar ── */}
+      <div className="flex items-center justify-between px-2 py-1.5 bg-muted border-b border-border flex-shrink-0">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-xs font-medium truncate">
+            {totalParticipants} in call
           </span>
         </div>
-
-        <div className="flex items-center space-x-1 no-drag">
-          <button
-            onClick={minimize}
-            className="p-1 rounded hover:bg-accent transition-colors"
-            title="Minimize"
-          >
-            <MinusIcon className="w-4 h-4" />
+        <div className="flex items-center gap-0.5 no-drag">
+          <button onClick={minimize} className="p-1 rounded hover:bg-accent transition-colors" title="Minimize">
+            <MinusIcon className="w-3.5 h-3.5" />
           </button>
-          <button
-            onClick={toggleState}
-            className="p-1 rounded hover:bg-accent transition-colors"
-            title={videoState === 'expanded' ? 'Compact' : 'Expand'}
-          >
-            {videoState === 'expanded' ? (
-              <ArrowsPointingInIcon className="w-4 h-4" />
-            ) : (
-              <ArrowsPointingOutIcon className="w-4 h-4" />
-            )}
+          <button onClick={toggleExpand} className="p-1 rounded hover:bg-accent transition-colors" title={videoState === 'expanded' ? 'Compact' : 'Expand'}>
+            {videoState === 'expanded'
+              ? <ArrowsPointingInIcon className="w-3.5 h-3.5" />
+              : <ArrowsPointingOutIcon className="w-3.5 h-3.5" />}
           </button>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1 rounded hover:bg-destructive hover:text-destructive-foreground transition-colors"
-              title="Close"
-            >
-              <XMarkIcon className="w-4 h-4" />
+            <button onClick={onClose} className="p-1 rounded hover:bg-destructive hover:text-destructive-foreground transition-colors" title="Close">
+              <XMarkIcon className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Video content */}
-      <div className="relative h-[calc(100%-40px)] bg-muted">
+      {/* ── Video grid ── */}
+      <div className="relative bg-zinc-900" style={{ height: `calc(100% - ${(onToggleAudio || onToggleVideo || onLeave) ? '72px' : '32px'})` }}>
         {videoState === 'minimized' ? (
-          <CompactParticipantGrid
+          <MiniGrid
             participants={participants}
             localStream={localStream}
             localVideoRef={localVideoRef}
-            isAudioEnabled={isAudioEnabled}
             isVideoEnabled={isVideoEnabled}
           />
         ) : (
-          <ParticipantGrid
+          <FullGrid
             participants={participants}
             localStream={localStream}
             localVideoRef={localVideoRef}
@@ -253,182 +195,145 @@ export function FloatingVideoWindow({
         )}
       </div>
 
-      {/* Sync local video stream */}
-      <LocalVideoSync
-        stream={localStream}
-        videoRef={localVideoRef}
-        isVideoEnabled={isVideoEnabled}
-        videoState={videoState}
-      />
+      {/* ── Controls bar (only when handlers provided) ── */}
+      {(onToggleAudio || onToggleVideo || onLeave) && (
+        <div className="no-drag flex items-center justify-center gap-3 px-3 py-2 bg-zinc-900 border-t border-zinc-700 flex-shrink-0">
+          {onToggleAudio && (
+            <button
+              onClick={onToggleAudio}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                isAudioEnabled ? 'bg-zinc-700 hover:bg-zinc-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+              }`}
+              title={isAudioEnabled ? 'Mute' : 'Unmute'}
+            >
+              {isAudioEnabled
+                ? <MicrophoneIcon className="w-4 h-4" />
+                : <SpeakerXMarkIcon className="w-4 h-4" />}
+            </button>
+          )}
+          {onToggleVideo && (
+            <button
+              onClick={onToggleVideo}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                isVideoEnabled ? 'bg-zinc-700 hover:bg-zinc-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+              }`}
+              title={isVideoEnabled ? 'Camera off' : 'Camera on'}
+            >
+              {isVideoEnabled
+                ? <VideoCameraIcon className="w-4 h-4" />
+                : <VideoCameraSlashIcon className="w-4 h-4" />}
+            </button>
+          )}
+          {onLeave && (
+            <button
+              onClick={onLeave}
+              className="w-9 h-9 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors"
+              title="Leave call"
+            >
+              <PhoneXMarkIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Sync local video */}
+      <LocalVideoSync stream={localStream} videoRef={localVideoRef} isVideoEnabled={isVideoEnabled} />
     </div>
   );
 }
 
-// Helper component to sync local video stream
-function LocalVideoSync({
-  stream,
-  videoRef,
-  isVideoEnabled,
-  videoState
-}: {
+// ── Mini 2×2 grid for minimized state ────────────────────────────────────────
+function MiniGrid({ participants, localStream, localVideoRef, isVideoEnabled }: {
+  participants: Participant[];
+  localStream: MediaStream | null;
+  localVideoRef: React.RefObject<HTMLVideoElement | null>;
+  isVideoEnabled: boolean;
+}) {
+  const shown = participants.slice(0, 3);
+  return (
+    <div className="grid grid-cols-2 gap-0.5 p-0.5 h-full">
+      <div className="relative bg-zinc-800 rounded overflow-hidden">
+        {isVideoEnabled && localStream
+          ? <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover -scale-x-100" />
+          : <Avatar label="You" />}
+        <NameTag label="You" />
+      </div>
+      {shown.map(p => (
+        <div key={p.userId} className="relative bg-zinc-800 rounded overflow-hidden">
+          <RemoteVideo participant={p} />
+          <NameTag label={p.user.name} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Full grid for compact/expanded state ─────────────────────────────────────
+function FullGrid({ participants, localStream, localVideoRef, isAudioEnabled, isVideoEnabled }: {
+  participants: Participant[];
+  localStream: MediaStream | null;
+  localVideoRef: React.RefObject<HTMLVideoElement | null>;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
+}) {
+  const total = participants.length + 1;
+  const cols = total <= 1 ? 1 : total <= 4 ? 2 : 3;
+  return (
+    <div className="grid gap-1 p-1 h-full" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      <div className="relative bg-zinc-800 rounded-lg overflow-hidden">
+        {isVideoEnabled && localStream
+          ? <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover -scale-x-100" />
+          : <Avatar label="You" />}
+        <NameTag label={`You${!isAudioEnabled ? ' 🔇' : ''}`} />
+      </div>
+      {participants.map(p => (
+        <div key={p.userId} className="relative bg-zinc-800 rounded-lg overflow-hidden">
+          <RemoteVideo participant={p} />
+          <NameTag label={`${p.user.name}${!p.audioEnabled ? ' 🔇' : ''}`} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RemoteVideo({ participant }: { participant: Participant }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (ref.current && participant.stream) ref.current.srcObject = participant.stream;
+  }, [participant.stream]);
+  return participant.stream && participant.videoEnabled
+    ? <video ref={ref} autoPlay playsInline className="w-full h-full object-cover" />
+    : <Avatar label={participant.user.name} />;
+}
+
+function Avatar({ label }: { label: string }) {
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-zinc-700">
+      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+        <span className="text-sm font-bold text-primary-foreground">{label[0]?.toUpperCase()}</span>
+      </div>
+    </div>
+  );
+}
+
+function NameTag({ label }: { label: string }) {
+  return (
+    <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 rounded text-[10px] text-white truncate max-w-[90%]">
+      {label}
+    </div>
+  );
+}
+
+function LocalVideoSync({ stream, videoRef, isVideoEnabled }: {
   stream: MediaStream | null;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   isVideoEnabled: boolean;
-  videoState: string;
 }) {
   useEffect(() => {
     if (stream && videoRef.current && isVideoEnabled) {
       videoRef.current.srcObject = stream;
-      videoRef.current.play().catch(err => console.warn("Local video play failed:", err));
+      videoRef.current.play().catch(() => {});
     }
-  }, [stream, videoRef, isVideoEnabled, videoState]);
-
+  }, [stream, videoRef, isVideoEnabled]);
   return null;
-}
-
-// Compact grid for minimized state
-function CompactParticipantGrid({
-  participants,
-  localStream,
-  localVideoRef,
-  isAudioEnabled,
-  isVideoEnabled
-}: {
-  participants: Participant[];
-  localStream: MediaStream | null;
-  localVideoRef: React.RefObject<HTMLVideoElement | null>;
-  isAudioEnabled: boolean;
-  isVideoEnabled: boolean;
-}) {
-  const allParticipants: Array<Participant | { isLocal: true; stream: MediaStream | null; audioEnabled: boolean; videoEnabled: boolean }> = [
-    { isLocal: true, stream: localStream, audioEnabled: isAudioEnabled, videoEnabled: isVideoEnabled },
-    ...participants.slice(0, 3) // Show max 4 in minimized
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-1 p-1 h-full">
-      {allParticipants.map((participant, index) => (
-        <div key={index} className="relative bg-background rounded overflow-hidden">
-          {'isLocal' in participant && participant.isLocal ? (
-            participant.videoEnabled && participant.stream ? (
-              <video
-                ref={localVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover -scale-x-100"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted">
-                <div className="text-center">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-1">
-                    <span className="text-xs font-semibold text-primary">You</span>
-                  </div>
-                </div>
-              </div>
-            )
-          ) : (
-            <VideoParticipant participant={participant as Participant} />
-          )}
-          {'isLocal' in participant && (
-            <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/70 rounded text-[10px] text-white">
-              You
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Regular grid for compact/expanded state
-function ParticipantGrid({
-  participants,
-  localStream,
-  localVideoRef,
-  isAudioEnabled,
-  isVideoEnabled
-}: {
-  participants: Participant[];
-  localStream: MediaStream | null;
-  localVideoRef: React.RefObject<HTMLVideoElement | null>;
-  isAudioEnabled: boolean;
-  isVideoEnabled: boolean;
-}) {
-  const totalParticipants = participants.length + 1;
-  const gridCols = totalParticipants <= 2 ? 1 : totalParticipants <= 4 ? 2 : 3;
-
-  return (
-    <div
-      className={`grid gap-2 p-2 h-full`}
-      style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}
-    >
-      {/* Local video */}
-      <div className="relative bg-background rounded-lg overflow-hidden">
-        {isVideoEnabled && localStream ? (
-          <video
-            ref={localVideoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-cover -scale-x-100"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span className="text-xl font-semibold text-primary">You</span>
-              </div>
-              <p className="text-sm text-muted-foreground font-medium">Camera Off</p>
-            </div>
-          </div>
-        )}
-        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white">
-          You {!isVideoEnabled && '(Camera off)'}
-        </div>
-      </div>
-
-      {/* Remote participants */}
-      {participants.map((participant) => (
-        <VideoParticipant key={participant.userId} participant={participant} />
-      ))}
-    </div>
-  );
-}
-
-function VideoParticipant({ participant }: { participant: Participant }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current && participant.stream) {
-      videoRef.current.srcObject = participant.stream;
-    }
-  }, [participant.stream]);
-
-  return (
-    <div className="relative bg-background rounded-lg overflow-hidden">
-      {participant.stream && participant.videoEnabled ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-muted">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-lg font-semibold text-primary-foreground">
-                {participant.user.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">{participant.user.name}</p>
-          </div>
-        </div>
-      )}
-      <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white">
-        {participant.user.name} {!participant.videoEnabled && '(Camera off)'}
-      </div>
-    </div>
-  );
 }

@@ -1016,7 +1016,9 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
         localVideoRef={localVideoRef}
         isAudioEnabled={isAudioEnabled}
         isVideoEnabled={isVideoEnabled}
-      // Don't pass onClose so user navigates back via tabs
+        onToggleAudio={toggleAudio}
+        onToggleVideo={toggleVideo}
+        onLeave={handleLeaveCall}
       />
     );
   }

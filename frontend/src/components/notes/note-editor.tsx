@@ -89,10 +89,16 @@ export function NoteEditor({
     }
 
     // Check for localStorage draft first - crucial for keeping notes after language switch
+    // BUT: if a template is explicitly selected for a new note, always use the template
+    // (the draft key 'elevare_note_draft' is shared across all new notes, so it would
+    // load the wrong template's content from a previous session)
     const storageKey = note?.id && note.id !== 'temp-note' ? `elevare_note_${note.id}` : 'elevare_note_draft';
     const savedDataStr = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
 
-    if (savedDataStr) {
+    // Skip draft restore when a template is selected for a brand-new note
+    const shouldSkipDraft = !note?.id && !!template;
+
+    if (savedDataStr && !shouldSkipDraft) {
       try {
         const savedData = JSON.parse(savedDataStr);
         // For existing notes, check if the saved draft is newer than the note's updated_at
@@ -158,6 +164,11 @@ export function NoteEditor({
     console.log('📝 NoteEditor: Setting initial content, length:', initialContent.length);
     setContent(initialContent);
     hasInitialized.current = true;
+    // Clear any stale draft when loading a fresh template so the next
+    // template selection also gets a clean slate
+    if (!note?.id && template) {
+      localStorage.removeItem('elevare_note_draft');
+    }
   }, [note?.id, note?.content, template, noteTemplates.length]); // Dependencies that should trigger re-initialization
 
   // Initialize summary from note
