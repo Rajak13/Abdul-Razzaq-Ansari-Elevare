@@ -49,7 +49,7 @@ function playRingtone(stopRef: React.MutableRefObject<(() => void) | null>) {
 export function VideoCallNotificationProvider({ children }: { children: React.ReactNode }) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
   const stopRingtoneRef = useRef<(() => void) | null>(null);
   // Keep a stable ref to user.id so the handler closure doesn't go stale
   const userIdRef = useRef<string | undefined>(undefined);
@@ -64,10 +64,8 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
 
   useEffect(() => {
     const handleCallStarted = (data: any) => {
-      // Only show if authenticated and not the call starter
       if (!userIdRef.current) return;
       if (data.startedBy?.id === userIdRef.current) return;
-
       setIncomingCall({
         callId: data.callId,
         groupId: data.groupId,
@@ -75,7 +73,25 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
         startedBy: data.startedBy,
         startedAt: data.startedAt,
       });
+      playRingtone(stopRingtoneRef);
+    };
 
+    // Fallback: listen on the notification event (personal room — always delivered
+    // even when the user is not in the group socket room)
+    const handleNotification = (notification: any) => {
+      if (notification.type !== 'video_call_started') return;
+      if (!userIdRef.current) return;
+      if (notification.data?.startedBy?.id === userIdRef.current) return;
+      setIncomingCall(prev => {
+        if (prev?.callId === notification.data?.callId) return prev; // already showing
+        return {
+          callId: notification.data?.callId || notification.id,
+          groupId: notification.data?.groupId || '',
+          groupName: notification.data?.groupName || 'Study Group',
+          startedBy: notification.data?.startedBy || { id: '', name: 'Someone', email: '' },
+          startedAt: notification.timestamp || new Date().toISOString(),
+        };
+      });
       playRingtone(stopRingtoneRef);
     };
 
@@ -89,8 +105,10 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
       if (!socket) return;
       socket.off('group_call_started', handleCallStarted);
       socket.off('group_call_ended', handleCallEnded);
+      socket.off('notification', handleNotification);
       socket.on('group_call_started', handleCallStarted);
       socket.on('group_call_ended', handleCallEnded);
+      socket.on('notification', handleNotification);
     };
 
     // Try immediately
@@ -119,6 +137,7 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
         s.off('connect', registerListeners);
         s.off('group_call_started', handleCallStarted);
         s.off('group_call_ended', handleCallEnded);
+        s.off('notification', handleNotification);
       }
       stopRingtone();
     };
