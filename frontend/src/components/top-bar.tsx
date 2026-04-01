@@ -15,6 +15,7 @@ import {
 import { NotificationBell } from '@/components/notifications';
 import { ClientOnly } from '@/components/ui/client-only';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { CompactLanguageSwitcher } from '@/components/language-switcher';
 import { Link } from '@/navigation';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
@@ -99,8 +100,13 @@ export default function TopBar({ pathname }: TopBarProps) {
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Language Switcher */}
           <ClientOnly>
+            {/* Full switcher on large screens */}
             <div className="hidden lg:block">
               <LanguageSwitcher />
+            </div>
+            {/* Compact globe button on small/medium screens */}
+            <div className="lg:hidden">
+              <CompactLanguageSwitcher />
             </div>
           </ClientOnly>
 

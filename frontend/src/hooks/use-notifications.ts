@@ -120,6 +120,10 @@ export function useNotifications() {
     const handleNotification = (notification: Notification) => {
       queryClientRef.current.invalidateQueries({ queryKey: ['notifications'] });
       queryClientRef.current.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+
+      // video_call_started is handled by the IncomingCallOverlay — skip the toast
+      if ((notification as any).type === 'video_call_started') return;
+
       playNotificationSoundRef.current();
 
       toast(notification.title, {

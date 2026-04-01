@@ -132,3 +132,44 @@ export function LanguageSwitcher() {
     </>
   );
 }
+
+// Compact version for mobile — shows a globe icon that opens a dropdown
+export function CompactLanguageSwitcher() {
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  const handleLocaleChange = (newLocale: string) => {
+    if (newLocale === locale) return;
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/profile/language', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ language: newLocale })
+      }).catch(() => {});
+    }
+    startTransition(() => {
+      router.replace(pathname, { locale: newLocale });
+    });
+  };
+
+  return (
+    <Select value={locale} onValueChange={handleLocaleChange} disabled={isPending}>
+      <SelectTrigger className="h-8 w-8 p-0 border-0 bg-transparent hover:bg-accent rounded-full focus:ring-0 focus:ring-offset-0" aria-label="Change language">
+        <Globe className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+      </SelectTrigger>
+      <SelectContent align="end">
+        {routing.locales.map((loc) => (
+          <SelectItem key={loc} value={loc}>
+            <span className="flex items-center gap-2">
+              <span className="font-medium w-5">{LANGUAGE_NAMES_SHORT[loc]}</span>
+              <span className="text-muted-foreground">{LANGUAGE_NAMES[loc]}</span>
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}

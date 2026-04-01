@@ -132,7 +132,7 @@ export function WhiteboardToolbar({
   };
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 p-4 bg-white border rounded-lg shadow-sm ${className}`}>
+    <div className={`flex flex-wrap items-center gap-2 p-4 bg-card border border-border rounded-lg shadow-sm ${className}`}>
       {/* Drawing Tools */}
       <div className="flex items-center gap-1">
         <Button
@@ -208,7 +208,7 @@ export function WhiteboardToolbar({
                 <button
                   key={color.value}
                   className={`w-12 h-12 rounded border-2 hover:scale-110 transition-transform ${
-                    currentTool.color === color.value ? 'border-gray-800 ring-2 ring-blue-500' : 'border-gray-300'
+                    currentTool.color === color.value ? 'border-foreground ring-2 ring-primary' : 'border-border'
                   }`}
                   style={{ backgroundColor: color.value }}
                   onClick={() => handleColorSelect(color.value)}
@@ -261,8 +261,8 @@ export function WhiteboardToolbar({
               {SIZES.map(size => (
                 <button
                   key={size.value}
-                  className={`w-full flex items-center justify-between p-2 rounded hover:bg-gray-100 ${
-                    currentTool.size === size.value ? 'bg-blue-100 text-blue-700' : ''
+                  className={`w-full flex items-center justify-between p-2 rounded hover:bg-accent ${
+                    currentTool.size === size.value ? 'bg-primary/10 text-primary' : ''
                   }`}
                   onClick={() => handleSizeSelect(size.value)}
                 >

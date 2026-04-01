@@ -108,8 +108,8 @@ export function EnhancedCallLayout({
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Top Navigation Bar */}
-      <div className="flex items-center justify-between px-6 py-3 bg-card border-b border-border">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-card border-b border-border">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={onLeave}
             className="p-2 rounded-lg hover:bg-accent transition-colors"
@@ -117,14 +117,14 @@ export function EnhancedCallLayout({
             <ArrowLeftIcon className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <VideoCameraIcon className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="p-1.5 sm:p-2 bg-primary rounded-lg">
+              <VideoCameraIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold">{groupName}</h1>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <ClockIcon className="w-4 h-4" />
+              <h1 className="text-sm sm:text-lg font-semibold truncate max-w-[140px] sm:max-w-none">{groupName}</h1>
+              <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-muted-foreground">
+                <ClockIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{formatDuration(callDuration)}</span>
               </div>
             </div>
@@ -132,43 +132,41 @@ export function EnhancedCallLayout({
         </div>
       </div>
 
-      {/* View Tabs */}
-      <div className="flex items-center space-x-1 px-6 py-2 bg-muted border-b border-border overflow-x-auto">
+      {/* View Tabs — horizontal scroll on mobile, normal on desktop */}
+      <div className="flex items-center space-x-1 px-3 sm:px-6 py-1.5 sm:py-2 bg-muted border-b border-border overflow-x-auto scrollbar-hide">
         <ViewTab
-          icon={<VideoCameraIcon className="w-5 h-5" />}
+          icon={<VideoCameraIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
           label="Video"
           active={activeView === 'video'}
           onClick={() => handleViewChange('video')}
         />
         <ViewTab
-          icon={<DocumentTextIcon className="w-5 h-5" />}
+          icon={<DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
           label="Notes"
           active={activeView === 'notes'}
           onClick={() => handleViewChange('notes')}
         />
         <ViewTab
-          icon={<PencilSquareIcon className="w-5 h-5" />}
+          icon={<PencilSquareIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
           label="Whiteboard"
           active={activeView === 'whiteboard'}
           onClick={() => handleViewChange('whiteboard')}
           badge={whiteboardActivity ? '•' : undefined}
           badgeColor="bg-blue-500"
         />
-
         <ViewTab
-          icon={<ChatBubbleLeftIcon className="w-5 h-5" />}
+          icon={<ChatBubbleLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
           label="Chat"
           active={activeView === 'chat'}
           onClick={() => handleViewChange('chat')}
           badge={unreadChatCount > 0 ? (unreadChatCount > 9 ? '9+' : unreadChatCount.toString()) : undefined}
           badgeColor="bg-red-500"
         />
-
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area — leaves room at bottom on mobile for safe area */}
       <div className="flex-1 relative overflow-hidden">
-        {/* Video Call - LiveKit in production, WebRTC mesh on localhost */}
+        {/* Video Call */}
         <div className={activeView === 'video' ? 'h-full' : ''}>
           {isProduction ? (
             <LiveKitCall
@@ -188,10 +186,10 @@ export function EnhancedCallLayout({
           )}
         </div>
 
-        <div className={activeView === 'notes' ? "h-full p-6 overflow-auto" : "hidden"}>
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold mb-1">Collaborative Notes</h2>
-            <p className="text-muted-foreground text-sm">
+        <div className={activeView === 'notes' ? "h-full p-3 sm:p-6 overflow-auto pb-safe" : "hidden"}>
+          <div className="mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-2xl font-bold mb-1">Collaborative Notes</h2>
+            <p className="text-muted-foreground text-xs sm:text-sm">
               Take notes during your call. Notes are saved to your account.
             </p>
           </div>
@@ -199,7 +197,6 @@ export function EnhancedCallLayout({
             note={activeNote || undefined}
             template={activeNote ? undefined : 'meeting'}
             onSave={(savedNote) => {
-              // Switch to editing the saved note — prevents router.push navigating away
               setActiveNote(savedNote);
             }}
           />
@@ -217,8 +214,6 @@ export function EnhancedCallLayout({
         <div className={activeView === 'chat' ? "h-full" : "hidden"}>
           <GroupChat groupId={groupId} />
         </div>
-
-
       </div>
     </div>
   );
@@ -243,15 +238,15 @@ function ViewTab({
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${active
+      className={`relative flex items-center space-x-1 sm:space-x-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors flex-shrink-0 ${active
         ? 'bg-primary text-primary-foreground'
         : 'hover:bg-accent text-muted-foreground hover:text-foreground'
         }`}
     >
       {icon}
-      <span className="font-medium">{label}</span>
+      <span className="font-medium text-xs sm:text-sm">{label}</span>
       {badge && (
-        <span className={`absolute -top-1 -right-1 ${badgeColor} text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5`}>
+        <span className={`absolute -top-1 -right-1 ${badgeColor} text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] sm:min-w-[20px] sm:h-5 flex items-center justify-center px-1`}>
           {badge}
         </span>
       )}

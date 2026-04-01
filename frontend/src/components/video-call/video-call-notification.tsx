@@ -24,53 +24,26 @@ interface IncomingCall {
   startedAt: string;
 }
 
-// Generate a ringtone using the bell sound, looping until stopped
+// Ringtone: plays the bell sound repeatedly with a gap, like a phone ring
 function playRingtone(stopRef: React.MutableRefObject<(() => void) | null>) {
-  try {
+  let stopped = false;
+
+  const ring = () => {
+    if (stopped) return;
     const audio = new Audio('/sounds/mixkit-bell-notification-933.wav');
-    audio.loop = true;
-    audio.volume = 0.6;
-    audio.play().catch(() => {
-      // Autoplay blocked — fall back to Web Audio API pattern
-      try {
-        let stopped = false;
-        const ctx = new AudioContext();
-
-        const playBeep = (time: number) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.frequency.setValueAtTime(880, time);
-          osc.frequency.setValueAtTime(660, time + 0.15);
-          gain.gain.setValueAtTime(0.3, time);
-          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
-          osc.start(time);
-          osc.stop(time + 0.4);
-        };
-
-        let beat = 0;
-        const interval = setInterval(() => {
-          if (stopped) return;
-          const now = ctx.currentTime;
-          playBeep(now);
-          playBeep(now + 0.5);
-          if (++beat > 20) clearInterval(interval);
-        }, 1200);
-
-        stopRef.current = () => {
-          stopped = true;
-          clearInterval(interval);
-          ctx.close().catch(() => {});
-        };
-      } catch { /* silent */ }
-    });
-
+    audio.volume = 0.7;
+    audio.play().catch(() => {});
+    // Repeat every 2.5 seconds
+    const t = setTimeout(ring, 2500);
     stopRef.current = () => {
+      stopped = true;
+      clearTimeout(t);
       audio.pause();
       audio.currentTime = 0;
     };
-  } catch { /* silent */ }
+  };
+
+  ring();
 }
 
 export function VideoCallNotificationProvider({ children }: { children: React.ReactNode }) {
@@ -78,6 +51,10 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const stopRingtoneRef = useRef<(() => void) | null>(null);
+  // Keep a stable ref to user.id so the handler closure doesn't go stale
+  const userIdRef = useRef<string | undefined>(undefined);
+  userIdRef.current = user?.id;
+
   const stopRingtone = useCallback(() => {
     if (stopRingtoneRef.current) {
       stopRingtoneRef.current();
@@ -86,14 +63,10 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const socket = socketService.getSocket();
-    if (!socket) return;
-
     const handleCallStarted = (data: any) => {
-      // Don't show notification to the person who started the call
-      if (data.startedBy?.id === user?.id) return;
+      // Only show if authenticated and not the call starter
+      if (!userIdRef.current) return;
+      if (data.startedBy?.id === userIdRef.current) return;
 
       setIncomingCall({
         callId: data.callId,
@@ -111,15 +84,47 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
       stopRingtone();
     };
 
-    socket.on('group_call_started', handleCallStarted);
-    socket.on('group_call_ended', handleCallEnded);
-
-    return () => {
+    const registerListeners = () => {
+      const socket = socketService.getSocket();
+      if (!socket) return;
       socket.off('group_call_started', handleCallStarted);
       socket.off('group_call_ended', handleCallEnded);
+      socket.on('group_call_started', handleCallStarted);
+      socket.on('group_call_ended', handleCallEnded);
+    };
+
+    // Try immediately
+    registerListeners();
+
+    // Re-register on reconnect
+    const attachConnectListener = () => {
+      const socket = socketService.getSocket();
+      if (socket) socket.on('connect', registerListeners);
+    };
+    attachConnectListener();
+
+    // Poll until socket is available (handles delayed auth/connect)
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      registerListeners();
+      attachConnectListener();
+      if (attempts > 30) clearInterval(poll); // stop after 15s
+    }, 500);
+
+    return () => {
+      clearInterval(poll);
+      const s = socketService.getSocket();
+      if (s) {
+        s.off('connect', registerListeners);
+        s.off('group_call_started', handleCallStarted);
+        s.off('group_call_ended', handleCallEnded);
+      }
       stopRingtone();
     };
-  }, [isAuthenticated, user?.id, stopRingtone]);
+  // Run once on mount — handlers use refs for fresh values
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopRingtone]);
 
   // Auto-dismiss after 30 seconds
   useEffect(() => {

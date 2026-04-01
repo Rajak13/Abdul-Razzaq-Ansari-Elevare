@@ -71,13 +71,15 @@ export function NoteEditor({
   // Use a ref to track if we've initialized to prevent double initialization
   const hasInitialized = useRef(false);
   const lastNoteId = useRef<string | undefined>(undefined);
+  const lastTemplate = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    // Reset initialization flag when note ID changes
-    if (note?.id !== lastNoteId.current) {
-      console.log('🔄 NoteEditor: Note ID changed, resetting initialization flag');
+    // Reset initialization flag when note ID OR template changes
+    if (note?.id !== lastNoteId.current || template !== lastTemplate.current) {
+      console.log('🔄 NoteEditor: Note ID or template changed, resetting initialization flag');
       hasInitialized.current = false;
       lastNoteId.current = note?.id;
+      lastTemplate.current = template;
     }
 
     // Skip if already initialized for this note
