@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  XMarkIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
   MinusIcon,
@@ -35,14 +34,25 @@ interface FloatingVideoWindowProps {
 
 type VideoState = 'minimized' | 'compact' | 'expanded';
 
-// Snap to nearest corner/edge
-function snapPosition(x: number, y: number, w: number, h: number) {
+// Safe margins that account for mobile nav bar (64px) + browser chrome + top bar (48px)
+const SAFE_TOP = 56;       // below the call tab bar
+const SAFE_BOTTOM = 140;   // above mobile nav + browser chrome
+const SAFE_SIDE = 10;
+
+function clampPosition(x: number, y: number, w: number, h: number) {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const margin = 12;
-  const snapX = x < vw / 2 ? margin : vw - w - margin;
-  const snapY = Math.max(margin, Math.min(y, vh - h - margin));
-  return { x: snapX, y: snapY };
+  return {
+    x: Math.max(SAFE_SIDE, Math.min(x, vw - w - SAFE_SIDE)),
+    y: Math.max(SAFE_TOP, Math.min(y, vh - h - SAFE_BOTTOM)),
+  };
+}
+
+// After drag release, snap to nearest left or right edge
+function snapToEdge(x: number, y: number, w: number, h: number) {
+  const vw = window.innerWidth;
+  const snapX = x + w / 2 < vw / 2 ? SAFE_SIDE : vw - w - SAFE_SIDE;
+  return clampPosition(snapX, y, w, h);
 }
 
 export function FloatingVideoWindow({
@@ -58,91 +68,90 @@ export function FloatingVideoWindow({
   initialState = 'compact',
 }: FloatingVideoWindowProps) {
   const [videoState, setVideoState] = useState<VideoState>(initialState);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: -1, y: -1 }); // -1 = not yet placed
   const [isDragging, setIsDragging] = useState(false);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
-  const hasDraggedRef = useRef(false);
 
-  const getDimensions = useCallback(() => {
+  const getDimensions = useCallback((): { width: number; height: number } => {
     const vw = window.innerWidth;
+    const isMobile = vw < 640;
     switch (videoState) {
-      case 'minimized': return { width: Math.min(160, vw - 24), height: 120 };
-      case 'compact':   return { width: Math.min(320, vw - 24), height: 240 };
-      case 'expanded':  return { width: Math.min(480, vw - 24), height: 360 };
+      case 'minimized': return { width: isMobile ? 140 : 180, height: isMobile ? 105 : 135 };
+      case 'compact':   return { width: isMobile ? Math.min(200, vw - 20) : 300, height: isMobile ? 160 : 225 };
+      case 'expanded':  return { width: isMobile ? Math.min(280, vw - 20) : 420, height: isMobile ? 220 : 315 };
     }
   }, [videoState]);
 
-  // Init position bottom-right
+  // Place in top-right on first render (avoids bottom nav clash)
   useEffect(() => {
-    const saved = localStorage.getItem('floating-video-position');
+    const { width, height } = getDimensions();
+    const vw = window.innerWidth;
+    // Default: top-right corner, safely below the tab bar
+    const defaultPos = { x: vw - width - SAFE_SIDE, y: SAFE_TOP + 4 };
+
+    const saved = localStorage.getItem('floating-video-position-v2');
     if (saved) {
       try {
         const p = JSON.parse(saved);
-        const { width, height } = getDimensions();
-        setPosition(snapPosition(p.x, p.y, width, height));
+        setPosition(clampPosition(p.x, p.y, width, height));
         return;
       } catch { /* fall through */ }
     }
-    const { width, height } = getDimensions();
-    setPosition({ x: window.innerWidth - width - 12, y: window.innerHeight - height - 80 });
+    setPosition(defaultPos);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-snap when size changes
+  // Re-clamp when size changes
   useEffect(() => {
+    if (position.x < 0) return; // not placed yet
     const { width, height } = getDimensions();
-    setPosition(p => snapPosition(p.x, p.y, width, height));
-  }, [videoState, getDimensions]);
+    setPosition(p => clampPosition(p.x, p.y, width, height));
+  }, [videoState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Save position
+  // Persist position
   useEffect(() => {
-    localStorage.setItem('floating-video-position', JSON.stringify(position));
+    if (position.x >= 0) {
+      localStorage.setItem('floating-video-position-v2', JSON.stringify(position));
+    }
   }, [position]);
 
-  // ── Unified pointer drag (mouse + touch) ──────────────────────────────────
+  // ── Pointer drag (works for mouse + touch) ────────────────────────────────
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('.no-drag')) return;
     e.currentTarget.setPointerCapture(e.pointerId);
-    hasDraggedRef.current = false;
     dragOffsetRef.current = { x: e.clientX - position.x, y: e.clientY - position.y };
     setIsDragging(true);
   }, [position]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return;
-    hasDraggedRef.current = true;
     const { width, height } = getDimensions();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const newX = Math.max(0, Math.min(e.clientX - dragOffsetRef.current.x, vw - width));
-    const newY = Math.max(0, Math.min(e.clientY - dragOffsetRef.current.y, vh - height));
-    setPosition({ x: newX, y: newY });
+    const newX = e.clientX - dragOffsetRef.current.x;
+    const newY = e.clientY - dragOffsetRef.current.y;
+    setPosition(clampPosition(newX, newY, width, height));
   }, [isDragging, getDimensions]);
 
-  const onPointerUp = useCallback((e: React.PointerEvent) => {
+  const onPointerUp = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
-    // Snap to nearest edge after release
     const { width, height } = getDimensions();
-    setPosition(p => snapPosition(p.x, p.y, width, height));
+    setPosition(p => snapToEdge(p.x, p.y, width, height));
   }, [isDragging, getDimensions]);
 
-  const minimize = () => {
-    setVideoState('minimized');
-  };
-
-  const toggleExpand = () => {
-    setVideoState(s => s === 'expanded' ? 'compact' : 'expanded');
-  };
-
   const { width, height } = getDimensions();
-  const totalParticipants = participants.length + 1;
+  const hasControls = !!(onToggleAudio || onToggleVideo || onLeave);
+  const controlBarH = hasControls ? 48 : 0;
+  const headerH = 32;
+  const videoH = height - headerH - controlBarH;
+
+  // Don't render until positioned
+  if (position.x < 0) return null;
 
   return (
     <div
       ref={windowRef}
-      className={`fixed z-40 bg-card border-2 border-border rounded-2xl shadow-2xl overflow-hidden select-none transition-[width,height] duration-200 ${
-        isDragging ? 'cursor-grabbing shadow-3xl' : 'cursor-grab'
+      className={`fixed z-50 rounded-2xl shadow-2xl overflow-hidden border-2 border-white/20 bg-zinc-900 transition-[width,height] duration-150 ${
+        isDragging ? 'cursor-grabbing scale-[1.02]' : 'cursor-grab'
       }`}
       style={{ left: position.x, top: position.y, width, height, touchAction: 'none' }}
       onPointerDown={onPointerDown}
@@ -150,99 +159,87 @@ export function FloatingVideoWindow({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      {/* ── Header bar ── */}
-      <div className="flex items-center justify-between px-2 py-1.5 bg-muted border-b border-border flex-shrink-0">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <span className="text-xs font-medium truncate">
-            {totalParticipants} in call
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-2 bg-zinc-800/90 border-b border-white/10 flex-shrink-0" style={{ height: headerH }}>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
+          <span className="text-[10px] font-medium text-white/80 truncate">
+            {participants.length + 1} in call
           </span>
         </div>
-        <div className="flex items-center gap-0.5 no-drag">
-          <button onClick={minimize} className="p-1 rounded hover:bg-accent transition-colors" title="Minimize">
-            <MinusIcon className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-0.5 no-drag flex-shrink-0">
+          <button
+            onClick={() => setVideoState('minimized')}
+            className="p-1 rounded hover:bg-white/10 transition-colors text-white/70"
+            title="Minimize"
+          >
+            <MinusIcon className="w-3 h-3" />
           </button>
-          <button onClick={toggleExpand} className="p-1 rounded hover:bg-accent transition-colors" title={videoState === 'expanded' ? 'Compact' : 'Expand'}>
+          <button
+            onClick={() => setVideoState(s => s === 'expanded' ? 'compact' : 'expanded')}
+            className="p-1 rounded hover:bg-white/10 transition-colors text-white/70"
+            title={videoState === 'expanded' ? 'Compact' : 'Expand'}
+          >
             {videoState === 'expanded'
-              ? <ArrowsPointingInIcon className="w-3.5 h-3.5" />
-              : <ArrowsPointingOutIcon className="w-3.5 h-3.5" />}
+              ? <ArrowsPointingInIcon className="w-3 h-3" />
+              : <ArrowsPointingOutIcon className="w-3 h-3" />}
           </button>
-          {onClose && (
-            <button onClick={onClose} className="p-1 rounded hover:bg-destructive hover:text-destructive-foreground transition-colors" title="Close">
-              <XMarkIcon className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
       </div>
 
-      {/* ── Video grid ── */}
-      <div className="relative bg-zinc-900" style={{ height: `calc(100% - ${(onToggleAudio || onToggleVideo || onLeave) ? '72px' : '32px'})` }}>
-        {videoState === 'minimized' ? (
-          <MiniGrid
-            participants={participants}
-            localStream={localStream}
-            localVideoRef={localVideoRef}
-            isVideoEnabled={isVideoEnabled}
-          />
-        ) : (
-          <FullGrid
-            participants={participants}
-            localStream={localStream}
-            localVideoRef={localVideoRef}
-            isAudioEnabled={isAudioEnabled}
-            isVideoEnabled={isVideoEnabled}
-          />
-        )}
+      {/* ── Video area ── */}
+      <div className="bg-zinc-900 overflow-hidden" style={{ height: videoH }}>
+        {videoState === 'minimized'
+          ? <MiniGrid participants={participants} localStream={localStream} localVideoRef={localVideoRef} isVideoEnabled={isVideoEnabled} />
+          : <FullGrid participants={participants} localStream={localStream} localVideoRef={localVideoRef} isAudioEnabled={isAudioEnabled} isVideoEnabled={isVideoEnabled} />
+        }
       </div>
 
-      {/* ── Controls bar (only when handlers provided) ── */}
-      {(onToggleAudio || onToggleVideo || onLeave) && (
-        <div className="no-drag flex items-center justify-center gap-3 px-3 py-2 bg-zinc-900 border-t border-zinc-700 flex-shrink-0">
+      {/* ── Controls ── */}
+      {hasControls && (
+        <div
+          className="no-drag flex items-center justify-center gap-2 bg-zinc-800/95 border-t border-white/10 flex-shrink-0"
+          style={{ height: controlBarH }}
+        >
           {onToggleAudio && (
             <button
               onClick={onToggleAudio}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                isAudioEnabled ? 'bg-zinc-700 hover:bg-zinc-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isAudioEnabled ? 'bg-zinc-600 hover:bg-zinc-500 text-white' : 'bg-red-600 hover:bg-red-500 text-white'
               }`}
               title={isAudioEnabled ? 'Mute' : 'Unmute'}
             >
-              {isAudioEnabled
-                ? <MicrophoneIcon className="w-4 h-4" />
-                : <SpeakerXMarkIcon className="w-4 h-4" />}
+              {isAudioEnabled ? <MicrophoneIcon className="w-3.5 h-3.5" /> : <SpeakerXMarkIcon className="w-3.5 h-3.5" />}
             </button>
           )}
           {onToggleVideo && (
             <button
               onClick={onToggleVideo}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                isVideoEnabled ? 'bg-zinc-700 hover:bg-zinc-600 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isVideoEnabled ? 'bg-zinc-600 hover:bg-zinc-500 text-white' : 'bg-red-600 hover:bg-red-500 text-white'
               }`}
               title={isVideoEnabled ? 'Camera off' : 'Camera on'}
             >
-              {isVideoEnabled
-                ? <VideoCameraIcon className="w-4 h-4" />
-                : <VideoCameraSlashIcon className="w-4 h-4" />}
+              {isVideoEnabled ? <VideoCameraIcon className="w-3.5 h-3.5" /> : <VideoCameraSlashIcon className="w-3.5 h-3.5" />}
             </button>
           )}
           {onLeave && (
             <button
               onClick={onLeave}
-              className="w-9 h-9 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-colors"
               title="Leave call"
             >
-              <PhoneXMarkIcon className="w-4 h-4" />
+              <PhoneXMarkIcon className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
       )}
 
-      {/* Sync local video */}
       <LocalVideoSync stream={localStream} videoRef={localVideoRef} isVideoEnabled={isVideoEnabled} />
     </div>
   );
 }
 
-// ── Mini 2×2 grid for minimized state ────────────────────────────────────────
 function MiniGrid({ participants, localStream, localVideoRef, isVideoEnabled }: {
   participants: Participant[];
   localStream: MediaStream | null;
@@ -268,7 +265,6 @@ function MiniGrid({ participants, localStream, localVideoRef, isVideoEnabled }: 
   );
 }
 
-// ── Full grid for compact/expanded state ─────────────────────────────────────
 function FullGrid({ participants, localStream, localVideoRef, isAudioEnabled, isVideoEnabled }: {
   participants: Participant[];
   localStream: MediaStream | null;
@@ -277,9 +273,9 @@ function FullGrid({ participants, localStream, localVideoRef, isAudioEnabled, is
   isVideoEnabled: boolean;
 }) {
   const total = participants.length + 1;
-  const cols = total <= 1 ? 1 : total <= 4 ? 2 : 3;
+  const cols = total <= 1 ? 1 : 2;
   return (
-    <div className="grid gap-1 p-1 h-full" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+    <div className="grid gap-0.5 p-0.5 h-full" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
       <div className="relative bg-zinc-800 rounded-lg overflow-hidden">
         {isVideoEnabled && localStream
           ? <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover -scale-x-100" />
@@ -309,8 +305,8 @@ function RemoteVideo({ participant }: { participant: Participant }) {
 function Avatar({ label }: { label: string }) {
   return (
     <div className="w-full h-full flex items-center justify-center bg-zinc-700">
-      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-        <span className="text-sm font-bold text-primary-foreground">{label[0]?.toUpperCase()}</span>
+      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <span className="text-xs font-bold text-primary-foreground">{label[0]?.toUpperCase()}</span>
       </div>
     </div>
   );
@@ -318,7 +314,7 @@ function Avatar({ label }: { label: string }) {
 
 function NameTag({ label }: { label: string }) {
   return (
-    <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 rounded text-[10px] text-white truncate max-w-[90%]">
+    <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/70 rounded text-[9px] text-white truncate max-w-[85%]">
       {label}
     </div>
   );

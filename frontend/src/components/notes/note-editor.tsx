@@ -164,11 +164,6 @@ export function NoteEditor({
     console.log('📝 NoteEditor: Setting initial content, length:', initialContent.length);
     setContent(initialContent);
     hasInitialized.current = true;
-    // Clear any stale draft when loading a fresh template so the next
-    // template selection also gets a clean slate
-    if (!note?.id && template) {
-      localStorage.removeItem('elevare_note_draft');
-    }
   }, [note?.id, note?.content, template, noteTemplates.length]); // Dependencies that should trigger re-initialization
 
   // Initialize summary from note

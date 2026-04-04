@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
+import { prepareWithSegments, layoutWithLines } from '@chenglou/pretext';
 import { Button } from '@/components/ui/button';
 import { WhiteboardToolbar } from './whiteboard-toolbar';
 import socketService from '@/services/socket-service';
@@ -187,9 +188,23 @@ const WhiteboardCanvas = memo(function WhiteboardCanvas({
         case 'text':
           if (el.x !== undefined && el.y !== undefined && el.text) {
             ctx.globalCompositeOperation = 'source-over';
-            ctx.font = `${el.size * 3}px Arial`;
+            const fontSize = el.size * 3;
+            const font = `${fontSize}px Arial`;
+            ctx.font = font;
             ctx.fillStyle = el.color;
-            ctx.fillText(el.text, el.x, el.y);
+            // Use Pretext to measure and wrap text properly within a 400px max width
+            const maxTextWidth = 400;
+            const lineHeight = fontSize * 1.3;
+            try {
+              const prepared = prepareWithSegments(el.text, font);
+              const { lines } = layoutWithLines(prepared, maxTextWidth, lineHeight);
+              lines.forEach((line, i) => {
+                ctx.fillText(line.text, el.x!, el.y! + i * lineHeight);
+              });
+            } catch {
+              // Fallback to native fillText if Pretext fails (e.g. in SSR/test env)
+              ctx.fillText(el.text, el.x, el.y);
+            }
           }
           break;
       }

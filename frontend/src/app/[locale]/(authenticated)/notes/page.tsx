@@ -7,6 +7,7 @@ import { TemplateSelector } from '@/components/notes/template-selector';
 import { getTemplateById } from '@/components/notes/note-templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { useDeleteNoteFolder, useMoveNoteFolder, useNoteFolders } from '@/hooks/use-note-folders';
 import { useNotes, useDeleteNote } from '@/hooks/use-notes';
@@ -52,6 +53,7 @@ export default function NotesPage() {
   usePageMetadata('notes');
   const [showFolderDialog, setShowFolderDialog] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
   const [editingFolder, setEditingFolder] = useState<NoteFolder | null>(null);
   const [parentFolderId, setParentFolderId] = useState<string | undefined>();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -214,7 +216,14 @@ export default function NotesPage() {
 
             <Button
               id="tour-notes-create"
-              onClick={() => setShowTemplateSelector(true)}
+              onClick={() => {
+                const hasDraft = typeof window !== 'undefined' && !!localStorage.getItem('elevare_note_draft');
+                if (hasDraft) {
+                  setShowDraftDialog(true);
+                } else {
+                  setShowTemplateSelector(true);
+                }
+              }}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-9 sm:h-10 px-4 sm:px-6 rounded-lg sm:rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
             >
               <Plus className="w-4 h-4 sm:mr-2" />
@@ -436,6 +445,32 @@ export default function NotesPage() {
         {/* Dialogs */}
         <TemplateSelector open={showTemplateSelector} onOpenChange={setShowTemplateSelector} onTemplateSelect={handleTemplateSelect} />
         <FolderDialog open={showFolderDialog} onOpenChange={setShowFolderDialog} folder={editingFolder} parentId={parentFolderId} />
+
+        <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>You have an unsaved draft</AlertDialogTitle>
+              <AlertDialogDescription>
+                Would you like to continue where you left off, or start a new note?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                localStorage.removeItem('elevare_note_draft');
+                setShowDraftDialog(false);
+                setShowTemplateSelector(true);
+              }}>
+                Start New
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => {
+                setShowDraftDialog(false);
+                router.push('/notes/create');
+              }}>
+                Continue Draft
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

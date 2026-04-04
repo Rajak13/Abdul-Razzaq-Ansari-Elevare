@@ -577,18 +577,18 @@ function LiveKitFloatingWindow({
 
   // Load / save position — same as FloatingVideoWindow
   useEffect(() => {
-    const saved = localStorage.getItem('floating-video-position');
+    const saved = localStorage.getItem('floating-video-position-v2');
     if (saved) {
       try { setPosition(JSON.parse(saved)); } catch {
-        setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
+        setPosition({ x: window.innerWidth - 420, y: 60 });
       }
     } else {
-      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 340 });
+      setPosition({ x: window.innerWidth - 420, y: 60 });
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('floating-video-position', JSON.stringify(position));
+    localStorage.setItem('floating-video-position-v2', JSON.stringify(position));
   }, [position]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -630,7 +630,7 @@ function LiveKitFloatingWindow({
 
   const minimize = () => {
     setFloatState('minimized');
-    setPosition({ x: window.innerWidth - 260, y: window.innerHeight - 200 });
+    setPosition({ x: window.innerWidth - 260, y: 60 });
   };
 
   const toggleExpand = () => {
