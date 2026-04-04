@@ -54,6 +54,8 @@ export default function NotesPage() {
   const [showFolderDialog, setShowFolderDialog] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [folderToDelete, setFolderToDelete] = useState<NoteFolder | null>(null);
+  const [noteToDelete, setNoteToDelete] = useState<any>(null);
   const [editingFolder, setEditingFolder] = useState<NoteFolder | null>(null);
   const [parentFolderId, setParentFolderId] = useState<string | undefined>();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -125,14 +127,19 @@ export default function NotesPage() {
     setShowFolderDialog(true);
   };
 
-  const handleFolderDelete = async (folder: NoteFolder) => {
-    if (confirm(t('folders.confirmDelete'))) {
-      try {
-        await deleteFolder.mutateAsync(folder.id);
-        toast.success(t('folders.deleteSuccess'));
-      } catch {
-        toast.error(t('messages.deleteError'));
-      }
+  const handleFolderDelete = (folder: NoteFolder) => {
+    setFolderToDelete(folder);
+  };
+
+  const confirmFolderDelete = async () => {
+    if (!folderToDelete) return;
+    try {
+      await deleteFolder.mutateAsync(folderToDelete.id);
+      toast.success(t('folders.deleteSuccess'));
+    } catch {
+      toast.error(t('messages.deleteError'));
+    } finally {
+      setFolderToDelete(null);
     }
   };
 
@@ -167,14 +174,19 @@ export default function NotesPage() {
     router.push(`/notes/${note.id}/edit`);
   };
 
-  const handleNoteDelete = async (note: any) => {
-    if (confirm(t('actions.confirmDelete'))) {
-      try {
-        await deleteNote.mutateAsync(note.id);
-        toast.success(t('messages.deleteSuccess'));
-      } catch {
-        toast.error(t('messages.deleteError'));
-      }
+  const handleNoteDelete = (note: any) => {
+    setNoteToDelete(note);
+  };
+
+  const confirmNoteDelete = async () => {
+    if (!noteToDelete) return;
+    try {
+      await deleteNote.mutateAsync(noteToDelete.id);
+      toast.success(t('messages.deleteSuccess'));
+    } catch {
+      toast.error(t('messages.deleteError'));
+    } finally {
+      setNoteToDelete(null);
     }
   };
   return (
@@ -467,6 +479,46 @@ export default function NotesPage() {
                 router.push('/notes/create');
               }}>
                 Continue Draft
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('folders.confirmDelete')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmFolderDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {tCommon('delete')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!noteToDelete} onOpenChange={(open) => !open && setNoteToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('actions.confirmDelete')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmNoteDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {tCommon('delete')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

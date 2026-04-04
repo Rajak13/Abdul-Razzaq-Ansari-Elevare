@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pagination } from '@/components/ui/pagination';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   FileFolderTree,
   FileFolderDialog,
   FileUploadModal,
@@ -47,6 +57,8 @@ export default function FilesPage() {
   const [sortBy, setSortBy] = useState('created_at');
   const [fileToRename, setFileToRename] = useState<UserFile | null>(null);
   const [fileToMove, setFileToMove] = useState<UserFile | null>(null);
+  const [folderToDelete, setFolderToDelete] = useState<FileFolder | null>(null);
+  const [fileToConfirmDelete, setFileToConfirmDelete] = useState<UserFile | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -109,17 +121,22 @@ export default function FilesPage() {
     setShowFolderDialog(true);
   };
 
-  const handleFolderDelete = async (folder: FileFolder) => {
-    if (confirm(t('folders.confirmDelete'))) {
-      try {
-        await deleteFolder.mutateAsync(folder.id);
-        toast.success(t('folders.deleteSuccess'));
-        if (selectedFolderId === folder.id) {
-          setSelectedFolderId(null);
-        }
-      } catch {
-        toast.error(t('folders.deleteError'));
+  const handleFolderDelete = (folder: FileFolder) => {
+    setFolderToDelete(folder);
+  };
+
+  const confirmFolderDelete = async () => {
+    if (!folderToDelete) return;
+    try {
+      await deleteFolder.mutateAsync(folderToDelete.id);
+      toast.success(t('folders.deleteSuccess'));
+      if (selectedFolderId === folderToDelete.id) {
+        setSelectedFolderId(null);
       }
+    } catch {
+      toast.error(t('folders.deleteError'));
+    } finally {
+      setFolderToDelete(null);
     }
   };
 
@@ -151,19 +168,24 @@ export default function FilesPage() {
     }
   };
 
-  const handleFileDelete = async (file: UserFile) => {
-    if (confirm(t('delete.confirm'))) {
-      try {
-        await deleteFile.mutateAsync(file.id);
-        toast.success(t('delete.success'));
-        setSelectedFiles((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(file.id);
-          return newSet;
-        });
-      } catch {
-        toast.error(t('delete.error'));
-      }
+  const handleFileDelete = (file: UserFile) => {
+    setFileToConfirmDelete(file);
+  };
+
+  const confirmFileDelete = async () => {
+    if (!fileToConfirmDelete) return;
+    try {
+      await deleteFile.mutateAsync(fileToConfirmDelete.id);
+      toast.success(t('delete.success'));
+      setSelectedFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(fileToConfirmDelete.id);
+        return newSet;
+      });
+    } catch {
+      toast.error(t('delete.error'));
+    } finally {
+      setFileToConfirmDelete(null);
     }
   };
 
@@ -398,6 +420,46 @@ export default function FilesPage() {
           onOpenChange={(open) => !open && setFileToMove(null)}
           file={fileToMove}
         />
+
+        <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('folders.confirmDelete')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmFolderDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!fileToConfirmDelete} onOpenChange={(open) => !open && setFileToConfirmDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('delete.confirm')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmFileDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

@@ -8,6 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { SummaryDisplay } from '@/components/notes/summary-display';
 import { MarkdownRenderer } from '@/components/notes/markdown-renderer';
 import { useNote, useDeleteNote, useExportNote } from '@/hooks/use-notes';
@@ -17,6 +27,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Calendar, Download, Edit, FileText, Folder, Hash, MoreVertical, Trash2 } from 'lucide-react';
 import { Link, useRouter } from '@/navigation';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function NotePage() {
@@ -29,6 +40,7 @@ export default function NotePage() {
   const deleteNote = useDeleteNote();
   const exportNote = useExportNote();
   const updateSummary = useUpdateNoteSummary();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const folder = note?.folder_id ? folders.find(f => f.id === note.folder_id) : null;
 
@@ -76,15 +88,17 @@ export default function NotePage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (confirm(`Are you sure you want to delete "${note?.title}"?`)) {
-      try {
-        await deleteNote.mutateAsync(noteId);
-        toast.success('Note deleted successfully');
-        router.push('/notes');
-      } catch {
-        toast.error('Failed to delete note. Please try again.');
-      }
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteNote.mutateAsync(noteId);
+      toast.success('Note deleted successfully');
+      router.push('/notes');
+    } catch {
+      toast.error('Failed to delete note. Please try again.');
     }
   };
 
@@ -498,6 +512,26 @@ export default function NotePage() {
           )}
         </div>
       </div>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Note</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{note.title}&quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

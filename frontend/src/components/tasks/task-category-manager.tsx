@@ -8,6 +8,16 @@ import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -185,6 +195,7 @@ export function TaskCategoryManager({ className }: TaskCategoryManagerProps) {
   const [editingCategory, setEditingCategory] = useState<TaskCategory | null>(null)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<TaskCategory | null>(null)
 
   const { data: categories, isLoading } = useTaskCategories()
   const { data: tasksResponse } = useTasks({})

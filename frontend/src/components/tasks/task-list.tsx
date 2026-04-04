@@ -23,6 +23,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -106,6 +116,7 @@ function TaskItem({
   const t = useTranslations('tasks')
   const format = useFormatter()
   const updateTask = useUpdateTask()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const {
     attributes,
@@ -137,9 +148,7 @@ function TaskItem({
   }
 
   const handleDelete = () => {
-    if (confirm(t('actions.confirmDelete'))) {
-      onDelete?.(task.id)
-    }
+    setShowDeleteConfirm(true)
   }
 
   const isCompleted = task.status === 'completed'
@@ -165,6 +174,7 @@ function TaskItem({
 
   if (viewMode === 'grid') {
     return (
+      <>
       <Card 
         ref={setNodeRef} 
         style={style} 
@@ -332,11 +342,32 @@ function TaskItem({
           </div>
         </CardContent>
       </Card>
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('actions.confirmDelete')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('actions.cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { onDelete?.(task.id); setShowDeleteConfirm(false); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('actions.delete') || 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      </>
     )
   }
 
   // List view
   return (
+    <>
     <Card 
       ref={setNodeRef} 
       style={style} 
@@ -500,6 +531,26 @@ function TaskItem({
         </div>
       </CardContent>
     </Card>
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('actions.confirmDelete')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('actions.cancel') || 'Cancel'}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => { onDelete?.(task.id); setShowDeleteConfirm(false); }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {t('actions.delete') || 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
 

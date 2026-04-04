@@ -9,6 +9,16 @@ import { TemplateSelector } from '@/components/notes/template-selector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pagination } from '@/components/ui/pagination';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useNotes, useDeleteNote } from '@/hooks/use-notes';
 import { NoteTemplate } from '@/types/note';
 import { ArrowLeft, FileText, Plus } from 'lucide-react';
@@ -23,6 +33,7 @@ export default function AllNotesPage() {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [noteToDelete, setNoteToDelete] = useState<any>(null);
   
   const router = useRouter();
   const { data: notesResponse = [], isLoading } = useNotes();
@@ -61,14 +72,19 @@ export default function AllNotesPage() {
     router.push(`/notes/${note.id}/edit`);
   };
 
-  const handleNoteDelete = async (note: any) => {
-    if (confirm(t('actions.confirmDelete'))) {
-      try {
-        await deleteNote.mutateAsync(note.id);
-        toast.success(t('messages.deleteSuccess'));
-      } catch {
-        toast.error(t('messages.deleteError'));
-      }
+  const handleNoteDelete = (note: any) => {
+    setNoteToDelete(note);
+  };
+
+  const confirmNoteDelete = async () => {
+    if (!noteToDelete) return;
+    try {
+      await deleteNote.mutateAsync(noteToDelete.id);
+      toast.success(t('messages.deleteSuccess'));
+    } catch {
+      toast.error(t('messages.deleteError'));
+    } finally {
+      setNoteToDelete(null);
     }
   };
 
@@ -149,6 +165,26 @@ export default function AllNotesPage() {
           onOpenChange={setShowTemplateSelector}
           onTemplateSelect={handleTemplateSelect}
         />
+
+        <AlertDialog open={!!noteToDelete} onOpenChange={(open) => !open && setNoteToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('actions.confirmDelete')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmNoteDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {tCommon('delete')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

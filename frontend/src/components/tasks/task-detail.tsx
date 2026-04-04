@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 
 import { format, isPast, isToday, isTomorrow } from 'date-fns'
 import {
@@ -18,6 +18,16 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import {
     Dialog,
     DialogContent,
@@ -77,6 +87,7 @@ const statusConfig: Record<string, { color: string; label: string; icon: React.R
 
 export function TaskDetail({ task, open, onOpenChange, onEdit, onDelete }: TaskDetailProps) {
   const updateTask = useUpdateTask()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const handleToggleComplete = () => {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed'
@@ -94,10 +105,12 @@ export function TaskDetail({ task, open, onOpenChange, onEdit, onDelete }: TaskD
   }
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this task?')) {
-      onDelete?.(task.id)
-      onOpenChange(false)
-    }
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDelete = () => {
+    onDelete?.(task.id)
+    onOpenChange(false)
   }
 
   const isCompleted = task.status === 'completed'
@@ -142,8 +155,9 @@ export function TaskDetail({ task, open, onOpenChange, onEdit, onDelete }: TaskD
   const dueDateInfo = getDueDateInfo()
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Button
@@ -346,5 +360,26 @@ export function TaskDetail({ task, open, onOpenChange, onEdit, onDelete }: TaskD
         </div>
       </DialogContent>
     </Dialog>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this task? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }

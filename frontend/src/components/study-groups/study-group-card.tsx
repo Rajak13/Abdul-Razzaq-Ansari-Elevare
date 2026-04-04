@@ -1,11 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '@/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { StudyGroupWithMemberCount } from '@/types/study-group';
 import { useJoinGroup, useLeaveGroup, useDeleteStudyGroupMutation } from '@/hooks/use-study-groups';
 import { useAuth } from '@/contexts/auth-context';
@@ -27,6 +37,8 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
   const joinMutation = useJoinGroup();
   const leaveMutation = useLeaveGroup();
   const deleteMutation = useDeleteStudyGroupMutation();
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleJoinGroup = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation
@@ -39,31 +51,33 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
     }
   };
 
-  const handleLeaveGroup = async (e: React.MouseEvent) => {
+  const handleLeaveGroup = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (!user?.id) return;
-    
-    if (confirm(`Are you sure you want to leave "${group.name}"?`)) {
-      try {
-        await leaveMutation.mutateAsync({ groupId: group.id, userId: user.id });
-      } catch (error) {
-        // Error handling is done in the mutation hook
-      }
+    setShowLeaveConfirm(true);
+  };
+
+  const confirmLeaveGroup = async () => {
+    if (!user?.id) return;
+    try {
+      await leaveMutation.mutateAsync({ groupId: group.id, userId: user.id });
+    } catch (error) {
+      // Error handling is done in the mutation hook
     }
   };
 
-  const handleDeleteGroup = async (e: React.MouseEvent) => {
+  const handleDeleteGroup = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (confirm(`Are you sure you want to permanently delete "${group.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteMutation.mutateAsync(group.id);
-      } catch (error) {
-        // Error handling is done in the mutation hook
-      }
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteGroup = async () => {
+    try {
+      await deleteMutation.mutateAsync(group.id);
+    } catch (error) {
+      // Error handling is done in the mutation hook
     }
   };
 
@@ -94,6 +108,7 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
   const isOwner = group.user_role === 'owner';
 
   return (
+    <>
     <Card className="hover:shadow-sm transition-shadow duration-200 border-border">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -226,5 +241,47 @@ export function StudyGroupCard({ group }: StudyGroupCardProps) {
         </div>
       </CardContent>
     </Card>
+
+    <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Leave Group</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to leave &quot;{group.name}&quot;?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmLeaveGroup}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Leave
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Group</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to permanently delete &quot;{group.name}&quot;? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmDeleteGroup}
+            disabled={deleteMutation.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

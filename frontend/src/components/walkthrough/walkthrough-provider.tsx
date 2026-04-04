@@ -238,14 +238,18 @@ export function WalkthroughProvider({ children }: WalkthroughProviderProps) {
   // Memoize tour steps to prevent unnecessary re-renders of GuidedTour
   const tourSteps = useMemo(() => getTourSteps(t), [t]);
 
-  // Check if user should see walkthrough
+  // Check if user should see walkthrough.
+  // Only show when walkthrough_completed is explicitly false (not null/undefined,
+  // which indicates a pre-migration user who should be treated as already done).
   useEffect(() => {
-    // Only run this if we're not already showing the welcome modal
-    // and the user hasn't seen it yet in this session/state
-    if (user && !user.walkthrough_completed && !hasCompleted && !hasSeenWelcome && !showWelcome) {
-      // Small delay to ensure page is fully loaded and any transitions are done
+    if (
+      user &&
+      user.walkthrough_completed === false &&
+      !hasCompleted &&
+      !hasSeenWelcome &&
+      !showWelcome
+    ) {
       const timer = setTimeout(() => {
-        // Double check conditions before showing
         if (!hasSeenWelcome && !showWelcome) {
           setHasSeenWelcome(true);
           setShowWelcome(true);
@@ -255,13 +259,22 @@ export function WalkthroughProvider({ children }: WalkthroughProviderProps) {
     }
   }, [user?.walkthrough_completed, hasCompleted, hasSeenWelcome, showWelcome, setHasSeenWelcome]);
 
-  // Mark walkthrough as completed in backend
+  // Mark walkthrough as completed in backend with retry
   const markCompleted = useCallback(async () => {
-    try {
-      await apiClient.patch('/auth/walkthrough');
-    } catch (error) {
-      console.error('Error marking walkthrough as completed:', error);
+    const MAX_RETRIES = 3;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        await apiClient.patch('/auth/walkthrough');
+        return; // success
+      } catch (error) {
+        console.error(`Error marking walkthrough as completed (attempt ${attempt}):`, error);
+        if (attempt < MAX_RETRIES) {
+          await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+        }
+      }
     }
+    // All retries failed — surface a non-intrusive warning so the user knows
+    toast.warning('Could not save your tour progress. It may reappear on your next login.');
   }, []);
 
   // Handle tour start, avoiding Radix UI pointer-events lock
