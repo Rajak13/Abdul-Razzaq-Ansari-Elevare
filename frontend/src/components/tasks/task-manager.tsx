@@ -38,9 +38,10 @@ import type { Task, CreateTaskData, UpdateTaskData, TaskFilters as TaskFiltersTy
 
 interface TaskManagerProps {
   className?: string
+  openCreateDialog?: boolean
 }
 
-export function TaskManager({ className }: TaskManagerProps) {
+export function TaskManager({ className, openCreateDialog = false }: TaskManagerProps) {
   const t = useTranslations('tasks')
   const [filters, setFilters] = useState<Partial<TaskFiltersType>>({
     sort_by: 'sort_order',
@@ -48,7 +49,7 @@ export function TaskManager({ className }: TaskManagerProps) {
     page: 1,
     limit: 20,
   })
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showCreateDialog, setShowCreateDialog] = useState(openCreateDialog)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDetailDialog, setShowDetailDialog] = useState(false)
   const [showCategoriesDialog, setShowCategoriesDialog] = useState(false)

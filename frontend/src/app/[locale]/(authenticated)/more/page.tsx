@@ -58,7 +58,7 @@ const navigationItems = [
 const quickActions = [
   { 
     name: 'New Task', 
-    href: '/tasks/new', 
+    href: '/tasks?new=true', 
     icon: Plus, 
     description: 'Create a new task or assignment',
     color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'

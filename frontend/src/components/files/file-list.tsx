@@ -329,10 +329,15 @@ export function FileList({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {getFolderName(file.folder_id)} · {formatFileSize(file.size)} ·{' '}
-                  {formatDistanceToNow(new Date(file.updated_at), { addSuffix: true })}
-                </p>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {file.folder_id && (
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: folders.find(f => f.id === file.folder_id)?.color || '#6b7280' }}
+                    />
+                  )}
+                  <span>{getFolderName(file.folder_id)} · {formatFileSize(file.size)} · {formatDistanceToNow(new Date(file.updated_at), { addSuffix: true })}</span>
+                </div>
               </div>
               {file.is_shared && <Share2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
               <DropdownMenu>

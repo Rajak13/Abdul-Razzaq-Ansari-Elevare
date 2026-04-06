@@ -95,7 +95,7 @@ export function Sidebar({
   const quickActions: NavItem[] = [
     {
       title: t('navigation.newTask'),
-      href: '/tasks/new',
+      href: '/tasks?new=true',
       icon: <Plus className="h-4 w-4" />,
     },
     {
