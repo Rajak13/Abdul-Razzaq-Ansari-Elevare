@@ -109,6 +109,9 @@ export default function NotePage() {
     const summaryHtml = note?.summary
       ? `<div class="summary"><div class="summary-label">Summary</div><p>${note.summary}</p></div>`
       : '';
+    const folderHtml = folder
+      ? `<span class="folder-badge"><span class="folder-dot" style="background:${folder.color || '#6b7280'}"></span>${folder.name}</span>`
+      : '';
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -120,69 +123,101 @@ export default function NotePage() {
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f8f9fa;
-      color: #1a1a2e;
+      background: #f8fafc;
+      color: #0f172a;
       line-height: 1.75;
-      padding: 40px 20px;
+      padding: 32px 20px;
     }
     .page {
       max-width: 820px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
       overflow: hidden;
     }
+    /* Matches the web view header area — white bg, slate text */
     .header {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      padding: 36px 48px 32px;
-      color: white;
+      background: #ffffff;
+      padding: 32px 40px 24px;
+      border-bottom: 1px solid #e2e8f0;
     }
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .icon {
+      width: 40px; height: 40px;
+      background: #0f172a;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .header h1 {
-      font-size: 2rem;
+      font-size: 1.875rem;
       font-weight: 700;
+      color: #0f172a;
       letter-spacing: -0.02em;
-      margin-bottom: 8px;
+      line-height: 1.2;
     }
     .meta {
-      font-size: 0.85rem;
-      opacity: 0.85;
-      margin-bottom: 12px;
+      font-size: 0.825rem;
+      color: #64748b;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .folder-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.825rem;
+      color: #64748b;
+    }
+    .folder-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .tag {
-      background: rgba(255,255,255,0.2);
-      border-radius: 20px;
-      padding: 2px 12px;
-      font-size: 0.78rem;
+      background: #f1f5f9;
+      color: #475569;
+      border-radius: 9999px;
+      padding: 2px 10px;
+      font-size: 0.775rem;
       font-weight: 500;
     }
-    .body { padding: 40px 48px; }
+    .body { padding: 32px 40px; }
+    /* Matches the SummaryDisplay sidebar card style */
     .summary {
-      background: #f0f0ff;
-      border-left: 4px solid #6366f1;
-      border-radius: 0 8px 8px 0;
-      padding: 16px 20px;
-      margin-bottom: 32px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid #64748b;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
     }
     .summary-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6366f1;
+      color: #94a3b8;
       margin-bottom: 6px;
     }
-    .summary p { color: #374151; font-size: 0.95rem; line-height: 1.6; }
-    .content h1 { font-size: 1.75rem; font-weight: 700; margin: 1.5em 0 0.5em; color: #111827; }
-    .content h2 { font-size: 1.4rem; font-weight: 600; margin: 1.4em 0 0.4em; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
-    .content h3 { font-size: 1.15rem; font-weight: 600; margin: 1.2em 0 0.3em; color: #374151; }
+    .summary p { color: #374151; font-size: 0.9rem; line-height: 1.6; }
+    /* Prose styles matching MarkdownRenderer's Tailwind prose classes */
+    .content h1 { font-size: 1.75rem; font-weight: 700; margin: 1.4em 0 0.5em; color: #111827; }
+    .content h2 { font-size: 1.4rem; font-weight: 600; margin: 1.3em 0 0.4em; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+    .content h3 { font-size: 1.15rem; font-weight: 600; margin: 1.1em 0 0.3em; color: #374151; }
     .content h4, .content h5, .content h6 { font-size: 1rem; font-weight: 600; margin: 1em 0 0.3em; color: #4b5563; }
-    .content p { margin: 0.75em 0; color: #374151; }
-    .content a { color: #6366f1; text-decoration: none; }
+    .content p { margin: 0.75em 0; color: #374151; line-height: 1.75; }
+    .content a { color: #2563eb; text-decoration: none; }
     .content a:hover { text-decoration: underline; }
-    .content ul, .content ol { padding-left: 1.5em; margin: 0.75em 0; }
-    .content li { margin: 0.3em 0; color: #374151; }
+    .content ul { list-style: disc; padding-left: 1.5em; margin: 0.75em 0; }
+    .content ol { list-style: decimal; padding-left: 1.5em; margin: 0.75em 0; }
+    .content li { margin: 0.3em 0; color: #374151; margin-left: 1rem; }
     .content blockquote {
       border-left: 4px solid #d1d5db;
       padding: 8px 16px;
@@ -192,23 +227,25 @@ export default function NotePage() {
       border-radius: 0 6px 6px 0;
     }
     .content code {
-      background: #1e1e2e;
-      color: #cdd6f4;
-      padding: 2px 7px;
+      background: #1a1a1a;
+      color: #f3f4f6;
+      padding: 2px 6px;
       border-radius: 5px;
       font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
-      font-size: 0.875em;
+      font-size: 0.85em;
     }
     .content pre {
-      background: #1e1e2e;
-      color: #cdd6f4;
+      background: #1a1a1a;
+      color: #f3f4f6;
       padding: 20px 24px;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow-x: auto;
       margin: 1em 0;
       font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
       font-size: 0.875rem;
       line-height: 1.6;
+      border: 1px solid #1f2937;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .content pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
     .content table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.9rem; }
@@ -226,22 +263,32 @@ export default function NotePage() {
     .content img { max-width: 100%; border-radius: 8px; margin: 1em 0; }
     .footer {
       text-align: center;
-      padding: 20px 48px;
-      font-size: 0.78rem;
-      color: #9ca3af;
-      border-top: 1px solid #f3f4f6;
+      padding: 16px 40px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      border-top: 1px solid #f1f5f9;
     }
     @media print {
-      body { background: white; padding: 0; }
-      .page { box-shadow: none; border-radius: 0; }
+      @page { margin: 0.5cm; size: A4; }
+      body { background: white !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { box-shadow: none !important; border: none !important; border-radius: 0 !important; max-width: 100% !important; }
+      .content pre, .content code { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="header">
-      <h1>${note?.title || 'Untitled Note'}</h1>
-      <div class="meta">Last updated: ${new Date(note?.updated_at || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+      <div class="title-row">
+        <div class="icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h1>${note?.title || 'Untitled Note'}</h1>
+      </div>
+      <div class="meta">
+        <span>Updated ${new Date(note?.updated_at || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        ${folderHtml}
+      </div>
       ${tagsHtml ? `<div class="tags">${tagsHtml}</div>` : ''}
     </div>
     <div class="body">
