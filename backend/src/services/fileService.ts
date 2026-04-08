@@ -543,8 +543,8 @@ export class FileService {
       }
       
       const query = `
-        INSERT INTO file_folders (id, user_id, name, parent_id, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, NOW(), NOW())
+        INSERT INTO file_folders (id, user_id, name, parent_id, color, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
         RETURNING *
       `;
       
@@ -552,7 +552,8 @@ export class FileService {
         folderId,
         userId,
         folderData.name,
-        folderData.parent_id || null
+        folderData.parent_id || null,
+        folderData.color || '#6b7280'
       ];
       
       const result = await client.query(query, values);
@@ -699,6 +700,11 @@ export class FileService {
       if (updateData.parent_id !== undefined) {
         updateFields.push(`parent_id = $${paramCount++}`);
         values.push(updateData.parent_id || null);
+      }
+
+      if (updateData.color !== undefined) {
+        updateFields.push(`color = $${paramCount++}`);
+        values.push(updateData.color);
       }
       
       updateFields.push(`updated_at = NOW()`);

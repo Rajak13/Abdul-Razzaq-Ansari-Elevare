@@ -1,0 +1,5483 @@
+{
+  "info": {
+    "name": "Elevare API Collection",
+    "_postman_id": "elevare-api-v1",
+    "description": "Complete API collection for the Elevare collaborative study platform. Import with the 'Elevare \u2013 Local' environment. Authenticated requests use {{token}} or {{admin_token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 \u2013 Authentication",
+      "item": [
+        {
+          "name": "Register new user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('user_id',r.userId);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register \u2013 duplicate email (expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/resend-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "resend-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login \u2013 correct credentials",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===200){const r=pm.response.json();pm.environment.set('token',r.token);pm.environment.set('refresh_token',r.refreshToken);pm.environment.set('user_id',r.user.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login \u2013 wrong password (expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"WrongPassword\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset password \u2013 invalid token (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"tampered-token\",\n  \"newPassword\": \"NewPass123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===200){const r=pm.response.json();pm.environment.set('token',r.token);pm.environment.set('refresh_token',r.refreshToken);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh token \u2013 invalid (expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"invalid.token.value\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get current user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"bio\": \"CS student\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update language preference",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/language",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "language"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"ne\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark walkthrough complete",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/walkthrough",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "walkthrough"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset walkthrough",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/walkthrough/reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "walkthrough",
+                "reset"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rate limiter \u2013 6th login attempt (expect 429)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Send 6 times rapidly. 6th returns 429.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"WrongPassword\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 \u2013 Tasks",
+      "item": [
+        {
+          "name": "Create task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete assignment\",\n  \"priority\": \"high\",\n  \"due_date\": \"2026-04-30T23:59:00Z\",\n  \"status\": \"todo\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('task_id',r.task.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create task \u2013 missing title (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"low\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get all tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get tasks \u2013 paginated",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks?page=1&limit=10"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/search?q=assignment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "search?q=assignment"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Calendar view",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/calendar?startDate=2026-04-01&endDate=2026-04-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "calendar?startDate=2026-04-01&endDate=2026-04-30"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{task_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update task priority",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"medium\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update task status to completed",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk update task statuses",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "bulk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taskIds\": [\n    \"{{task_id}}\"\n  ],\n  \"status\": \"completed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk delete tasks",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "bulk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taskIds\": [\n    \"{{task_id}}\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Reorder tasks",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/reorder",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tasks\": [\n    {\n      \"id\": \"{{task_id}}\",\n      \"order\": 1\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{task_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 \u2013 Task Categories",
+      "item": [
+        {
+          "name": "Create category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/task-categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "task-categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"University\",\n  \"color\": \"#10B981\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('category_id',r.category.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/task-categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "task-categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get tasks by category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/task-categories/{{category_id}}/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "task-categories",
+                "{{category_id}}",
+                "tasks"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 \u2013 Notes",
+      "item": [
+        {
+          "name": "Create note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Study Notes \\u2013 Data Structures\",\n  \"content\": \"A linked list is a linear data structure...\",\n  \"tags\": [\n    \"cs\",\n    \"data-structures\"\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('note_id',r.note.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create note inside folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lecture 1\",\n  \"content\": \"Introduction to algorithms\",\n  \"folder_id\": \"{{folder_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get all notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get notes \u2013 paginated",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes?page=1&limit=10"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/search?q=algorithm",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "search?q=algorithm"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get note by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update note title and tags",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"tags\": [\n    \"cs\",\n    \"algorithms\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Auto-save note content",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}/autosave",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}",
+                "autosave"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated content...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Check summary status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}/summary-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}",
+                "summary-status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Save AI summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}",
+                "summary"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"summary\": \"This note covers linked list fundamentals.\",\n  \"model\": \"pegasus\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Export note as PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}",
+                "export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"pdf\",\n  \"include_summary\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Export note as Markdown",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}",
+                "export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"markdown\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete note",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notes/{{note_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notes",
+                "{{note_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 \u2013 Note Folders",
+      "item": [
+        {
+          "name": "Create note folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/note-folders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "note-folders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lecture Notes\",\n  \"color\": \"#4F46E5\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('folder_id',r.folder.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all note folders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/note-folders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "note-folders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update note folder",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/note-folders/{{folder_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "note-folders",
+                "{{folder_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed Folder\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete note folder",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/note-folders/{{folder_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "note-folders",
+                "{{folder_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 \u2013 Study Groups",
+      "item": [
+        {
+          "name": "Create study group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Algorithm Study Group\",\n  \"description\": \"Weekly sessions on algorithm design\",\n  \"is_private\": false\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('group_id',r.group.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get groups \u2013 search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups?search=algorithm&page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups?search=algorithm&page=1&limit=10"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get group by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Group Name\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Request to join group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/join",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "join"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get join requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/join-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "join-requests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve join request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/requests/{{request_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "requests",
+                "{{request_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject join request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/requests/{{request_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "requests",
+                "{{request_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"reject\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get group members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/members/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "members",
+                "{{user_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send group message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "messages"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello everyone!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get group messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}/messages?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}",
+                "messages?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete study group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/groups/{{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "{{group_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 \u2013 Notifications",
+      "item": [
+        {
+          "name": "Get notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications?page=1&limit=20"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===200){const r=pm.response.json();if(r.notifications&&r.notifications.length>0){pm.environment.set('notification_id',r.notifications[0].id);}}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get unread count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/unread-count",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark notification as read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/{{notification_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notification_id}}",
+                "read"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark all as read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/read-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/{{notification_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notification_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get notification preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update notification preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_notifications\": true,\n  \"push_notifications\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Send test notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/test",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "test"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 \u2013 Whiteboards",
+      "item": [
+        {
+          "name": "Create whiteboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sprint Planning Board\",\n  \"group_id\": \"{{group_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('whiteboard_id',r.whiteboard.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all whiteboards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get whiteboards for group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/group/{{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "group",
+                "{{group_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get whiteboard by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update whiteboard",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Board Title\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Save canvas elements (bulk)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/elements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "elements"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"elements\": [\n    {\n      \"type\": \"rectangle\",\n      \"x\": 100,\n      \"y\": 100,\n      \"width\": 200,\n      \"height\": 100,\n      \"fill\": \"#4F46E5\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add canvas element",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/elements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "elements"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"element\": {\n    \"type\": \"text\",\n    \"x\": 50,\n    \"y\": 50,\n    \"text\": \"Hello World\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get whiteboard history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create whiteboard version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "versions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export whiteboard as PNG",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Export whiteboard as JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}",
+                "export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"json\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete whiteboard",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whiteboards/{{whiteboard_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whiteboards",
+                "{{whiteboard_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 \u2013 Files",
+      "item": [
+        {
+          "name": "Upload file",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('file_id',r.file.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "folder_id",
+                  "value": "",
+                  "type": "text",
+                  "description": "Optional folder ID"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/files",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files"
+              ]
+            },
+            "description": "Select a file in the form-data body. Max 50MB."
+          }
+        },
+        {
+          "name": "Get all files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get files \u2013 paginated",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/search?q=lecture",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "search?q=lecture"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get file by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{file_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update file",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{file_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"renamed-file.pdf\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Download file",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{file_id}}",
+                "download"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Share file with group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}/share",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{file_id}}",
+                "share"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupId\": \"{{group_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete file",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{file_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create file folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/folders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "folders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Assignments\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get all file folders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/folders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "folders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update file folder",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/folders/{{folder_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "folders",
+                "{{folder_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed Folder\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete file folder",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/folders/{{folder_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "folders",
+                "{{folder_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Download folder as ZIP",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/folders/{{folder_id}}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "folders",
+                "{{folder_id}}",
+                "download"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 \u2013 Resources",
+      "item": [
+        {
+          "name": "Upload resource",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===201){const r=pm.response.json();pm.environment.set('resource_id',r.resource.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "title",
+                  "value": "Data Structures Cheat Sheet",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Quick reference for common data structures",
+                  "type": "text"
+                },
+                {
+                  "key": "tags",
+                  "value": "cs,reference",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resources",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get all resources",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search resources",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/search?q=data+structures",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "search?q=data+structures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get resource by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update resource",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Rate resource (5 stars)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}/rate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}",
+                "rate"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Get resource comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}",
+                "comments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add comment to resource",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}",
+                "comments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Very helpful resource!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Download resource",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}",
+                "download"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete resource",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 \u2013 Search",
+      "item": [
+        {
+          "name": "Global search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search?q=algorithm",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "search?q=algorithm"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Global search \u2013 with type filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search?q=algorithm&type=notes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "search?q=algorithm&type=notes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Multi-keyword search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search/multi-keyword",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "multi-keyword"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keywords\": [\n    \"algorithm\",\n    \"sorting\"\n  ],\n  \"types\": [\n    \"notes\",\n    \"tasks\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Search suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search/suggestions?q=algo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "suggestions?q=algo"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 \u2013 Dashboard & Analytics",
+      "item": [
+        {
+          "name": "Get dashboard data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get dashboard preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update dashboard preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "preferences"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"layout\": \"grid\",\n  \"widgets\": [\n    \"tasks\",\n    \"notes\",\n    \"groups\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get analytics \u2013 monthly",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics?period=month",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "analytics?period=month"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get analytics \u2013 weekly",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics?period=week",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "analytics?period=week"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 \u2013 Reports",
+      "item": [
+        {
+          "name": "Report a resource",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/resource/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "resource",
+                "{{resource_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"inappropriate_content\",\n  \"description\": \"This resource contains plagiarised material.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Report a study group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/group/{{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "group",
+                "{{group_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"spam\",\n  \"description\": \"This group is posting spam content.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Report a group message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/message/{{message_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "message",
+                "{{message_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"harassment\",\n  \"description\": \"This message contains abusive language.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Report a resource comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/comment/{{comment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "comment",
+                "{{comment_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"inappropriate_content\",\n  \"description\": \"This comment is offensive.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 \u2013 Suspension Appeals",
+      "item": [
+        {
+          "name": "Submit suspension appeal (public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/suspension-appeals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "suspension-appeals"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"suspension_id\": \"{{suspension_id}}\",\n  \"appeal_message\": \"I believe this suspension was issued in error. I did not violate any community guidelines.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get user's appeals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/suspension-appeals/user/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "suspension-appeals",
+                "user",
+                "{{user_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 \u2013 LiveKit (Video Calls)",
+      "item": [
+        {
+          "name": "Get LiveKit video token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/livekit/token?roomName={{group_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "livekit",
+                "token?roomName={{group_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 \u2013 Admin: Authentication",
+      "item": [
+        {
+          "name": "Admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@elevare.app\",\n  \"password\": \"AdminPass123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if(pm.response.code===200){const r=pm.response.json();if(r.token){pm.environment.set('admin_token',r.token);pm.environment.set('admin_refresh_token',r.refreshToken);pm.environment.set('admin_id',r.admin.id);}}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify admin MFA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/auth/verify-mfa",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "verify-mfa"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adminId\": \"{{admin_id}}\",\n  \"mfaToken\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Admin logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh admin token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{admin_refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get admin session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/auth/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "session"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 \u2013 Admin: Metrics",
+      "item": [
+        {
+          "name": "System overview metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/metrics/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "metrics",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "User statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/metrics/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "metrics",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Performance metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/metrics/performance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "metrics",
+                "performance"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Storage metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/metrics/storage",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "metrics",
+                "storage"
+              ]
+            }
+          }
+        },
+        {
+          "name": "System health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/metrics/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "metrics",
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 \u2013 Admin: User Management",
+      "item": [
+        {
+          "name": "Get user list",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user list \u2013 search by email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?email=testuser@example.com",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users?email=testuser@example.com"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user list \u2013 suspended only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?status=suspended",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users?status=suspended"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user stats overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/stats/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "stats",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suspend user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/suspend",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "suspend"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violation of community guidelines\",\n  \"duration_hours\": 48,\n  \"notify_user\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Unsuspend user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/unsuspend",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "unsuspend"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Appeal approved after review\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset user password (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"User requested admin-assisted reset\",\n  \"notify_user\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete user account (GDPR)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"GDPR erasure request\",\n  \"gdpr_request\": true,\n  \"backup_data\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Create admin user (owner only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newadmin@elevare.app\",\n  \"password\": \"AdminPass123!\",\n  \"role\": \"administrator\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 \u2013 Admin: Moderation",
+      "item": [
+        {
+          "name": "Get abuse reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports?status=pending&page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports?status=pending&page=1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get abuse reports \u2013 by type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports?content_type=resource",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports?content_type=resource"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get specific report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports/{{report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports",
+                "{{report_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Take moderation action \u2013 suspend",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports/{{report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports",
+                "{{report_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"suspend\",\n  \"reason\": \"Confirmed policy violation\",\n  \"duration_hours\": 72\n}"
+            }
+          }
+        },
+        {
+          "name": "Take moderation action \u2013 warn",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports/{{report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports",
+                "{{report_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"warn\",\n  \"reason\": \"First offence warning\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Take moderation action \u2013 dismiss",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/reports/{{report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "reports",
+                "{{report_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"dismiss\",\n  \"reason\": \"Report found to be unfounded\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get reported content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/content/resource/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "content",
+                "resource",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user violation history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/violations/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "violations",
+                "{{user_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get moderation statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "moderation",
+                "stats"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 \u2013 Admin: System Configuration",
+      "item": [
+        {
+          "name": "Get feature flags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get specific feature flag",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features/ai_summarisation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features",
+                "ai_summarisation"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create feature flag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"new_feature\",\n  \"description\": \"A new experimental feature\",\n  \"enabled\": false,\n  \"rollout_percentage\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Update feature flag \u2013 enable",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features/ai_summarisation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features",
+                "ai_summarisation"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": true,\n  \"rollout_percentage\": 100\n}"
+            }
+          }
+        },
+        {
+          "name": "Update feature flag \u2013 partial rollout",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features/ai_summarisation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features",
+                "ai_summarisation"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": true,\n  \"rollout_percentage\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete feature flag",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/features/new_feature",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "features",
+                "new_feature"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get system configuration",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/system",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "system"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update system config value",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/system/max_file_upload_size",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "system",
+                "max_file_upload_size"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"52428800\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get maintenance mode status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/maintenance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "maintenance"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Enable maintenance mode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/maintenance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "maintenance"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Scheduled maintenance. Back in 30 minutes.\",\n  \"estimated_resolution\": \"2026-04-02T14:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Disable maintenance mode",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/maintenance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "maintenance"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get system limits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/limits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "limits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update system limits",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/limits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "config",
+                "limits"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"max_file_upload_size\": 52428800,\n  \"rate_limit_requests_per_minute\": 100,\n  \"session_timeout_hours\": 24,\n  \"max_failed_login_attempts\": 5\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 \u2013 Admin: Audit Logs",
+      "item": [
+        {
+          "name": "Get audit logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/logs?page=1&limit=50",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "logs?page=1&limit=50"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get audit logs \u2013 by action type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/logs?action_type=user_suspended",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "logs?action_type=user_suspended"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get audit logs \u2013 date range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/logs?start_date=2026-04-01&end_date=2026-04-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "logs?start_date=2026-04-01&end_date=2026-04-30"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search audit logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/search?query=suspend",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "search?query=suspend"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get audit statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export audit logs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start_date\": \"2026-04-01\",\n  \"end_date\": \"2026-04-30\",\n  \"format\": \"json\",\n  \"encrypt\": false\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 \u2013 Admin: Compliance",
+      "item": [
+        {
+          "name": "Generate compliance report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/compliance/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "compliance",
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"report_type\": \"gdpr_summary\",\n  \"start_date\": \"2026-01-01\",\n  \"end_date\": \"2026-04-30\",\n  \"include_details\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get GDPR compliance status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/compliance/gdpr",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "compliance",
+                "gdpr"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Process GDPR data export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/compliance/data-export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "compliance",
+                "data-export"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"request_type\": \"full_export\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get data retention policy status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/compliance/retention",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "compliance",
+                "retention"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 \u2013 Admin: Security",
+      "item": [
+        {
+          "name": "Get security events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/events?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "events?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get security events \u2013 high severity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/events?severity=high",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "events?severity=high"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolve security event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/events/{{event_id}}/resolve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "events",
+                "{{event_id}}",
+                "resolve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Investigated and resolved. No further action required.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get threat indicators",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/threats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "threats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get failed login attempts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/failed-logins?hours=24",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "failed-logins?hours=24"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Block IP address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/block-ip",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "block-ip"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip_address\": \"192.168.1.100\",\n  \"reason\": \"Repeated brute force attempts\",\n  \"duration_hours\": 24\n}"
+            }
+          }
+        },
+        {
+          "name": "Unblock IP address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/block-ip/192.168.1.100",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "block-ip",
+                "192.168.1.100"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"False positive \\u2013 legitimate user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get blocked IPs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/blocked-ips",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "blocked-ips"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get security statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create security incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/incidents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "incidents"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incident_type\": \"data_breach_attempt\",\n  \"severity\": \"high\",\n  \"description\": \"Suspicious bulk data access detected\",\n  \"affected_systems\": [\n    \"database\",\n    \"file_storage\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get security incidents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/security/incidents?severity=high&status=open",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security",
+                "incidents?severity=high&status=open"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 \u2013 Admin: Suspension Appeals",
+      "item": [
+        {
+          "name": "Get all appeals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/appeals?status=pending&page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "appeals?status=pending&page=1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get appeal statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/appeals/statistics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "appeals",
+                "statistics"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get appeal by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/appeals/{{appeal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "appeals",
+                "{{appeal_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve appeal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/appeals/{{appeal_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "appeals",
+                "{{appeal_id}}",
+                "review"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"admin_response\": \"After review, the suspension has been lifted. Please adhere to community guidelines.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject appeal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/appeals/{{appeal_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "appeals",
+                "{{appeal_id}}",
+                "review"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"admin_response\": \"After review, the suspension stands. The violation was confirmed.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 \u2013 System Health",
+      "item": [
+        {
+          "name": "System health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin API health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Maintenance status (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/system/maintenance-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "maintenance-status"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

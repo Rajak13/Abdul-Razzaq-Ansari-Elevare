@@ -16,6 +16,7 @@ export interface FileFolder {
   user_id: string;
   name: string;
   parent_id?: string;
+  color?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -49,11 +50,13 @@ export interface UpdateFileRequest {
 export interface CreateFileFolderRequest {
   name: string;
   parent_id?: string;
+  color?: string;
 }
 
 export interface UpdateFileFolderRequest {
   name?: string;
   parent_id?: string;
+  color?: string;
 }
 
 export interface ShareFileRequest {
