@@ -174,8 +174,8 @@ export const progressiveLoginDelay = async (
   if (attempts) {
     const timeSinceLastAttempt = Date.now() - attempts.lastAttempt.getTime();
 
-    // Progressive delay: 1s, 2s, 4s, 8s, 16s, etc.
-    const delay = Math.min(Math.pow(2, attempts.count - 1) * 1000, 30000);
+    // Progressive delay: 1s, 2s, 4s, 8s max (keep under Render's 30s timeout)
+    const delay = Math.min(Math.pow(2, attempts.count - 1) * 1000, 8000);
 
     if (timeSinceLastAttempt < delay) {
       const waitTime = delay - timeSinceLastAttempt;
