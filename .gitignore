@@ -132,20 +132,19 @@ htmlcov/
 uploads/
 backend/uploads/
 backend/uploads/**/*
-# Allow frontend public images
+# Block images/docs globally except frontend public assets
+*.pdf
+*.doc
+*.docx
+*.jpg
+*.jpeg
+*.gif
+# Allow frontend public images (must come after the global blocks)
 !frontend/public/**/*.jpg
 !frontend/public/**/*.jpeg
 !frontend/public/**/*.png
 !frontend/public/**/*.gif
 !frontend/public/**/*.svg
-# Block all other images
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.pdf
-*.doc
-*.docx
 
 # Database files
 *.sqlite
