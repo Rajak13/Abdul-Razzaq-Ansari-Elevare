@@ -2,20 +2,20 @@ import express, { Request, Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import * as noteShareService from '../services/noteShareService';
 
-const router = express.Router();
-
 /**
- * Create a share link for a note (authenticated)
- * POST /api/notes/:noteId/share
+ * Routes mounted at /api/notes/:noteId
+ * - POST  /api/notes/:noteId/share
+ * - GET   /api/notes/:noteId/shares
  */
-router.post('/:noteId/share', authenticate, async (req: Request, res: Response): Promise<void> => {
+export const noteShareNoteRoutes = express.Router({ mergeParams: true });
+
+noteShareNoteRoutes.post('/share', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const { noteId } = req.params;
     const userId = req.user!.userId;
     const { expiresInDays } = req.body;
 
     const share = await noteShareService.createNoteShare(noteId, userId, expiresInDays);
-
     res.status(201).json({ success: true, data: share });
   } catch (error) {
     console.error('Error creating note share:', error);
@@ -26,17 +26,12 @@ router.post('/:noteId/share', authenticate, async (req: Request, res: Response):
   }
 });
 
-/**
- * Get all shares for a note (authenticated)
- * GET /api/notes/:noteId/shares
- */
-router.get('/:noteId/shares', authenticate, async (req: Request, res: Response): Promise<void> => {
+noteShareNoteRoutes.get('/shares', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const { noteId } = req.params;
     const userId = req.user!.userId;
 
     const shares = await noteShareService.getNoteShares(noteId, userId);
-
     res.json({ success: true, data: shares });
   } catch (error) {
     console.error('Error fetching note shares:', error);
@@ -45,21 +40,24 @@ router.get('/:noteId/shares', authenticate, async (req: Request, res: Response):
 });
 
 /**
- * Deactivate a share link (authenticated)
- * PATCH /api/shares/:shareId/deactivate
+ * Routes mounted at /api
+ * - PATCH  /api/shares/:shareId/deactivate
+ * - DELETE /api/shares/:shareId
+ * - GET    /api/shares/stats
+ * - GET    /api/shared/:token  (public)
  */
-router.patch('/shares/:shareId/deactivate', authenticate, async (req: Request, res: Response): Promise<void> => {
+export const noteShareGlobalRoutes = express.Router();
+
+noteShareGlobalRoutes.patch('/shares/:shareId/deactivate', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const { shareId } = req.params;
     const userId = req.user!.userId;
 
     const success = await noteShareService.deactivateShare(shareId, userId);
-
     if (!success) {
       res.status(404).json({ success: false, message: 'Share link not found' });
       return;
     }
-
     res.json({ success: true, message: 'Share link deactivated' });
   } catch (error) {
     console.error('Error deactivating share:', error);
@@ -67,22 +65,16 @@ router.patch('/shares/:shareId/deactivate', authenticate, async (req: Request, r
   }
 });
 
-/**
- * Delete a share link (authenticated)
- * DELETE /api/shares/:shareId
- */
-router.delete('/shares/:shareId', authenticate, async (req: Request, res: Response): Promise<void> => {
+noteShareGlobalRoutes.delete('/shares/:shareId', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const { shareId } = req.params;
     const userId = req.user!.userId;
 
     const success = await noteShareService.deleteShare(shareId, userId);
-
     if (!success) {
       res.status(404).json({ success: false, message: 'Share link not found' });
       return;
     }
-
     res.json({ success: true, message: 'Share link deleted' });
   } catch (error) {
     console.error('Error deleting share:', error);
@@ -90,16 +82,10 @@ router.delete('/shares/:shareId', authenticate, async (req: Request, res: Respon
   }
 });
 
-/**
- * Get share statistics (authenticated)
- * GET /api/shares/stats
- */
-router.get('/shares/stats', authenticate, async (req: Request, res: Response): Promise<void> => {
+noteShareGlobalRoutes.get('/shares/stats', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
-
     const stats = await noteShareService.getShareStats(userId);
-
     res.json({ success: true, data: stats });
   } catch (error) {
     console.error('Error fetching share stats:', error);
@@ -107,29 +93,19 @@ router.get('/shares/stats', authenticate, async (req: Request, res: Response): P
   }
 });
 
-/**
- * Get a shared note by token (PUBLIC — no auth required)
- * GET /api/shared/:token
- */
-router.get('/shared/:token', async (req: Request, res: Response): Promise<void> => {
+// PUBLIC — no auth required
+noteShareGlobalRoutes.get('/shared/:token', async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
-
     const note = await noteShareService.getSharedNote(token);
 
     if (!note) {
-      res.status(404).json({
-        success: false,
-        message: 'Shared note not found or link has expired',
-      });
+      res.status(404).json({ success: false, message: 'Shared note not found or link has expired' });
       return;
     }
-
     res.json({ success: true, data: note });
   } catch (error) {
     console.error('Error fetching shared note:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch shared note' });
   }
 });
-
-export default router;
