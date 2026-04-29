@@ -351,7 +351,7 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   locale: string = 'en'
 ): Promise<void> {
-  const resetUrl = `${config.frontendUrl}/reset-password?token=${resetToken}`;
+  const resetUrl = `${config.frontendUrl}/${locale}/reset-password?token=${resetToken}`;
 
   const translations: Record<string, any> = {
     en: {
@@ -535,7 +535,7 @@ export async function sendSuspensionEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const appealUrl = `${config.frontendUrl}/suspension-appeal`;
+  const appealUrl = `${config.frontendUrl}/${locale}/suspension-appeal`;
 
   const expiresHtml = expiresAt && suspensionType === 'temporary' ? `
     <tr>
@@ -693,7 +693,7 @@ export async function sendWarningEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const loginUrl = `${config.frontendUrl}/login`;
+  const loginUrl = `${config.frontendUrl}/${locale}/login`;
 
   const content = `
     ${getHeader('⚠️')}
@@ -814,7 +814,7 @@ export async function sendUnsuspensionEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const loginUrl = `${config.frontendUrl}/login`;
+  const loginUrl = `${config.frontendUrl}/${locale}/login`;
 
   const content = `
     ${getHeader('✅')}
@@ -967,7 +967,7 @@ export async function sendReportSubmittedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const trackUrl = `${config.frontendUrl}/reports/${reportId}`;
+  const trackUrl = `${config.frontendUrl}/${locale}/reports/${reportId}`;
 
   const content = `
     ${getHeader('📋')}
@@ -1102,7 +1102,7 @@ export async function sendReportUnderReviewEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const trackUrl = `${config.frontendUrl}/reports/${reportId}`;
+  const trackUrl = `${config.frontendUrl}/${locale}/reports/${reportId}`;
 
   const content = `
     ${getHeader('🔍')}
@@ -1227,7 +1227,7 @@ export async function sendReportResolvedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const viewUrl = `${config.frontendUrl}/reports/${reportId}`;
+  const viewUrl = `${config.frontendUrl}/${locale}/reports/${reportId}`;
 
   const content = `
     ${getHeader('✅')}
@@ -1358,7 +1358,7 @@ export async function sendReportDismissedEmail(
   };
 
   const t = translations[locale] || translations['en'];
-  const appealUrl = `${config.frontendUrl}/reports/${reportId}/appeal`;
+  const appealUrl = `${config.frontendUrl}/${locale}/reports/${reportId}/appeal`;
 
   const content = `
     ${getHeader('ℹ️')}

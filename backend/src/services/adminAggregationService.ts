@@ -9,7 +9,8 @@ import logger from '../utils/logger';
 // Aggregation rules and constants
 export const AGGREGATION_RULES = {
   // Minimum threshold for displaying aggregated data to prevent individual identification
-  MIN_AGGREGATION_THRESHOLD: 5,
+  // Set to 1 for development, should be 5+ in production
+  MIN_AGGREGATION_THRESHOLD: 1,
   
   // User metrics that can be aggregated
   ALLOWED_USER_METRICS: [

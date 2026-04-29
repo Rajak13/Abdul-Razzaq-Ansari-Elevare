@@ -25,7 +25,7 @@ export function MaintenanceNotification() {
 
     // Connect to socket for maintenance events (no auth required for these events)
     const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
-      transports: ['websocket', 'polling'],
+      transports: process.env.NODE_ENV === 'production' ? ['polling'] : ['websocket', 'polling'],
       auth: {
         token: localStorage.getItem('auth_token') || ''
       }

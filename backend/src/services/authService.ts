@@ -127,6 +127,11 @@ export async function login(
 
   const userWithPassword = result.rows[0];
 
+  // Check if user has a password (not OAuth-only user)
+  if (!userWithPassword.password_hash) {
+    throw new Error('This account uses social login. Please sign in with Google or Facebook.');
+  }
+
   // Verify password
   const isValidPassword = await comparePassword(
     password,

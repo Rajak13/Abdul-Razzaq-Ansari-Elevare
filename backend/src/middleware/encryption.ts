@@ -169,8 +169,8 @@ export function decryptSessionToken(encryptedToken: string): string {
  * Middleware to enforce HTTPS/TLS
  */
 export const enforceHttps = (_req: Request, _res: Response, next: NextFunction) => {
-  // Skip in development
-  if (process.env.NODE_ENV === 'development') {
+  // Skip in development and test
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     return next();
   }
   

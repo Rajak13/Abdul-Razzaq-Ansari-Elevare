@@ -34,7 +34,11 @@ export function GroupChat({ groupId }: GroupChatProps) {
   const sendMessageMutation = useSendMessage();
 
   const initialMessages = messagesData?.messages || [];
-  const allMessages = [...initialMessages, ...realtimeMessages];
+  const initialIds = new Set(initialMessages.map((m: any) => m.id));
+  const allMessages = [
+    ...initialMessages,
+    ...realtimeMessages.filter((m) => !initialIds.has(m.id)),
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

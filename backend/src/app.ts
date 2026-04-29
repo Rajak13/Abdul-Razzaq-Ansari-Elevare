@@ -145,11 +145,13 @@ import adminRoutes from './routes/adminRoutes';
 import suspensionAppealRoutes from './routes/suspensionAppealRoutes';
 import reportRoutes from './routes/reportRoutes';
 import livekitRoutes from './routes/livekitRoutes';
+import noteShareRoutes from './routes/noteShareRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/task-categories', categoryRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api', noteShareRoutes); // Share routes (includes public endpoint)
 app.use('/api/note-folders', noteFolderRoutes);
 app.use('/api/groups', studyGroupRoutes);
 app.use('/api/notifications', notificationRoutes);

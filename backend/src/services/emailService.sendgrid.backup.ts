@@ -318,7 +318,7 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   locale: string = 'en'
 ): Promise<void> {
-  const resetUrl = `${config.corsOrigin}/reset-password?token=${resetToken}`;
+  const resetUrl = `${config.corsOrigin}/${locale}/reset-password?token=${resetToken}`;
 
   const translations: Record<string, any> = {
     en: {

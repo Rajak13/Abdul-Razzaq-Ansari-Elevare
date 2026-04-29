@@ -13,6 +13,10 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'js', 'json'],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  moduleNameMapper: {
+    '^otplib$': '<rootDir>/src/__tests__/__mocks__/otplib.ts',
+    '^otplib/(.*)$': '<rootDir>/src/__tests__/__mocks__/otplib.ts',
+  },
   reporters: [
     'default',
     [

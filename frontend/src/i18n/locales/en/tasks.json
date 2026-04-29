@@ -79,6 +79,7 @@
     "delete": "Delete Task",
     "duplicate": "Duplicate Task",
     "viewDetails": "View Details",
+    "cancel": "Cancel",
     "confirmDelete": "Are you sure you want to delete this task?",
     "bulkActions": "Bulk Actions",
     "selectAll": "Select all",

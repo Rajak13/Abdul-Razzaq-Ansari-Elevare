@@ -351,12 +351,12 @@ function TaskItem({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('actions.cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogCancel>{t('actions.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => { onDelete?.(task.id); setShowDeleteConfirm(false); }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {t('actions.delete') || 'Delete'}
+              {t('actions.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -503,18 +503,18 @@ function TaskItem({
                   {onView && (
                     <DropdownMenuItem onClick={() => onView(task)}>
                       <Eye className="mr-2 h-4 w-4" />
-                      View Details
+                      {t('actions.viewDetails')}
                     </DropdownMenuItem>
                   )}
                   {onEdit && (
                     <DropdownMenuItem onClick={() => onEdit(task)}>
                       <Pencil className="mr-2 h-4 w-4" />
-                      Edit Task
+                      {t('actions.edit')}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={handleToggleComplete}>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
-                    {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+                    {isCompleted ? t('actions.markIncomplete') : t('actions.markComplete')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -522,7 +522,7 @@ function TaskItem({
                     className="text-red-600 focus:text-red-600"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Task
+                    {t('actions.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -540,12 +540,12 @@ function TaskItem({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t('actions.cancel') || 'Cancel'}</AlertDialogCancel>
+          <AlertDialogCancel>{t('actions.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => { onDelete?.(task.id); setShowDeleteConfirm(false); }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {t('actions.delete') || 'Delete'}
+            {t('actions.delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

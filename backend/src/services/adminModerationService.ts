@@ -589,23 +589,8 @@ export class AdminModerationService {
         }
       }
 
-      // Create audit log entry
-      logger.info('[Moderation] Creating audit log entry');
-      await this.auditService.createAuditLog(
-        moderatorId,
-        'moderation_action',
-        ipAddress,
-        userAgent,
-        'abuse_report',
-        reportId,
-        {
-          action: actionData.action,
-          reported_user_id: report.reported_user_id,
-          content_type: report.content_type,
-          reason: actionData.reason
-        }
-      );
-      logger.info('[Moderation] Audit log entry created');
+      // Note: Audit log is created by the auditAdminAction middleware
+      // No need to create it here to avoid duplicates
 
       // Send email notification to reporter
       logger.info('[Moderation] Fetching reporter information', {

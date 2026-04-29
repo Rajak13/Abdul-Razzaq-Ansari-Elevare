@@ -29,7 +29,20 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '50mb' as any
     },
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'date-fns'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'date-fns',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@tanstack/react-query',
+      'chart.js',
+      'react-chartjs-2',
+    ],
     preloadEntriesOnStart: false,
     serverSourceMaps: false,
   },

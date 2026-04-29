@@ -40,7 +40,7 @@ export function CleanAdminDashboard({ metrics, recentUsers = [], recentActivity 
     };
   });
 
-  const maxValue = Math.max(...monthlyData.map(d => d.value));
+  const maxValue = Math.max(...monthlyData.map(d => d.value), 1); // Ensure at least 1 to avoid division by zero
 
   return (
     <div className="p-6 space-y-6">
@@ -116,17 +116,25 @@ export function CleanAdminDashboard({ metrics, recentUsers = [], recentActivity 
                   stroke="hsl(142, 71%, 45%)" 
                   strokeWidth="3"
                 />
-                {monthlyData.map((d, i) => d.isCurrent && (
-                  <circle 
-                    key={i}
-                    cx={(i / 11) * 400} 
-                    cy={100 - (d.value / maxValue * 80)} 
-                    r="4" 
-                    fill="hsl(142, 71%, 45%)" 
-                    stroke="white" 
-                    strokeWidth="2"
-                  />
-                ))}
+                {monthlyData.map((d, i) => {
+                  const cx = (i / 11) * 400;
+                  const cy = 100 - (d.value / maxValue * 80);
+                  // Only render circle if values are valid numbers
+                  if (d.isCurrent && !isNaN(cx) && !isNaN(cy)) {
+                    return (
+                      <circle 
+                        key={i}
+                        cx={cx} 
+                        cy={cy} 
+                        r="4" 
+                        fill="hsl(142, 71%, 45%)" 
+                        stroke="white" 
+                        strokeWidth="2"
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </svg>
             </div>
           </div>

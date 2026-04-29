@@ -79,6 +79,7 @@
     "delete": "작업 삭제",
     "duplicate": "작업 복제",
     "viewDetails": "자세히 보기",
+    "cancel": "취소",
     "confirmDelete": "이 작업을 삭제하시겠습니까?",
     "bulkActions": "일괄 작업",
     "selectAll": "모두 선택",

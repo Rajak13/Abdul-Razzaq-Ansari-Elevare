@@ -18,7 +18,10 @@ const studyGroupSchema = z.object({
   name: z.string().min(1, 'Group name is required').max(255, 'Group name is too long'),
   description: z.string().max(1000, 'Description is too long').optional(),
   is_private: z.boolean().default(false),
-  max_members: z.number().min(2, 'Minimum 2 members').max(1000, 'Maximum 1000 members').optional(),
+  max_members: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : Number(val)),
+    z.number().min(2, 'Minimum 2 members').max(1000, 'Maximum 1000 members').optional()
+  ),
 });
 
 type StudyGroupFormData = z.infer<typeof studyGroupSchema>;
@@ -121,7 +124,7 @@ export function StudyGroupForm({ group, onSuccess, onCancel }: StudyGroupFormPro
           placeholder={t('maxMembersPlaceholder')}
           min={2}
           max={1000}
-          {...form.register('max_members', { valueAsNumber: true })}
+          {...form.register('max_members')}
         />
         <p className="text-sm text-muted-foreground">
           {t('maxMembersPlaceholder')}

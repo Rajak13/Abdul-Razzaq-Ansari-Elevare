@@ -40,13 +40,13 @@ const pool = new Pool(
 
 async function runMigrations() {
   try {
-    console.log('🔄 Starting database migrations...');
-    console.log(`📊 Database: ${parsedDbUrl?.database || process.env.DB_NAME}`);
-    console.log(`🌐 Host: ${parsedDbUrl?.host || process.env.DB_HOST}`);
+    console.log('Starting database migrations...');
+    console.log(`Database: ${parsedDbUrl?.database || process.env.DB_NAME}`);
+    console.log(`Host: ${parsedDbUrl?.host || process.env.DB_HOST}`);
 
     // Test connection
     await pool.query('SELECT NOW()');
-    console.log('✅ Database connection successful');
+    console.log('Database connection successful');
 
     // Get migrations directory - check multiple locations
     let migrationsDir = path.join(__dirname, '../migrations');
@@ -67,7 +67,7 @@ async function runMigrations() {
     }
 
     if (!fs.existsSync(migrationsDir)) {
-      console.error('❌ Migrations directory not found!');
+      console.error('Migrations directory not found!');
       console.error('Tried locations:');
       console.error('  - ' + path.join(__dirname, '../migrations'));
       console.error('  - ' + path.join(__dirname, 'dist/db/migrations'));
@@ -85,7 +85,7 @@ async function runMigrations() {
       .sort();
 
     if (migrationFiles.length === 0) {
-      console.log('⚠️  No migration files found');
+      console.log('No migration files found');
       return;
     }
 
@@ -100,13 +100,13 @@ async function runMigrations() {
 
       try {
         await pool.query(sql);
-        console.log(`✅ Migration ${file} completed successfully`);
+        console.log(`Migration ${file} completed successfully`);
       } catch (error) {
         // Check if error is about table already existing
         if (error.code === '42P07') {
-          console.log(`⏭️  Migration ${file} skipped (already applied)`);
+          console.log(` Migration ${file} skipped (already applied)`);
         } else {
-          console.error(`❌ Migration ${file} failed:`, error.message);
+          console.error(` Migration ${file} failed:`, error.message);
           // Continue with other migrations instead of stopping
         }
       }
