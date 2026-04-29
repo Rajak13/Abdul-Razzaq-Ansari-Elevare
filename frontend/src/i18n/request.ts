@@ -16,6 +16,17 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale,
     messages,
     timeZone: 'UTC',
-    now: new Date()
+    now: new Date(),
+    onError(error) {
+      // Suppress MISSING_MESSAGE errors in production to avoid console noise
+      if (error.code === 'MISSING_MESSAGE' && process.env.NODE_ENV === 'production') {
+        return;
+      }
+      console.error(error);
+    },
+    getMessageFallback({ namespace, key }) {
+      // Return the last segment of the key as a readable fallback
+      return key.split('.').pop() ?? key;
+    }
   };
 });

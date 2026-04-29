@@ -91,18 +91,6 @@ export default async function LocaleLayout({
         <NextIntlClientProvider
           locale={locale}
           messages={messages}
-          onError={(error) => {
-            // Suppress MISSING_MESSAGE errors in production to avoid console noise
-            // These can occur during hydration before the provider fully initializes
-            if (error.code === 'MISSING_MESSAGE' && process.env.NODE_ENV === 'production') {
-              return;
-            }
-            console.error(error);
-          }}
-          getMessageFallback={({ namespace, key }) => {
-            // Return the last segment of the key as a readable fallback
-            return key.split('.').pop() ?? key;
-          }}
         >
           <QueryProvider>
             <ThemeProvider>
