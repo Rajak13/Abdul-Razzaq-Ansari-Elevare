@@ -429,7 +429,7 @@ export function buildPdfHtml(
       ${summaryHtml}
       <div class="content">${content}</div>
     </div>
-    <div class="footer">Exported from StudySync</div>
+    <div class="footer">Exported from Elevare</div>
   </div>
 </body>
 </html>`;

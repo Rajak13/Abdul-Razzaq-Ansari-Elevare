@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import SharedNoteClient from './shared-note-client';
+import SharedNoteClient from '@/app/[locale]/shared/[token]/shared-note-client';
 
 // This page is intentionally outside the (authenticated) group — no login required
 export const dynamic = 'force-dynamic';
@@ -18,16 +18,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (res.ok) {
       const data = await res.json();
       return {
-        title: `${data.data?.title || 'Shared Note'} — StudySync`,
-        description: data.data?.summary || 'View this shared note on StudySync.',
+        title: `${data.data?.title || 'Shared Note'} — Elevare`,
+        description: data.data?.summary || 'View this shared note on Elevare.',
       };
     }
   } catch {
     // fall through to defaults
   }
   return {
-    title: 'Shared Note — StudySync',
-    description: 'View this shared note on StudySync.',
+    title: 'Shared Note — Elevare',
+    description: 'View this shared note on Elevare.',
   };
 }
 

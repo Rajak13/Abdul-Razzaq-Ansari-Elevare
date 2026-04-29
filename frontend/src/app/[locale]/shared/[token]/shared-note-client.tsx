@@ -97,7 +97,7 @@ export default function SharedNoteClient({ token }: Props) {
             href="/"
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:opacity-90 transition-opacity"
           >
-            Go to StudySync
+            Go to Elevare
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
@@ -115,7 +115,7 @@ export default function SharedNoteClient({ token }: Props) {
               <FileText className="h-4 w-4 text-white dark:text-slate-900" />
             </div>
             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              StudySync
+              Elevare
             </span>
             <span className="hidden sm:inline text-xs text-slate-400 dark:text-slate-500">
               · Shared note
@@ -219,7 +219,7 @@ export default function SharedNoteClient({ token }: Props) {
             Want to create your own notes?
           </p>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            StudySync helps you write, organise, and share notes with AI-powered summaries.
+            Elevare helps you write, organise, and share notes with AI-powered summaries.
           </p>
           <a
             href="/register"
