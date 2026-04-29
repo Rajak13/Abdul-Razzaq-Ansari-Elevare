@@ -1,15 +1,18 @@
 import { Metadata } from 'next';
 import SharedNoteClient from './shared-note-client';
 
+// This page is intentionally outside the (authenticated) group — no login required
+export const dynamic = 'force-dynamic';
+
 interface Props {
-  params: { token: string };
+  params: Promise<{ locale: string; token: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // Fetch note title server-side for SEO
+  const { token } = await params;
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-    const res = await fetch(`${API_URL}/api/shared/${params.token}`, {
+    const res = await fetch(`${API_URL}/api/shared/${token}`, {
       next: { revalidate: 60 },
     });
     if (res.ok) {
@@ -28,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function SharedNotePage({ params }: Props) {
-  return <SharedNoteClient token={params.token} />;
+export default async function SharedNotePage({ params }: Props) {
+  const { token } = await params;
+  return <SharedNoteClient token={token} />;
 }

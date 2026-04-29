@@ -71,13 +71,21 @@ export const noteShareService = {
   },
 
   /**
-   * Build the full public share URL for a token
+   * Build the full public share URL for a token.
+   * Includes the current locale prefix (e.g. /en/shared/TOKEN).
    */
   buildShareUrl(token: string): string {
     const base =
       typeof window !== 'undefined'
         ? window.location.origin
         : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return `${base}/shared/${token}`;
+
+    // Pick up the current locale from the URL path (e.g. /en/notes/...)
+    const locale =
+      typeof window !== 'undefined'
+        ? window.location.pathname.split('/')[1] || 'en'
+        : 'en';
+
+    return `${base}/${locale}/shared/${token}`;
   },
 };
