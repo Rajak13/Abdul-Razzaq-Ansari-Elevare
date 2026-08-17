@@ -2,25 +2,24 @@ import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 
 /**
- * Comprehensive security headers middleware for admin dashboard
- * Implements OWASP security best practices
+ * Comprehensive security headers middleware for API & Admin dashboard
+ * Implements OWASP security best practices while allowing cross-origin CORS requests
  */
 
-// Content Security Policy configuration
+// Content Security Policy configuration (Cross-origin compatible)
 export const contentSecurityPolicy = helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'"], // Note: Consider removing unsafe-inline in production
-    styleSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", 'data:', 'https:'],
-    connectSrc: ["'self'"],
-    fontSrc: ["'self'", 'data:'],
+    defaultSrc: ["'self'", '*'],
+    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", '*'],
+    styleSrc: ["'self'", "'unsafe-inline'", '*'],
+    imgSrc: ["'self'", 'data:', 'blob:', 'https:', '*'],
+    connectSrc: ["'self'", 'https:', 'wss:', 'http:', 'ws:', '*'],
+    fontSrc: ["'self'", 'data:', 'https:', '*'],
     objectSrc: ["'none'"],
-    mediaSrc: ["'self'"],
-    frameSrc: ["'none'"],
+    mediaSrc: ["'self'", 'https:', 'blob:', '*'],
+    frameSrc: ["'self'", 'https:', '*'],
     baseUri: ["'self'"],
-    formAction: ["'self'"],
-    frameAncestors: ["'none'"],
+    formAction: ["'self'", 'https:', '*'],
     upgradeInsecureRequests: [],
   },
 });
@@ -32,15 +31,10 @@ export const strictTransportSecurity = helmet.hsts({
   preload: true,
 });
 
-// Prevent clickjacking attacks
-export const xFrameOptions = helmet.frameguard({
-  action: 'deny',
-});
-
 // Prevent MIME type sniffing
 export const xContentTypeOptions = helmet.noSniff();
 
-// XSS Protection (legacy but still useful)
+// XSS Protection
 export const xssFilter = helmet.xssFilter();
 
 // Referrer Policy
@@ -48,11 +42,11 @@ export const referrerPolicy = helmet.referrerPolicy({
   policy: 'strict-origin-when-cross-origin',
 });
 
-// Permissions Policy (formerly Feature Policy)
+// Permissions Policy
 export const permissionsPolicy = (_req: Request, res: Response, next: NextFunction) => {
   res.setHeader(
     'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+    'geolocation=(), microphone=(self), camera=(self), payment=()'
   );
   next();
 };
@@ -65,65 +59,33 @@ export const dnsPrefetchControl = helmet.dnsPrefetchControl({
   allow: false,
 });
 
-// Cross-Origin-Embedder-Policy
-export const crossOriginEmbedderPolicy = helmet.crossOriginEmbedderPolicy({
-  policy: 'require-corp',
-});
-
-// Cross-Origin-Opener-Policy
-export const crossOriginOpenerPolicy = helmet.crossOriginOpenerPolicy({
-  policy: 'same-origin',
-});
-
 // Cross-Origin-Resource-Policy - Allow cross-origin for API access
 export const crossOriginResourcePolicy = helmet.crossOriginResourcePolicy({
   policy: 'cross-origin',
 });
 
-// Combined security headers middleware
+// Combined security headers middleware (CORS friendly)
 export const securityHeaders = [
   contentSecurityPolicy,
   strictTransportSecurity,
-  xFrameOptions,
   xContentTypeOptions,
   xssFilter,
   referrerPolicy,
   permissionsPolicy,
   hidePoweredBy,
   dnsPrefetchControl,
-  crossOriginEmbedderPolicy,
-  crossOriginOpenerPolicy,
   crossOriginResourcePolicy,
 ];
 
-// Admin-specific security headers with stricter policies
+// Admin-specific security headers
 export const adminSecurityHeaders = [
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'none'"],
-      frameSrc: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"],
-      frameAncestors: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  }),
+  contentSecurityPolicy,
   strictTransportSecurity,
-  xFrameOptions,
   xContentTypeOptions,
   xssFilter,
-  helmet.referrerPolicy({ policy: 'no-referrer' }),
+  referrerPolicy,
   permissionsPolicy,
   hidePoweredBy,
   dnsPrefetchControl,
-  helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }),
-  helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }),
-  helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
+  crossOriginResourcePolicy,
 ];

@@ -20,9 +20,13 @@ export class SocketService {
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: config.corsOrigin, // Use the same CORS config as main app
-        methods: ["GET", "POST"],
-        credentials: true
+        origin: (requestOrigin: string | undefined, callback: (err: Error | null, allow?: boolean | string) => void) => {
+          if (!requestOrigin) return callback(null, true);
+          return callback(null, requestOrigin);
+        },
+        methods: ["GET", "POST", "OPTIONS"],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Cookie"],
       },
       // Production-ready settings
       transports: ['websocket', 'polling'],
