@@ -108,8 +108,10 @@ export function useNotifications() {
 
   // Handle real-time notifications
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token || !isAuthenticated) return;
+    // Only connect if user is authenticated and auth loading is complete
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
 
     // Connect to socket if not already connected
     if (!socketService.isConnected()) {

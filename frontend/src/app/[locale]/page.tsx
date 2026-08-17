@@ -684,18 +684,26 @@ export default function Home() {
             <div>
               <h3 className="font-semibold text-lg mb-4">{t('footer.legal.title')}</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.privacy')}</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.terms')}</Link></li>
-                <li><Link href="/register" className="hover:text-primary transition-colors">{t('footer.legal.cookies')}</Link></li>
+                <li><Link href="/privacy" className="hover:text-primary transition-colors">{t('footer.legal.privacy')}</Link></li>
+                <li><Link href="/terms" className="hover:text-primary transition-colors">{t('footer.legal.terms')}</Link></li>
+                <li><Link href="/cookies" className="hover:text-primary transition-colors">{t('footer.legal.cookies')}</Link></li>
+                <li><Link href="/dmca" className="hover:text-primary transition-colors">DMCA Policy</Link></li>
+                <li><Link href="/academic-integrity" className="hover:text-primary transition-colors">Academic Integrity</Link></li>
               </ul>
             </div>
           </div>
 
           {/* Bottom Bar */}
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
-              {t('footer.copyright')}
-            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+              <p className="text-gray-400 text-sm">
+                {t('footer.copyright')}
+              </p>
+              <span className="hidden sm:inline text-gray-600">•</span>
+              <p className="text-sm text-gray-300 flex items-center gap-1.5">
+                Built by <a href="mailto:nantio.official@gmail.com" className="text-primary font-bold hover:underline">Nantio</a>
+              </p>
+            </div>
             <div className="flex gap-4">
               <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

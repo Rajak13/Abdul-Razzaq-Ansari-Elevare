@@ -110,7 +110,15 @@ if (config.nodeEnv === 'development') {
   );
 }
 
-// Health check endpoint
+// Root and Health check endpoints
+app.all('/', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'elevare-backend',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'ok',

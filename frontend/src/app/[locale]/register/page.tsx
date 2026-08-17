@@ -19,6 +19,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    ageConsent: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -71,6 +72,10 @@ export default function RegisterPage() {
       newErrors.confirmPassword = tValidation('confirmPasswordRequired');
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = tValidation('passwordMismatch');
+    }
+
+    if (!formData.ageConsent) {
+      newErrors.ageConsent = 'You must be at least 13 years old and accept the Terms of Service to register.';
     }
 
     setErrors(newErrors);
@@ -256,6 +261,34 @@ export default function RegisterPage() {
                 </div>
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                )}
+              </div>
+
+              {/* 13+ Age Certification Checkbox */}
+              <div>
+                <div className="flex items-start gap-3 pt-1">
+                  <input
+                    id="ageConsent"
+                    name="ageConsent"
+                    type="checkbox"
+                    checked={formData.ageConsent}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, ageConsent: e.target.checked }));
+                      if (errors.ageConsent) {
+                        setErrors((prev) => ({ ...prev, ageConsent: '' }));
+                      }
+                    }}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer accent-primary"
+                  />
+                  <label htmlFor="ageConsent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer select-none">
+                    I certify that I am at least <strong>13 years of age</strong> and agree to Elevare&apos;s{' '}
+                    <Link href="/terms" className="text-primary font-semibold hover:underline">Terms of Service</Link>,{' '}
+                    <Link href="/privacy" className="text-primary font-semibold hover:underline">Privacy Policy</Link>, and{' '}
+                    <Link href="/cookies" className="text-primary font-semibold hover:underline">Cookie Policy</Link>.
+                  </label>
+                </div>
+                {errors.ageConsent && (
+                  <p className="mt-1 text-xs text-red-600 font-medium">{errors.ageConsent}</p>
                 )}
               </div>
 

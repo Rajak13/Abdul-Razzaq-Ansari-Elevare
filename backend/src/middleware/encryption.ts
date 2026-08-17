@@ -173,6 +173,17 @@ export const enforceHttps = (_req: Request, _res: Response, next: NextFunction) 
   if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     return next();
   }
+
+  // Skip for internal health check endpoints or loopback/proxy IPs
+  if (
+    _req.path === '/' ||
+    _req.path === '/health' ||
+    _req.path === '/api/system/maintenance-status' ||
+    _req.ip === '::1' ||
+    _req.ip === '127.0.0.1'
+  ) {
+    return next();
+  }
   
   // Check if request is secure
   const isSecure = _req.secure || _req.headers['x-forwarded-proto'] === 'https';

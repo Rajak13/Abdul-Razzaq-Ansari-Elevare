@@ -49,7 +49,7 @@ function playRingtone(stopRef: React.MutableRefObject<(() => void) | null>) {
 export function VideoCallNotificationProvider({ children }: { children: React.ReactNode }) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const stopRingtoneRef = useRef<(() => void) | null>(null);
   // Keep a stable ref to user.id so the handler closure doesn't go stale
   const userIdRef = useRef<string | undefined>(undefined);
@@ -63,6 +63,11 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
   }, []);
 
   useEffect(() => {
+    // Don't set up listeners if not authenticated
+    if (!isAuthenticated || isLoading) {
+      return;
+    }
+
     const handleCallStarted = (data: any) => {
       if (!userIdRef.current) return;
       if (data.startedBy?.id === userIdRef.current) return;
@@ -141,9 +146,9 @@ export function VideoCallNotificationProvider({ children }: { children: React.Re
       }
       stopRingtone();
     };
-  // Run once on mount — handlers use refs for fresh values
+  // Re-run when authentication state changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stopRingtone]);
+  }, [stopRingtone, isAuthenticated, isLoading]);
 
   // Auto-dismiss after 30 seconds
   useEffect(() => {

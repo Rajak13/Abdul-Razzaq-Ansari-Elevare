@@ -27,6 +27,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_suspension_appeals_updated_at ON suspension_appeals;
 CREATE TRIGGER update_suspension_appeals_updated_at
   BEFORE UPDATE ON suspension_appeals
   FOR EACH ROW
