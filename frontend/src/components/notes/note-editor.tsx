@@ -15,6 +15,7 @@ import { useNoteTemplates } from './note-templates';
 import { SummaryGenerator } from './summary-generator';
 import { SummaryDisplay } from './summary-display';
 import { RichTextEditor } from './rich-text-editor';
+import { MarkdownRenderer } from './markdown-renderer';
 import { Note, CreateNoteData } from '@/types/note';
 import { Eye, EyeOff, Folder, Hash, Maximize, Minimize, Plus, Save, X } from 'lucide-react';
 import { useRouter } from '@/navigation';
@@ -518,22 +519,8 @@ export function NoteEditor({
         <CardContent className="flex-1 overflow-hidden bg-white p-0 dark:bg-gray-800">
           {isPreviewMode ? (
             <div className="h-full overflow-auto p-4">
-              <div className="prose prose-gray max-w-none dark:prose-invert">
-                <div
-                  className="whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{
-                    __html: content
-                      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                      .replace(/^\* (.*$)/gim, '<li>$1</li>')
-                      .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                      .replace(/\n/g, '<br>')
-                  }}
-                />
-              </div>
+              {/* ✅ SECURITY: Use MarkdownRenderer with DOMPurify sanitization */}
+              <MarkdownRenderer content={content} />
             </div>
           ) : (
             <div className="flex h-full flex-col lg:flex-row overflow-hidden">

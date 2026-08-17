@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import passport from './config/passport';
 import config from './config';
@@ -18,6 +19,9 @@ const app: Application = express();
 
 // Trust proxy - required for Render, Heroku, and other platforms behind reverse proxies
 app.set('trust proxy', 1);
+
+// ✅ SECURITY: Cookie parser middleware (required for HttpOnly cookies)
+app.use(cookieParser());
 
 // CORS configuration (must be before other middleware)
 app.use(

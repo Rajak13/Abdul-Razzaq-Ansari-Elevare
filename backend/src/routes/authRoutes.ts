@@ -27,6 +27,9 @@ router.post(
 
 router.post('/login', authLimiter, loginValidation, authController.login);
 
+// ✅ SECURITY: Logout endpoint to clear HttpOnly cookie
+router.post('/logout', authenticate, authController.logout);
+
 router.post(
   '/verify-otp',
   authLimiter,

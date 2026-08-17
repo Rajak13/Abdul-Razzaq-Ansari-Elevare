@@ -6,6 +6,7 @@ import logger from '../utils/logger';
 
 /**
  * Middleware to authenticate JWT tokens
+ * ✅ SECURITY: Updated to read token from HttpOnly cookies
  */
 export function authenticate(
   req: Request,
@@ -13,10 +14,18 @@ export function authenticate(
   next: NextFunction
 ): void {
   try {
-    // Get token from Authorization header
-    const authHeader = req.headers.authorization;
+    // ✅ SECURITY: Get token from HttpOnly cookie first (primary method)
+    let token = req.cookies?.auth_token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Fallback to Authorization header for backward compatibility and API clients
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7); // Remove 'Bearer ' prefix
+      }
+    }
+
+    if (!token) {
       res.status(401).json({
         error: {
           code: 'UNAUTHORIZED',
@@ -26,8 +35,6 @@ export function authenticate(
       });
       return;
     }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Verify token
     const payload = verifyToken(token);

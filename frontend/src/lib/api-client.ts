@@ -3,11 +3,13 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 // Create axios instance
+// ✅ SECURITY: Enable credentials to send HttpOnly cookies
 const apiClient: AxiosInstance = axios.create({
   baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // ✅ SECURITY: Send cookies with every request
   timeout: 180000, // 180 seconds (3 minutes) to handle geographic latency
 });
 
@@ -31,21 +33,10 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Request interceptor - Add auth token to requests
-apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('auth_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
-);
+// ❌ REMOVED: Request interceptor that added Authorization header from localStorage
+// Tokens are now sent automatically as HttpOnly cookies
 
-// Response interceptor - Handle errors and token refresh
+// Response interceptor - Handle errors
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -64,35 +55,15 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Handle 401 Unauthorized - Token expired
+    // Handle 401 Unauthorized - Session expired
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      try {
-        // Try to refresh token
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          const response = await axios.post(`${API_URL}/api/auth/refresh`, {
-            refreshToken,
-          });
-
-          const { token } = response.data;
-          localStorage.setItem('auth_token', token);
-
-          // Retry original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          return apiClient(originalRequest);
-        }
-      } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token');
-        const locale = window.location.pathname.split('/')[1] || 'en';
-        window.location.href = `/${locale}/login`;
-        return Promise.reject(refreshError);
-      }
+      // ✅ SECURITY: Cookies are handled by the browser, just redirect to login
+      // No need to manually refresh tokens - backend manages cookie lifecycle
+      const locale = window.location.pathname.split('/')[1] || 'en';
+      window.location.href = `/${locale}/login`;
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

@@ -84,6 +84,7 @@ export async function register(req: Request, res: Response): Promise<void> {
 /**
  * Login a user
  * POST /api/auth/login
+ * ✅ SECURITY: Updated to use HttpOnly cookies instead of localStorage
  */
 export async function login(req: Request, res: Response): Promise<void> {
   try {
@@ -106,10 +107,20 @@ export async function login(req: Request, res: Response): Promise<void> {
     // Login user
     const { user, token } = await authService.login({ email, password });
 
+    // ✅ SECURITY: Set token as HttpOnly cookie instead of sending in response body
+    res.cookie('auth_token', token, {
+      httpOnly: true,  // ✅ Not accessible via JavaScript (prevents XSS token theft)
+      secure: process.env.NODE_ENV === 'production', // ✅ HTTPS only in production
+      sameSite: 'strict', // ✅ CSRF protection
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/',
+    });
+
+    // ✅ SECURITY: Don't send token in response body
     res.status(200).json({
       message: 'Login successful',
       user,
-      token,
+      // ❌ REMOVED: token field
     });
   } catch (error: any) {
     logger.error('Login error', { error: error.message });
@@ -405,6 +416,7 @@ export async function resetPassword(
 /**
  * Verify OTP code
  * POST /api/auth/verify-otp
+ * ✅ SECURITY: Updated to use HttpOnly cookies
  */
 export async function verifyOTP(req: Request, res: Response): Promise<void> {
   try {
@@ -427,10 +439,19 @@ export async function verifyOTP(req: Request, res: Response): Promise<void> {
     // Verify OTP
     const { user, token } = await authService.verifyOTP(email, otp);
 
+    // ✅ SECURITY: Set token as HttpOnly cookie
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/',
+    });
+
     res.status(200).json({
       message: 'Email verified successfully',
       user,
-      token,
+      // ❌ REMOVED: token field
     });
   } catch (error: any) {
     logger.error('Verify OTP error', { error: error.message });
@@ -759,6 +780,7 @@ export async function resetWalkthrough(
  * OAuth callback handler (Google & Facebook)
  * GET /api/auth/google/callback
  * GET /api/auth/facebook/callback
+ * ✅ SECURITY: Updated to use HttpOnly cookies
  */
 export async function oauthCallback(req: Request, res: Response): Promise<void> {
   try {
@@ -774,10 +796,19 @@ export async function oauthCallback(req: Request, res: Response): Promise<void> 
     // Find or create user
     const { user, token, isNewUser } = await authService.findOrCreateOAuthUser(oauthProfile);
 
-    // Redirect to frontend with token (include locale in path)
+    // ✅ SECURITY: Set token as HttpOnly cookie instead of URL parameter
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', // ✅ Use 'lax' for OAuth redirects (allows cookie in redirect)
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/',
+    });
+
+    // ✅ SECURITY: Redirect without token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const locale = user.preferred_language || 'en';
-    const redirectUrl = `${frontendUrl}/${locale}/oauth-callback?token=${token}&isNewUser=${isNewUser}`;
+    const redirectUrl = `${frontendUrl}/${locale}/oauth-callback?isNewUser=${isNewUser}`;
     
     logger.info('OAuth callback successful', { 
       userId: user.id, 
@@ -791,5 +822,37 @@ export async function oauthCallback(req: Request, res: Response): Promise<void> 
     logger.error('OAuth callback error', { error: error.message });
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     res.redirect(`${frontendUrl}/en/login?error=oauth_failed`);
+  }
+}
+
+
+/**
+ * Logout user
+ * POST /api/auth/logout
+ * ✅ SECURITY: Clear HttpOnly cookie
+ */
+export async function logout(req: Request, res: Response): Promise<void> {
+  try {
+    // Clear the auth token cookie
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    res.status(200).json({
+      message: 'Logout successful',
+      success: true,
+    });
+  } catch (error: any) {
+    logger.error('Logout error', { error: error.message });
+    res.status(500).json({
+      error: {
+        code: 'LOGOUT_FAILED',
+        message: 'Failed to logout',
+        timestamp: new Date().toISOString(),
+      },
+    });
   }
 }

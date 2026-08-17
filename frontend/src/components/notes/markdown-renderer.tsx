@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import MarkdownIt from 'markdown-it';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface MarkdownRendererProps {
   content: string;
@@ -16,17 +17,36 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     // Initialize markdown parser with table support
     if (!mdParser.current) {
       mdParser.current = new MarkdownIt({
-        html: true,
+        html: false, // ✅ SECURITY: Disable raw HTML parsing
         linkify: true,
         typographer: true,
         breaks: true, // Convert \n to <br>
       });
     }
 
-    // Render markdown to HTML
+    // Render markdown to HTML and sanitize
     if (mdParser.current && content) {
       const rendered = mdParser.current.render(content);
-      setHtml(rendered);
+      
+      // ✅ SECURITY: Sanitize HTML to prevent XSS attacks
+      const sanitized = DOMPurify.sanitize(rendered, {
+        ALLOWED_TAGS: [
+          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
+          'p', 'br', 'strong', 'em', 'u', 's', 'del', 'ins',
+          'code', 'pre', 'blockquote', 
+          'ul', 'ol', 'li', 
+          'a', 
+          'table', 'thead', 'tbody', 'tr', 'th', 'td',
+          'hr', 'div', 'span'
+        ],
+        ALLOWED_ATTR: ['href', 'title', 'class', 'target', 'rel'],
+        ALLOW_DATA_ATTR: false,
+        ALLOW_UNKNOWN_PROTOCOLS: false,
+        // Automatically add rel="noopener noreferrer" to external links
+        SAFE_FOR_TEMPLATES: true,
+      });
+      
+      setHtml(sanitized);
     }
   }, [content]);
 

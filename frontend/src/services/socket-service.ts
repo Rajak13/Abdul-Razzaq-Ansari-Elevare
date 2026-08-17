@@ -2,9 +2,9 @@ import { io, Socket } from 'socket.io-client';
 
 class SocketService {
   private socket: Socket | null = null;
-  private token: string | null = null;
 
-  connect(token: string) {
+  // ✅ SECURITY: Removed token parameter - cookies sent automatically
+  connect() {
     // If we already have a socket and it's connecting/connected, return it
     if (this.socket) {
       if (this.socket.connected || this.socket.active) {
@@ -13,17 +13,13 @@ class SocketService {
       // If it exists but is disconnected/inactive, we'll create a new one below
     }
 
-    this.token = token;
-
     // Use polling-only in production (Render free tier drops WebSocket connections)
     const transports = process.env.NODE_ENV === 'production'
       ? ['polling']
       : ['websocket', 'polling'];
 
     this.socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
-      auth: {
-        token: token
-      },
+      withCredentials: true, // ✅ SECURITY: Send cookies with socket connection
       transports,
       reconnection: true,
       reconnectionAttempts: 5,

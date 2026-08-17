@@ -182,18 +182,71 @@ export class SocketService {
       });
 
       // Handle typing indicators
-      socket.on('typing_start', (groupId: string) => {
-        socket.to(`group:${groupId}`).emit('user_typing', {
-          userId: socket.userId,
-          user: socket.user
-        });
+      // ✅ SECURITY: Added group membership verification before broadcasting typing indicators
+      socket.on('typing_start', async (groupId: string) => {
+        try {
+          if (!groupId) {
+            return; // Silently ignore invalid requests
+          }
+
+          // ✅ SECURITY: Verify user is a member of the group
+          const memberCheck = await query(
+            'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2 AND status = $3',
+            [groupId, socket.userId, 'active']
+          );
+
+          if (memberCheck.rows.length === 0) {
+            // User is not a member, don't broadcast typing indicator
+            logger.warn('Unauthorized typing indicator attempt', {
+              userId: socket.userId,
+              groupId,
+              event: 'typing_start'
+            });
+            return;
+          }
+
+          // User is verified member, broadcast typing indicator
+          socket.to(`group:${groupId}`).emit('user_typing', {
+            userId: socket.userId,
+            user: socket.user,
+            groupId
+          });
+        } catch (error) {
+          logger.error('Error in typing_start event', { error, userId: socket.userId, groupId });
+        }
       });
 
-      socket.on('typing_stop', (groupId: string) => {
-        socket.to(`group:${groupId}`).emit('user_stopped_typing', {
-          userId: socket.userId,
-          user: socket.user
-        });
+      socket.on('typing_stop', async (groupId: string) => {
+        try {
+          if (!groupId) {
+            return; // Silently ignore invalid requests
+          }
+
+          // ✅ SECURITY: Verify user is a member of the group
+          const memberCheck = await query(
+            'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2 AND status = $3',
+            [groupId, socket.userId, 'active']
+          );
+
+          if (memberCheck.rows.length === 0) {
+            // User is not a member, don't broadcast typing indicator
+            logger.warn('Unauthorized typing indicator attempt', {
+              userId: socket.userId,
+              groupId,
+              event: 'typing_stop'
+            });
+            return;
+          }
+
+          // User is verified member, broadcast typing stop
+          socket.to(`group:${groupId}`).emit('user_stopped_typing', {
+            userId: socket.userId,
+            user: socket.user,
+            groupId
+          });
+        } catch (error) {
+          logger.error('Error in typing_stop event', { error, userId: socket.userId, groupId });
+        }
       });
 
       // Whiteboard events
@@ -430,21 +483,55 @@ export class SocketService {
       });
 
       // WebRTC Video Call Signaling Events
+      // ✅ SECURITY: Enhanced with mandatory group membership verification
       socket.on('join_call', async (data: { callId: string; groupId?: string }) => {
         try {
           const { callId, groupId } = data;
           
-          // If it's a group call, verify user is a member
-          if (groupId) {
-            const memberCheck = await query(
-              'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2',
-              [groupId, socket.userId]
-            );
+          // ✅ SECURITY: Require groupId for all calls
+          if (!groupId) {
+            socket.emit('error', { 
+              message: 'Group ID is required to join a call',
+              code: 'MISSING_GROUP_ID'
+            });
+            logger.warn('Call join attempt without groupId', { userId: socket.userId, callId });
+            return;
+          }
 
-            if (!memberCheck.rows[0]) {
-              socket.emit('error', { message: 'Not authorized to join this call' });
-              return;
-            }
+          // ✅ SECURITY: Verify user is an active member of the group
+          const memberCheck = await query(
+            'SELECT id, role FROM group_members WHERE group_id = $1 AND user_id = $2 AND status = $3',
+            [groupId, socket.userId, 'active']
+          );
+
+          if (!memberCheck.rows[0]) {
+            socket.emit('error', { 
+              message: 'Not authorized to join this call. You must be a member of the group.',
+              code: 'NOT_GROUP_MEMBER'
+            });
+            logger.warn('Unauthorized call join attempt', { 
+              userId: socket.userId, 
+              callId, 
+              groupId,
+              reason: 'Not a group member'
+            });
+            return;
+          }
+
+          // ✅ SECURITY: Validate callId format matches groupId
+          const expectedCallId = `group-${groupId}-call`;
+          if (callId !== expectedCallId) {
+            socket.emit('error', { 
+              message: 'Invalid call ID format',
+              code: 'INVALID_CALL_ID'
+            });
+            logger.warn('Call ID mismatch', { 
+              userId: socket.userId, 
+              callId, 
+              groupId,
+              expectedCallId
+            });
+            return;
           }
 
           // Check if this is the first person joining (call starter)

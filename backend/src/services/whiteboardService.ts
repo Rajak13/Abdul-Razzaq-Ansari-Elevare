@@ -9,6 +9,7 @@ import logger from '../utils/logger';
 
 /**
  * Create a new whiteboard
+ * ✅ SECURITY: Added group membership verification when group_id is provided
  */
 export async function createWhiteboard(
   userId: string,
@@ -16,6 +17,29 @@ export async function createWhiteboard(
 ): Promise<Whiteboard> {
   try {
     const { name, group_id } = whiteboardData;
+
+    // ✅ SECURITY: If group_id is provided, verify user is a member of the group
+    if (group_id) {
+      const memberCheck = await query(
+        'SELECT id, role FROM group_members WHERE group_id = $1 AND user_id = $2 AND status = $3',
+        [group_id, userId, 'active']
+      );
+
+      if (memberCheck.rows.length === 0) {
+        logger.warn('Unauthorized whiteboard creation attempt', {
+          userId,
+          groupId: group_id,
+          reason: 'Not a group member'
+        });
+        throw new Error('You must be a member of the group to create a whiteboard for it');
+      }
+
+      logger.info('Group membership verified for whiteboard creation', {
+        userId,
+        groupId: group_id,
+        role: memberCheck.rows[0].role
+      });
+    }
 
     // Initialize empty canvas data
     const emptyCanvasData = {
@@ -31,7 +55,11 @@ export async function createWhiteboard(
       [userId, name, group_id || null, JSON.stringify(emptyCanvasData)]
     );
 
-    logger.info('Whiteboard created', { whiteboardId: result.rows[0].id, userId });
+    logger.info('Whiteboard created', { 
+      whiteboardId: result.rows[0].id, 
+      userId,
+      groupId: group_id || 'personal'
+    });
     return result.rows[0];
   } catch (error) {
     logger.error('Error creating whiteboard', { error, userId, whiteboardData });

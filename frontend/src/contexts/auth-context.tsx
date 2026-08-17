@@ -28,43 +28,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
-    token: null,
+    token: null, // ❌ No longer used (kept for type compatibility)
     isAuthenticated: false,
     isLoading: true,
   });
   const router = useRouter();
   const locale = useLocale();
 
-  // Initialize auth state from localStorage
+  // Initialize auth state - verify session via API call
+  // ✅ SECURITY: No localStorage checks - cookies are sent automatically
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('auth_token');
-      
-      if (token) {
-        try {
-          // Verify token and get user data
-          const response = await apiClient.get<{ user: User }>('/auth/me');
-          setState({
-            user: response.data.user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-          
-          // Initialize socket connection
-          socketService.connect(token);
-        } catch (error) {
-          // Token invalid or expired
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
-          setState({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-        }
-      } else {
+      try {
+        // ✅ SECURITY: Cookie is sent automatically with this request
+        const response = await apiClient.get<{ user: User }>('/auth/me');
+        setState({
+          user: response.data.user,
+          token: null, // ❌ No token in state
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        
+        // Initialize socket connection (cookie sent automatically)
+        socketService.connect();
+      } catch (error) {
+        // Not authenticated or session expired
         setState({
           user: null,
           token: null,
@@ -80,21 +68,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-      const { user, token } = response.data;
-
-      // Store token
-      localStorage.setItem('auth_token', token);
+      const { user } = response.data; // ✅ SECURITY: No token in response (it's in HttpOnly cookie)
 
       // Update state
       setState({
         user,
-        token,
+        token: null, // ❌ No token
         isAuthenticated: true,
         isLoading: false,
       });
 
-      // Initialize socket connection
-      socketService.connect(token);
+      // Initialize socket connection (cookie sent automatically)
+      socketService.connect();
 
       // Set language preference cookie if user has one
       if (user.preferred_language) {
@@ -124,20 +109,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Disconnect socket
     socketService.disconnect();
     
-    // Clear tokens
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
+    // ✅ SECURITY: Call logout endpoint to clear HttpOnly cookie
+    apiClient.post('/auth/logout').finally(() => {
+      // Clear state
+      setState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
 
-    // Clear state
-    setState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
+      // Redirect to home
+      router.push('/');
     });
-
-    // Redirect to home
-    router.push('/');
   };
 
   const updateProfile = async (data: ProfileUpdateData) => {

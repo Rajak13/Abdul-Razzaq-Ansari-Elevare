@@ -12,9 +12,8 @@ function OAuthCallbackContent() {
 
   useEffect(() => {
     const processOAuthCallback = async () => {
-      const token = searchParams.get('token');
+      // ✅ SECURITY: No token in URL anymore - it's in HttpOnly cookie
       const isNewUser = searchParams.get('isNewUser') === 'true';
-      const locale = searchParams.get('locale') || 'en';
       const error = searchParams.get('error');
 
       if (error) {
@@ -23,31 +22,21 @@ function OAuthCallbackContent() {
         return;
       }
 
-      if (token) {
-        try {
-          // Store token
-          localStorage.setItem('auth_token', token);
-          
-          // Initialize socket connection
-          socketService.connect(token);
-          
-          // Show success message
-          if (isNewUser) {
-            toast.success('Welcome! Your account has been created.');
-          } else {
-            toast.success('Welcome back!');
-          }
-          
-          // Use window.location for full page reload to ensure auth context initializes
-          // Include locale prefix in the URL
-          window.location.href = `/${locale}/dashboard`;
-        } catch (error) {
-          console.error('OAuth callback error:', error);
-          toast.error('Authentication failed. Please try again.');
-          localStorage.removeItem('auth_token');
-          router.push('/login');
+      try {
+        // ✅ SECURITY: Cookie is already set by backend, just initialize socket
+        socketService.connect();
+        
+        // Show success message
+        if (isNewUser) {
+          toast.success('Welcome! Your account has been created.');
+        } else {
+          toast.success('Welcome back!');
         }
-      } else {
+        
+        // Redirect to dashboard (auth context will pick up session from cookie)
+        router.push('/dashboard');
+      } catch (error) {
+        console.error('OAuth callback error:', error);
         toast.error('Authentication failed. Please try again.');
         router.push('/login');
       }
