@@ -16,4 +16,5 @@ export default {
   maintenance: require('./maintenance.json'),
   reports: require('./reports.json'),
   walkthrough: require('./walkthrough.json'),
+  legal: require('./legal.json'),
 };

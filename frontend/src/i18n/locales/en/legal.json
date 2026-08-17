@@ -1,0 +1,40 @@
+{
+  "shell": {
+    "documentation": "Legal & Compliance Documentation",
+    "lastUpdated": "Last Updated",
+    "appliesGlobally": "Applies to all Elevare users globally",
+    "directory": "Document Directory",
+    "questions": "Questions about our policies?",
+    "contactTeam": "Contact our compliance team anytime.",
+    "backToHome": "Back to Home",
+    "logIn": "Log In",
+    "signUp": "Sign Up"
+  },
+  "nav": {
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "dmca": "DMCA Policy",
+    "academicIntegrity": "Academic Integrity"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "subtitle": "Please read these Terms carefully before accessing or using the Elevare collaborative learning platform."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "Learn how Elevare collects, protects, uses, and respects your personal information."
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "subtitle": "Understand how Elevare uses cookies and local session storage to secure and deliver services."
+  },
+  "dmca": {
+    "title": "DMCA & Copyright Policy",
+    "subtitle": "How Elevare handles copyright infringement notices and protects intellectual property rights."
+  },
+  "academicIntegrity": {
+    "title": "Academic Integrity & AI Policy",
+    "subtitle": "Guidelines on ethical study collaboration, honor codes, and the use of AI tools on Elevare."
+  }
+}

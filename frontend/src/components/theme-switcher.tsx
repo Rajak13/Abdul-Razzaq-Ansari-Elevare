@@ -1,46 +1,48 @@
 'use client';
 
 import { useTheme } from './theme-provider';
-import { useTranslations } from 'next-intl';
+import { Sun, Palette, Moon } from 'lucide-react';
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
-  const t = useTranslations('common');
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1">
+    <div className="flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-1 shadow-sm">
       <button
         onClick={() => setTheme('light')}
-        className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`p-1.5 rounded-full transition-colors ${
           theme === 'light'
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:text-foreground'
+            ? 'bg-primary text-white shadow-sm'
+            : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
         }`}
-        aria-label={t('theme.light')}
+        title="Light Theme"
+        aria-label="Light Theme"
       >
-        {t('theme.light')}
+        <Sun className="w-4 h-4" />
       </button>
       <button
         onClick={() => setTheme('light2')}
-        className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`p-1.5 rounded-full transition-colors ${
           theme === 'light2'
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:text-foreground'
+            ? 'bg-primary text-white shadow-sm'
+            : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
         }`}
-        aria-label={t('theme.light2')}
+        title="Light 2 Theme"
+        aria-label="Light 2 Theme"
       >
-        {t('theme.light2')}
+        <Palette className="w-4 h-4" />
       </button>
       <button
         onClick={() => setTheme('dark')}
-        className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`p-1.5 rounded-full transition-colors ${
           theme === 'dark'
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:text-foreground'
+            ? 'bg-primary text-white shadow-sm'
+            : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
         }`}
-        aria-label={t('theme.dark')}
+        title="Dark Theme"
+        aria-label="Dark Theme"
       >
-        {t('theme.dark')}
+        <Moon className="w-4 h-4" />
       </button>
     </div>
   );

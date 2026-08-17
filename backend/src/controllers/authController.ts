@@ -107,11 +107,11 @@ export async function login(req: Request, res: Response): Promise<void> {
     // Login user
     const { user, token } = await authService.login({ email, password });
 
-    // ✅ SECURITY: Set token as HttpOnly cookie instead of sending in response body
+    // ✅ SECURITY: Set token as HttpOnly cookie (sameSite: 'none' in production for cross-domain auth between Vercel & Render)
     res.cookie('auth_token', token, {
-      httpOnly: true,  // ✅ Not accessible via JavaScript (prevents XSS token theft)
-      secure: process.env.NODE_ENV === 'production', // ✅ HTTPS only in production
-      sameSite: 'strict', // ✅ CSRF protection
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: '/',
     });
@@ -443,7 +443,7 @@ export async function verifyOTP(req: Request, res: Response): Promise<void> {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: '/',
     });
@@ -796,11 +796,11 @@ export async function oauthCallback(req: Request, res: Response): Promise<void> 
     // Find or create user
     const { user, token, isNewUser } = await authService.findOrCreateOAuthUser(oauthProfile);
 
-    // ✅ SECURITY: Set token as HttpOnly cookie instead of URL parameter
+    // ✅ SECURITY: Set token as HttpOnly cookie (sameSite: 'none' in production)
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // ✅ Use 'lax' for OAuth redirects (allows cookie in redirect)
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: '/',
     });
@@ -837,7 +837,7 @@ export async function logout( res: Response): Promise<void> {
     res.clearCookie('auth_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
     });
 

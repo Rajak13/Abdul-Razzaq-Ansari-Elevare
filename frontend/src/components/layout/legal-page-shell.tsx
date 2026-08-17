@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -14,14 +15,6 @@ interface LegalPageShellProps {
   children: React.ReactNode;
 }
 
-const legalNav = [
-  { name: 'Terms of Service', href: '/terms', icon: FileText, badge: 'Required' },
-  { name: 'Privacy Policy', href: '/privacy', icon: Shield, badge: 'GDPR / COPPA' },
-  { name: 'Cookie Policy', href: '/cookies', icon: Cookie },
-  { name: 'DMCA Policy', href: '/dmca', icon: Copyright },
-  { name: 'Academic Integrity', href: '/academic-integrity', icon: BookOpen },
-];
-
 export function LegalPageShell({
   title,
   subtitle,
@@ -29,6 +22,15 @@ export function LegalPageShell({
   children,
 }: LegalPageShellProps) {
   const pathname = usePathname();
+  const t = useTranslations('legal');
+
+  const legalNav = [
+    { name: t('nav.terms'), href: '/terms', icon: FileText },
+    { name: t('nav.privacy'), href: '/privacy', icon: Shield },
+    { name: t('nav.cookies'), href: '/cookies', icon: Cookie },
+    { name: t('nav.dmca'), href: '/dmca', icon: Copyright },
+    { name: t('nav.academicIntegrity'), href: '/academicIntegrity', icon: BookOpen },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[hsl(0,0%,7%)] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-primary/20 selection:text-primary">
@@ -50,30 +52,30 @@ export function LegalPageShell({
               className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              {t('shell.backToHome')}
             </Link>
             <Link
               href="/login"
               className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm font-semibold rounded-full transition-all"
             >
-              Log In
+              {t('shell.logIn')}
             </Link>
             <Link
               href="/register"
               className="px-4 py-2 bg-primary hover:bg-primary/90 text-white text-xs sm:text-sm font-semibold rounded-full shadow-md transition-all"
             >
-              Sign Up
+              {t('shell.signUp')}
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border-b border-slate-200/60 dark:border-slate-800/60 py-10 sm:py-14">
+      {/* Hero Banner (Solid clean background, no gradient) */}
+      <div className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-10 sm:py-14">
         <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
           <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider mb-2">
             <Shield className="w-4 h-4" />
-            <span>Legal & Compliance Documentation</span>
+            <span>{t('shell.documentation')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">
             {title}
@@ -82,9 +84,9 @@ export function LegalPageShell({
             {subtitle}
           </p>
           <div className="mt-4 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-            <span>Last Updated: <strong className="text-slate-700 dark:text-slate-200">{lastUpdated}</strong></span>
+            <span>{t('shell.lastUpdated')}: <strong className="text-slate-700 dark:text-slate-200">{lastUpdated}</strong></span>
             <span>•</span>
-            <span>Applies to all Elevare users globally</span>
+            <span>{t('shell.appliesGlobally')}</span>
           </div>
         </div>
       </div>
@@ -108,11 +110,6 @@ export function LegalPageShell({
                 >
                   <Icon className="w-4 h-4" />
                   <span>{item.name}</span>
-                  {item.badge && !isActive && (
-                    <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary dark:bg-primary/20">
-                      {item.badge}
-                    </span>
-                  )}
                 </Link>
               );
             })}
@@ -127,7 +124,7 @@ export function LegalPageShell({
           <aside className="hidden lg:block lg:col-span-1 space-y-6">
             <div className="sticky top-[130px] p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
               <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">
-                Document Directory
+                {t('shell.directory')}
               </h3>
               <nav className="space-y-1.5">
                 {legalNav.map((item) => {
@@ -155,8 +152,8 @@ export function LegalPageShell({
 
               <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                  <p className="font-semibold text-slate-900 dark:text-white mb-1">Questions about our policies?</p>
-                  <p className="text-slate-500 dark:text-slate-400 mb-2">Contact our compliance team anytime.</p>
+                  <p className="font-semibold text-slate-900 dark:text-white mb-1">{t('shell.questions')}</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-2">{t('shell.contactTeam')}</p>
                   <a
                     href="mailto:nantio.official@gmail.com"
                     className="text-primary font-semibold hover:underline"
@@ -190,15 +187,15 @@ export function LegalPageShell({
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">{t('nav.terms')}</Link>
               <span>•</span>
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">{t('nav.privacy')}</Link>
               <span>•</span>
-              <Link href="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link>
+              <Link href="/cookies" className="hover:text-primary transition-colors">{t('nav.cookies')}</Link>
               <span>•</span>
-              <Link href="/dmca" className="hover:text-primary transition-colors">DMCA Notice</Link>
+              <Link href="/dmca" className="hover:text-primary transition-colors">{t('nav.dmca')}</Link>
               <span>•</span>
-              <Link href="/academic-integrity" className="hover:text-primary transition-colors">Academic Integrity</Link>
+              <Link href="/academic-integrity" className="hover:text-primary transition-colors">{t('nav.academicIntegrity')}</Link>
             </div>
 
             <div className="flex flex-col items-center md:items-end gap-1 text-xs text-slate-400 dark:text-slate-500">
