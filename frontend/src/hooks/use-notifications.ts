@@ -113,7 +113,7 @@ export function useNotifications() {
 
     // Connect to socket if not already connected
     if (!socketService.isConnected()) {
-      socketService.connect(token);
+      socketService.connect();
     }
 
     // Use a stable function reference so we never register duplicate listeners

@@ -831,7 +831,7 @@ export async function oauthCallback(req: Request, res: Response): Promise<void> 
  * POST /api/auth/logout
  * ✅ SECURITY: Clear HttpOnly cookie
  */
-export async function logout(req: Request, res: Response): Promise<void> {
+export async function logout( res: Response): Promise<void> {
   try {
     // Clear the auth token cookie
     res.clearCookie('auth_token', {

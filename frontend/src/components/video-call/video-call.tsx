@@ -80,7 +80,7 @@ export function VideoCall({ callId, groupId, onLeave, isFloating }: VideoCallPro
       if (!isConnected) {
         hasJoinedCallRef.current = false;
         if (token) {
-          socketService.connect(token);
+          socketService.connect();
         }
       }
     };
