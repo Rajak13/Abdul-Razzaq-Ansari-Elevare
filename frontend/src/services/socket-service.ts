@@ -13,7 +13,8 @@ class SocketService {
       // If it exists but is disconnected/inactive, we'll create a new one below
     }
 
-    this.socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
+    const socketUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001');
+    this.socket = io(socketUrl, {
       withCredentials: true, // ✅ SECURITY: Send cookies with socket connection
       transports: ['websocket', 'polling'],
       reconnection: true,

@@ -4,5 +4,15 @@
     "app/**/*": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://abdul-razzaq-ansari-elevare.onrender.com/api/:path*"
+    },
+    {
+      "source": "/socket.io/:path*",
+      "destination": "https://abdul-razzaq-ansari-elevare.onrender.com/socket.io/:path*"
+    }
+  ]
 }

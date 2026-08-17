@@ -1,11 +1,18 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+// Get base API URL (use relative /api in client environment for same-origin Vercel rewrites & 1st-party cookies)
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return '/api';
+  }
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+  return `${backendUrl.replace(/\/$/, '')}/api`;
+};
 
 // Create axios instance
 // ✅ SECURITY: Enable credentials to send HttpOnly cookies
 const apiClient: AxiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

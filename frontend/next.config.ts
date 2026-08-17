@@ -100,6 +100,19 @@ const nextConfig: NextConfig = {
   // Optimize production builds
   poweredByHeader: false,
   compress: true,
+  async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://abdul-razzaq-ansari-elevare.onrender.com';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl.replace(/\/$/, '')}/api/:path*`,
+      },
+      {
+        source: '/socket.io/:path*',
+        destination: `${backendUrl.replace(/\/$/, '')}/socket.io/:path*`,
+      },
+    ];
+  },
 };
 
 module.exports = withNextIntl(nextConfig);
