@@ -23,10 +23,17 @@ export function MaintenanceNotification() {
       return;
     }
 
-    // Connect to socket for maintenance events (no auth required for these events)
+    // Skip socket connection on public unauthenticated pages to prevent background polling spam
+    const publicPages = ['/login', '/register', '/terms', '/privacy', '/cookies', '/dmca', '/academic-integrity', '/maintenance'];
+    const isPublicPage = pathname === '/' || publicPages.some((page) => pathname.endsWith(page));
+    if (isPublicPage) {
+      return;
+    }
+
+    // Connect to socket for maintenance events (prefer WebSockets)
     const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001', {
       withCredentials: true,
-      transports: process.env.NODE_ENV === 'production' ? ['polling'] : ['websocket', 'polling'],
+      transports: ['websocket', 'polling'],
     });
 
     setSocket(newSocket);

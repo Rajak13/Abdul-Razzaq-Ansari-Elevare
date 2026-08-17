@@ -116,11 +116,10 @@ export async function login(req: Request, res: Response): Promise<void> {
       path: '/',
     });
 
-    // ✅ SECURITY: Don't send token in response body
+    // ✅ SECURITY: HttpOnly cookies only (no token in response body)
     res.status(200).json({
       message: 'Login successful',
       user,
-      // ❌ REMOVED: token field
     });
   } catch (error: any) {
     logger.error('Login error', { error: error.message });
@@ -451,7 +450,6 @@ export async function verifyOTP(req: Request, res: Response): Promise<void> {
     res.status(200).json({
       message: 'Email verified successfully',
       user,
-      // ❌ REMOVED: token field
     });
   } catch (error: any) {
     logger.error('Verify OTP error', { error: error.message });

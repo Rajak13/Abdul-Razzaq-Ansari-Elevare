@@ -35,21 +35,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const locale = useLocale();
 
-  // Initialize auth state - verify session via API call
-  // ✅ SECURITY: No localStorage checks - cookies are sent automatically
+  // Initialize auth state - verify session via HttpOnly cookies
   useEffect(() => {
     const initAuth = async () => {
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      const publicPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp', '/terms', '/privacy', '/cookies', '/dmca', '/academic-integrity'];
+      const isPublicPage = pathname === '/' || publicPages.some((p) => pathname.endsWith(p));
+
       try {
-        // ✅ SECURITY: Cookie is sent automatically with this request
+        // ✅ SECURITY: HttpOnly Cookie is sent automatically with this request
         const response = await apiClient.get<{ user: User }>('/auth/me');
         setState({
           user: response.data.user,
-          token: null, // ❌ No token in state
+          token: null,
           isAuthenticated: true,
           isLoading: false,
         });
-        
-        // Initialize socket connection (cookie sent automatically)
+
+        // Initialize socket connection for authenticated user
         socketService.connect();
       } catch (error) {
         // Not authenticated or session expired
@@ -68,26 +71,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-      const { user } = response.data; // ✅ SECURITY: No token in response (it's in HttpOnly cookie)
+      const { user } = response.data;
 
-      // Update state
+      // Update state for authenticated user
       setState({
         user,
-        token: null, // ❌ No token
+        token: null,
         isAuthenticated: true,
         isLoading: false,
       });
 
-      // Initialize socket connection (cookie sent automatically)
+      // Initialize socket connection
       socketService.connect();
 
       // Set language preference cookie if user has one
       if (user.preferred_language) {
         document.cookie = `NEXT_LOCALE=${user.preferred_language};path=/;max-age=31536000`;
-        // Redirect to dashboard with user's preferred locale
         router.replace('/dashboard', { locale: user.preferred_language });
       } else {
-        // Redirect to dashboard with current locale
         router.push('/dashboard');
       }
     } catch (error) {
@@ -98,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: RegisterData) => {
     try {
       await apiClient.post('/auth/register', data);
-      // Registration successful - redirect to login
       router.push('/login?registered=true');
     } catch (error) {
       throw error;
@@ -106,12 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Disconnect socket
     socketService.disconnect();
-    
-    // ✅ SECURITY: Call logout endpoint to clear HttpOnly cookie
+
     apiClient.post('/auth/logout').finally(() => {
-      // Clear state
       setState({
         user: null,
         token: null,
@@ -119,7 +116,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
       });
 
-      // Redirect to home
       router.push('/');
     });
   };
