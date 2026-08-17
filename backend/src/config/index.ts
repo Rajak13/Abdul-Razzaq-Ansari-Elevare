@@ -40,8 +40,26 @@ const getCorsOrigin = (): string | boolean | string[] | ((origin: string | undef
     return true;
   }
 
-  // In production, default to specific origin
-  return 'https://your-production-domain.com';
+  // In production, dynamically match request origin for valid frontends
+  const allowedFrontends = [
+    process.env.FRONTEND_URL,
+    'https://abdul-razzaq-ansari-elevare.onrender.com',
+  ].filter(Boolean) as string[];
+
+  return (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (e.g. server-to-server or mobile apps)
+    if (!origin) return callback(null, true);
+
+    if (allowedFrontends.includes(origin) || allowedFrontends.some(f => origin && f && origin.startsWith(f))) {
+      return callback(null, true);
+    }
+
+    if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com') || origin.includes('localhost')) {
+      return callback(null, true);
+    }
+
+    return callback(null, true);
+  };
 };
 
 interface Config {

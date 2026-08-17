@@ -36,6 +36,32 @@ apiClient.interceptors.response.use(
 // ❌ REMOVED: Request interceptor that added Authorization header from localStorage
 // Tokens are now sent automatically as HttpOnly cookies
 
+function isPublicPage(pathname: string): boolean {
+  if (!pathname) return true;
+  const cleanPath = pathname.replace(/\/$/, '');
+  const segments = cleanPath.split('/').filter(Boolean);
+  if (segments.length === 0) return true; // root '/'
+
+  // Remove locale prefix if present (e.g., /en, /fr)
+  const pathWithoutLocale = (segments.length > 0 && segments[0].length === 2 && !['api', 'admin'].includes(segments[0]))
+    ? '/' + segments.slice(1).join('/')
+    : cleanPath;
+
+  if (!pathWithoutLocale || pathWithoutLocale === '') return true;
+
+  const publicRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-otp',
+    '/oauth-callback',
+    '/maintenance',
+  ];
+
+  return publicRoutes.some(route => pathWithoutLocale === route || pathWithoutLocale.startsWith('/shared') || pathWithoutLocale.startsWith('/maintenance'));
+}
+
 // Response interceptor - Handle errors
 apiClient.interceptors.response.use(
   (response) => response,
@@ -59,10 +85,21 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // ✅ SECURITY: Cookies are handled by the browser, just redirect to login
-      // No need to manually refresh tokens - backend manages cookie lifecycle
-      const locale = window.location.pathname.split('/')[1] || 'en';
-      window.location.href = `/${locale}/login`;
+      const requestUrl = originalRequest.url || '';
+      const isAuthCheck = requestUrl.includes('/auth/me') ||
+                          requestUrl.includes('/auth/login') ||
+                          requestUrl.includes('/auth/register') ||
+                          requestUrl.includes('/auth/logout') ||
+                          requestUrl.includes('/auth/refresh');
+
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isPublic = isPublicPage(pathname);
+
+      // Only redirect to login if NOT an auth status check, NOT on a public page, and NOT already on login
+      if (!isAuthCheck && !isPublic && !pathname.includes('/login')) {
+        const locale = pathname.split('/')[1] || 'en';
+        window.location.href = `/${locale}/login`;
+      }
       return Promise.reject(error);
     }
 

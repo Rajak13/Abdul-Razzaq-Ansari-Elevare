@@ -41,15 +41,25 @@ export class SocketService {
     // Authentication middleware
     this.io.use(async (socket: any, next) => {
       try {
-        const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
-        
+        let token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace('Bearer ', '');
+
+        if (!token && socket.handshake.headers?.cookie) {
+          const cookieHeader = socket.handshake.headers.cookie;
+          const match = cookieHeader.match(/(?:^|;\s*)auth_token=([^;]*)/);
+          if (match) {
+            token = decodeURIComponent(match[1]);
+          }
+        }
+
         if (!token) {
-          return next(new Error('Authentication token required'));
+          socket.userId = null;
+          socket.user = null;
+          return next();
         }
 
         // Verify JWT token
         const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
-        
+
         // Get user details from database
         const userResult = await query(
           'SELECT id, name, email, preferred_language FROM users WHERE id = $1',
@@ -57,18 +67,22 @@ export class SocketService {
         );
 
         if (!userResult.rows[0]) {
-          return next(new Error('User not found'));
+          socket.userId = null;
+          socket.user = null;
+          return next();
         }
 
         socket.userId = decoded.userId;
         socket.user = userResult.rows[0];
         socket.user.locale = userResult.rows[0].preferred_language || 'en';
-        
+
         logger.info('Socket authenticated', { userId: decoded.userId, socketId: socket.id });
         next();
       } catch (error) {
-        logger.error('Socket authentication failed', { error });
-        next(new Error('Authentication failed'));
+        logger.info('Socket authentication check completed as guest', { socketId: socket.id });
+        socket.userId = null;
+        socket.user = null;
+        next();
       }
     });
   }
