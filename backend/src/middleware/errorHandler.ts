@@ -41,6 +41,14 @@ export const errorHandler = (
     details: err.details,
   });
 
+  // Ensure CORS headers are attached even on error responses
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
+  }
+
   // Send error response
   res.status(statusCode).json({
     error: {
