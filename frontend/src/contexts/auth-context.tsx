@@ -199,11 +199,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     try {
       const response = await apiClient.get<{ user: User }>('/auth/me');
-      setState((prev) => ({
-        ...prev,
+      setState({
         user: response.data.user,
-      }));
+        token: null,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      socketService.connect();
     } catch (error) {
+      setState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
       throw error;
     }
   };

@@ -1,0 +1,27 @@
+{
+  "instance_id": "swe_bench_ts_elevare_001",
+  "repo": "elevare/collaborative-learning-platform",
+  "version": "1.0.0",
+  "task_type": "backend_feature_and_bugfix",
+  "problem_statement": "### Issue #412: Implement Sliding-Window Rate Limiter & Audit Logger with SQLite Persistence\n\n**Problem Context:**\nOur sensitive authentication and study-group endpoints currently use an in-memory fixed-window counter. Fixed windows reset abruptly at the window boundary, allowing double-burst traffic (e.g., 100 requests at 0:59 and 100 requests at 1:00, effectively hitting 200 requests within 2 seconds). Additionally, in-memory state is lost on process restarts and provides no persistent security audit trail.\n\n**Requirements:**\n1. Implement a persistent sliding-window rate limiter using SQLite (`rate_limit_events` table) storing `(id, key, timestamp, endpoint, ip)`.\n2. When a client exceeds `maxRequests` within the rolling `windowMs` window, return `429 Too Many Requests`.\n3. Return required standard RFC 6585 rate limit headers:\n   - `X-RateLimit-Limit`: Maximum requests allowed in window.\n   - `X-RateLimit-Remaining`: Remaining request quota in the current window.\n   - `Retry-After`: Estimated wait time in whole seconds until the oldest request expires from the window.\n4. Automatic Pruning: Expired log entries older than 2x `windowMs` must be pruned to avoid database disk bloat.\n5. Resilience: If the database is busy or an error occurs, fail-open gracefully while logging the warning, without crashing the server.\n\n**Files to Modify:**\n- `src/rateLimiter.ts`",
+  "base_commit": "git-hash-base-001",
+  "test_file": "tests/rateLimiter.test.ts",
+  "PASS_TO_PASS": [
+    "allows requests within quota under normal traffic",
+    "includes X-RateLimit-Limit and remaining headers",
+    "allows distinct clients/IPs independently without crosstalk"
+  ],
+  "FAIL_TO_PASS": [
+    "blocks boundary burst attacks using true rolling sliding-window count",
+    "computes accurate Retry-After header in whole seconds",
+    "persists rate limit state across service re-instantiations (SQLite persistence)",
+    "prunes expired records beyond window retention limit"
+  ],
+  "environment": {
+    "runtime": "Node.js v20+",
+    "language": "TypeScript",
+    "database": "SQLite (in-memory or file-backed)",
+    "test_runner": "ts-node test harness",
+    "timeout_ms": 30000
+  }
+}

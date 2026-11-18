@@ -1,0 +1,64 @@
+{
+  "instance_id": "swe_bench_ts_elevare_001",
+  "timestamp": "2026-10-12T03:51:41.690Z",
+  "status": "RESOLVED",
+  "reward": 1,
+  "dense_reward": 1,
+  "total_tests": 7,
+  "passed_tests": 7,
+  "failed_tests": 0,
+  "pass_to_pass_summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  },
+  "fail_to_pass_summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  },
+  "detailed_results": [
+    {
+      "name": "allows requests within quota under normal traffic",
+      "type": "PASS_TO_PASS",
+      "passed": true,
+      "durationMs": 3
+    },
+    {
+      "name": "includes X-RateLimit-Limit and remaining headers",
+      "type": "PASS_TO_PASS",
+      "passed": true,
+      "durationMs": 1
+    },
+    {
+      "name": "allows distinct clients/IPs independently without crosstalk",
+      "type": "PASS_TO_PASS",
+      "passed": true,
+      "durationMs": 0
+    },
+    {
+      "name": "blocks boundary burst attacks using true rolling sliding-window count",
+      "type": "FAIL_TO_PASS",
+      "passed": true,
+      "durationMs": 0
+    },
+    {
+      "name": "computes accurate Retry-After header in whole seconds",
+      "type": "FAIL_TO_PASS",
+      "passed": true,
+      "durationMs": 0
+    },
+    {
+      "name": "persists rate limit state across service re-instantiations (SQLite persistence)",
+      "type": "FAIL_TO_PASS",
+      "passed": true,
+      "durationMs": 3
+    },
+    {
+      "name": "prunes expired records beyond window retention limit",
+      "type": "FAIL_TO_PASS",
+      "passed": true,
+      "durationMs": 1
+    }
+  ]
+}

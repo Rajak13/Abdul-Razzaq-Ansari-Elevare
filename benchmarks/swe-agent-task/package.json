@@ -1,0 +1,9 @@
+{
+  "name": "swe-bench-agent-eval",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "SWE-bench style coding benchmark task and RL evaluation environment for coding agents",
+  "scripts": {
+    "eval": "node --experimental-strip-types evaluator.ts"
+  }
+}

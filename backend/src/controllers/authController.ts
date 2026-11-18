@@ -450,6 +450,7 @@ export async function verifyOTP(req: Request, res: Response): Promise<void> {
     res.status(200).json({
       message: 'Email verified successfully',
       user,
+      token,
     });
   } catch (error: any) {
     logger.error('Verify OTP error', { error: error.message });

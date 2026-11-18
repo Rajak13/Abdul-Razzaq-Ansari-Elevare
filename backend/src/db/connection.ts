@@ -11,11 +11,10 @@ const pool = new Pool({
   password: config.database.password,
   ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
   max: 20, // Maximum number of clients in the pool
-  min: 2, // Minimum number of clients (keep connections warm)
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 10000, // Increased to 10 seconds for cold starts
-  keepAlive: true, // Keep connections alive
-  keepAliveInitialDelayMillis: 10000,
+  min: 0, // Allow pool to drop to 0 connections so Neon serverless compute can sleep when idle
+  idleTimeoutMillis: 10000, // Close idle clients after 10 seconds
+  connectionTimeoutMillis: 15000, // Allow time for Neon to wake up from cold start
+  keepAlive: false, // Do not send keep-alive pings to sleeping database
 });
 
 // Pool error handler

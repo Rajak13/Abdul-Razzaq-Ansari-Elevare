@@ -25,9 +25,10 @@ async function startServer() {
     // Initialize Socket.io
     initializeSocketService(server);
     
-    // Initialize notification scheduler
+    // Initialize notification scheduler (conserve Neon serverless DB compute in production)
     const notificationScheduler = getNotificationScheduler();
-    notificationScheduler.start(15); // Check every 15 minutes
+    const schedulerInterval = config.nodeEnv === 'production' ? 120 : 15;
+    notificationScheduler.start(schedulerInterval);
     
     // Start server
     server.listen(PORT, () => {
